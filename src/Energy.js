@@ -23,7 +23,7 @@ export function updateEnergyOnEvent(monsterLevel) {
 
   
   if (PlayerState.energy < energyCost + energyLoss) {
-    console.log(`You need ${energyCost} Energy to do this!`);
+    console.log(`You need ${energyCost + energyLoss} Energy to do this!`);
     return false; // You can return false here if there isn't enough energy
   }
   

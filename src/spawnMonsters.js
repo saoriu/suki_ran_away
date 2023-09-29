@@ -1,57 +1,117 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from './gameConstants.js';
+import { eventOptions } from './eventOptions.js';
+import { PlayerState } from './playerState'; // Adjust the path as needed
 
+
+
+function calculateSpawnProbability(baseProbability, eventsBonus) {
+  let probability = baseProbability;
+
+  // Modify probability based on items the player has
+  probability += eventsBonus;
+  
+  // Ensure probability is within [0, 1]
+  probability = Phaser.Math.Clamp(probability, 0, 1);
+  
+  return probability;
+}
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters) {
-        const camera = scene.cameras.main;
-        const visibleStartI = Math.floor((centerX - camera.width / 2) / tileWidth);
-        const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);
-        const visibleStartJ = Math.floor((centerY - camera.height / 2) / tileWidth);
-        const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
-      
-        const bufferStartI = visibleStartI - tilesBuffer;
-        const bufferEndI = visibleEndI + tilesBuffer;
-        const bufferStartJ = visibleStartJ - tilesBuffer;
-        const bufferEndJ = visibleEndJ + tilesBuffer;
-      
-        // Check if any monster already exists in the extended area including the buffer, if yes, then return
-        for (let i = bufferStartI; i <= bufferEndI; i++) {
-          for (let j = bufferStartJ; j <= bufferEndJ; j++) {
-            if (monsters[`${i},${j}`]) return;
-          }
-        }
-      
-        // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
-        let spawnTileI, spawnTileJ;
-      
-        // Deciding whether to spawn on the horizontal or vertical buffer area
-        if (Phaser.Math.Between(0, 1) === 0) {
-          // Horizontal buffer area (top or bottom)
-          spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
-          spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ; // top or bottom buffer row
-        } else {
-          // Vertical buffer area (left or right)
-          spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
-          spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI; // left or right buffer column
-        }
-      
-        // 50% chance to spawn a monster in the chosen buffer tile
-        if (Phaser.Math.Between(1, 2) === 1) {
-          const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 17)) / 2;
-          const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 19)) / 2;
-          const monster = scene.add.sprite(monsterX, monsterY, 'monster').setOrigin(0).setScale(GAME_CONFIG.SCALE);
-          const monsterLevel = Phaser.Math.Between(1, 5); // Assign a random level between 1 and 5 to the monster
-          
-          // Add a Text object to the scene at the monster's position, and adjust the y-coordinate to position it above the monster
-          const levelText = scene.add.text(monsterX + (tileWidth / 2), monsterY - 10, `Lvl ${monsterLevel}`, {
-              fontSize: '10px',
-              fill: '#ffffff',
-              align: 'center'
-          }).setOrigin(0.5); // setOrigin(0.5) is used to center the text above the monster.
-          
-          monsters[`${spawnTileI},${spawnTileJ}`] = { sprite: monster, level: monsterLevel, levelText: levelText }; // Store the monster sprite, level and levelText in the monsters object
-          monster.setDepth(1);
-          levelText.setDepth(1); // Ensure the text renders above the monsters and other game objects
-      }
-    }      
+  const camera = scene.cameras.main;
+  const visibleStartI = Math.floor((centerX - camera.width / 2) / tileWidth);
+  const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);
+  const visibleStartJ = Math.floor((centerY - camera.height / 2) / tileWidth);
+  const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
+  const baseProbability = 0.15; // Example: 10% base spawn chance
+  const eventsBonus = PlayerState.eventsBonus;
+  const spawnProbability = calculateSpawnProbability(baseProbability, eventsBonus);
+
+  if (Phaser.Math.FloatBetween(0, 1) < spawnProbability) {
+
+  const bufferStartI = visibleStartI - (tilesBuffer);
+  const bufferEndI = visibleEndI + (tilesBuffer);
+  const bufferStartJ = visibleStartJ - (tilesBuffer);
+  const bufferEndJ = visibleEndJ + (tilesBuffer);
+
+  // Check if any monster already exists in the extended area including the buffer, if yes, then return
+  for (let i = bufferStartI; i <= bufferEndI; i++) {
+    for (let j = bufferStartJ; j <= bufferEndJ; j++) {
+      if (monsters[`${i},${j}`]) return;
+    }
+  }
+
+
+  function chooseMonsterRarity() {
+  const rarities = ['common', 'uncommon', 'rare', 'ultra rare'];
+  const cumulativeProbabilities = [0.55, 0.80, 0.95, 1.00]; // Cumulative probabilities for the rarities
+  const roll = Phaser.Math.FloatBetween(0, 1);
+  
+  for (let i = 0; i < cumulativeProbabilities.length; i++) {
+    if (roll <= cumulativeProbabilities[i]) return rarities[i];
+  }
+}
+
+function chooseMonster(eventOptions, chosenRarity) {
+  const filteredOptions = eventOptions.filter(option => option.monsterChance === chosenRarity);
+  
+  if (filteredOptions.length === 0) return null; // Return null if no monsters match the chosen rarity
+  
+  const index = Phaser.Math.Between(0, filteredOptions.length - 1); 
+  return filteredOptions[index];
+}
+
+
+  
+  
+const chosenRarity = chooseMonsterRarity();
+const chosenMonster = chooseMonster(eventOptions, chosenRarity);
+
+if (!chosenMonster) return; 
     
+
+  // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
+  let spawnTileI, spawnTileJ;
+
+  // Deciding whether to spawn on the horizontal or vertical buffer area
+  if (Phaser.Math.Between(0, 1) === 0) {
+    // Horizontal buffer area (top or bottom)
+    spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+    spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ; // top or bottom buffer row
+  } else {
+    // Vertical buffer area (left or right)
+    spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+    spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI; // left or right buffer column
+  }
+
+    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
+    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
+    const monsterSpriteKey = chosenMonster.monster;
+
+    const monster = scene.add.sprite(monsterX, monsterY, monsterSpriteKey).setOrigin(0).setScale(GAME_CONFIG.SCALE);
+
+    const levelText = scene.add.text(
+      monsterX + (tileWidth / 2),
+      monsterY - 30, // Adjusted to accommodate for two lines of text
+      `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${chosenMonster.level}`, // Changed to chosenmonsterChance.level
+      {
+        fontSize: '20px',
+        fill: '#ffffff',
+        align: 'center'
+      }
+    ).setOrigin(0.5); // center the text above the monster
+
+
+
+
+    monsters[`${spawnTileI},${spawnTileJ}`] = {
+      sprite: monster,
+      level: chosenMonster.level, // Changed to chosenmonsterChance.level
+      levelText: levelText,
+      event: chosenMonster // Store the entire event object here for future reference
+    };
+
+    monster.setDepth(1);
+    levelText.setDepth(1); // Ensure the text renders above the monsters and other game objects
+  }
+}

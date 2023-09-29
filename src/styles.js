@@ -7,7 +7,7 @@ export const gameStyles = {
 };
 // styles.js
 export const textStyles = {
-    playerLevelText: { fontSize: '8px', fill: '#ffffff' },
+    playerLevelText: { fontSize: '20px', fill: '#ffffff' },
     // other text styles go here
   };
   
