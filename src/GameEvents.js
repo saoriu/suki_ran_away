@@ -31,7 +31,7 @@ export class GameEvents {
             return;
         }
 
-        const monsterRoll = Phaser.Math.Between(0, monstersInView[0].level * 100);
+        const monsterRoll = Phaser.Math.Between(0, monstersInView[0].level * 0);
         const playerRoll = Phaser.Math.Between(0, PlayerState.level * 100);
 
         if (playerRoll >= monsterRoll) {
@@ -55,7 +55,7 @@ export class GameEvents {
             const x = monstersInView[0].sprite.x;
             const y = monstersInView[0].sprite.y;
             console.log(itemDropped); // Log out the name of the item
-            this.scene.time.delayedCall(600, () => { // 600 milliseconds or 0.6 seconds
+            this.scene.time.delayedCall(300, () => { // 600 milliseconds or 0.6 seconds
                 const newItem = new Item(this.scene, x, y, itemDropped.toLowerCase(), item);
                 this.scene.items.push(newItem);
             });

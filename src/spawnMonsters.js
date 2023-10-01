@@ -23,7 +23,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);
   const visibleStartJ = Math.floor((centerY - camera.height / 2) / tileWidth);
   const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
-  const baseProbability = 0.15; // Example: 10% base spawn chance
+  const baseProbability = GAME_CONFIG.baseProbability; // Example: 10% base spawn chance
   const eventsBonus = PlayerState.eventsBonus;
   const spawnProbability = calculateSpawnProbability(baseProbability, eventsBonus);
 
@@ -43,7 +43,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
 
   function chooseMonsterRarity() {
-  const rarities = ['common', 'uncommon', 'rare', 'ultra rare'];
+  const rarities = ['common', 'uncommon', 'rare', 'ultrarare'];
   const cumulativeProbabilities = [0.55, 0.80, 0.95, 1.00]; // Cumulative probabilities for the rarities
   const roll = Phaser.Math.FloatBetween(0, 1);
   
@@ -68,6 +68,11 @@ const chosenRarity = chooseMonsterRarity();
 const chosenMonster = chooseMonster(eventOptions, chosenRarity);
 
 if (!chosenMonster) return; 
+
+// ... after choosing the monster
+const levelVariation = Phaser.Math.Between(0, 3);
+const modifiedLevel = chosenMonster.level + levelVariation; // You can also subtract if you want a range of +/- 3.
+
     
 
   // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
@@ -92,26 +97,27 @@ if (!chosenMonster) return;
 
     const levelText = scene.add.text(
       monsterX + (tileWidth / 2),
-      monsterY - 30, // Adjusted to accommodate for two lines of text
-      `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${chosenMonster.level}`, // Changed to chosenmonsterChance.level
+      monsterY - 30,
+      `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${modifiedLevel}`, // Use modifiedLevel here
       {
-        fontSize: '20px',
-        fill: '#ffffff',
-        align: 'center'
+          fontSize: '20px',
+          fill: '#ffffff',
+          align: 'center'
       }
-    ).setOrigin(0.5); // center the text above the monster
+  ).setOrigin(0.5);
+  
 
 
 
 
     monsters[`${spawnTileI},${spawnTileJ}`] = {
       sprite: monster,
-      level: chosenMonster.level, // Changed to chosenmonsterChance.level
+      level: modifiedLevel, // Changed to chosenmonsterChance.level
       levelText: levelText,
       event: chosenMonster // Store the entire event object here for future reference
     };
 
-    monster.setDepth(1);
-    levelText.setDepth(1); // Ensure the text renders above the monsters and other game objects
+    monster.setDepth(3);
+    levelText.setDepth(3); // Ensure the text renders above the monsters and other game objects
   }
 }

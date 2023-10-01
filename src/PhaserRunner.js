@@ -9,5 +9,9 @@ export default function PhaserRunner() {
 
   usePhaserGame(gameRef);
 
-  return <div id="phaser-game" style={{ width: gameStyles.width, height: gameStyles.height }}></div>;
-}
+  return (
+    <div id="frame-container" style={gameStyles.frameContainer}>
+      <div id="phaser-game" style={gameStyles.game}></div>
+    </div>
+  );
+}  
