@@ -1,92 +1,127 @@
 import Phaser from 'phaser';
-import { PlayerState, addXpToSkill, xpRequiredForLevel } from './playerState.js';
-import { updateEnergyOnEvent, calculateEnergyLost } from './Energy'; // Adjust the import path as needed
-import { itemInfo } from './itemInfo.js'; // Adjust the import path as needed
-import { Item } from './Item'; // Ensure the path is correct
-
+import { PlayerState, addXpToSkill } from './playerState.js';
+import { itemInfo } from './itemInfo.js';
+import { Item } from './Item';
+import { GAME_CONFIG } from './gameConstants';
 
 export class GameEvents {
-    constructor(scene) {
+    static currentInstance = null; // This static property holds the current instance
+
+    constructor(scene, cat) {
         this.scene = scene;
         this.isEventRunning = false;
         this.isEventTriggered = false;
+
+        GameEvents.currentInstance = this; // Assign the current instance to the static property
+
+    }
+
+    _emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, monsterRoll) {
+        this.scene.game.events.emit('updateBattleDisplay', {
+            monsterLevel,
+            petEnergy: PlayerState.energy,
+            monsterHealth,
+            playerRoll,
+            monsterRoll
+        });
+        this.scene.game.events.emit('energyChanged');
     }
 
     handleEvent(monsters) {
-
         if (this.isEventRunning || this.isEventTriggered) return;
 
         const monstersInView = Object.entries(monsters)
-            .filter(([_, monsterObj]) =>
-                this.scene.cameras.main.worldView.contains(monsterObj.sprite.x, monsterObj.sprite.y))
+            .filter(([_, monsterObj]) => {
+                const dx = this.scene.cat.x - monsterObj.sprite.x;
+                const dy = this.scene.cat.y - monsterObj.sprite.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const threeTilesAway = 3 * GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
+                return this.scene.cameras.main.worldView.contains(monsterObj.sprite.x, monsterObj.sprite.y) && distance <= threeTilesAway;
+            })
             .map(([key, monsterObj]) => ({ key, ...monsterObj }));
 
         if (monstersInView.length === 0) return;
+
         this.isEventTriggered = true;
+        PlayerState.lastEnergyUpdate = Date.now();
+        this.scene.game.events.emit('startBattle');
 
+        let monsterHealth = monstersInView[0].level * 10;
+        let monsterLevel = monstersInView[0].level;
+        this._emitBattleUpdate(monsterLevel, monsterHealth, 0, 0);
 
-        if (!updateEnergyOnEvent(monstersInView[0].level)) {
-            console.log('Not enough energy!');
-            this.isEventTriggered = false; // Reset the flag as event didn't proceed due to lack of energy
-            return;
-        }
+        let currentStep = Math.random() < 0.5 ? 'playerRoll' : 'monsterRoll';
 
-        const monsterRoll = Phaser.Math.Between(0, monstersInView[0].level * 0);
-        const playerRoll = Phaser.Math.Between(0, PlayerState.level * 100);
+        const eventInterval = setInterval(() => {
+            const monstersInView = Object.entries(monsters)
+                .filter(([_, monsterObj]) => {
+                    return this.scene.cameras.main.worldView.contains(monsterObj.sprite.x, monsterObj.sprite.y);
+                })
+                .map(([key, monsterObj]) => ({ key, ...monsterObj }));
 
-        if (playerRoll >= monsterRoll) {
-            const xpAdded = monstersInView[0].level * 50;
-            addXpToSkill('dancing', xpAdded);
+            if (monstersInView.length === 0) {
+                this.scene.game.events.emit('runAway', true);
+                clearInterval(eventInterval);
+                this.isEventTriggered = false;
+                PlayerState.lastEnergyUpdate = Date.now();
+                return;
+            }
+            if (currentStep === 'playerRoll') {
+                const playerRoll = Phaser.Math.Between(0, PlayerState.level * 10);
+                this._emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, 0);
+                monsterHealth -= playerRoll;
+                if (monsterHealth <= 0) {
+                    this._emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, 0);
+                    addXpToSkill('dancing', monstersInView[0].level * 50);
+                    const randomNum = Math.random();
+                    const itemTier = randomNum <= 0.05 ? 'ultrarare' : randomNum <= 0.25 ? 'rare' : 'common';
+                    const itemDropped = monstersInView[0].event.possibleOutcomes[itemTier][Math.floor(Math.random() * monstersInView[0].event.possibleOutcomes[itemTier].length)];
+                    const item = {
+                        name: itemDropped,
+                        quantity: 1,
+                        effects: itemInfo[itemDropped]
+                    };
 
-            const randomNum = Math.random();
-            const currentMonster = monstersInView[0];
-            let itemTier;
-            if (randomNum <= 0.05) itemTier = 'ultrarare';
-            else if (randomNum <= 0.25) itemTier = 'rare';
-            else itemTier = 'common';
-
-            const itemDropped = currentMonster.event.possibleOutcomes[itemTier][Math.floor(Math.random() * currentMonster.event.possibleOutcomes[itemTier].length)];
-            const item = {
-                name: itemDropped,
-                quantity: 1,
-                effects: itemInfo[itemDropped]
-            };
-
-            const x = monstersInView[0].sprite.x;
-            const y = monstersInView[0].sprite.y;
-            console.log(itemDropped); // Log out the name of the item
-            this.scene.time.delayedCall(300, () => { // 600 milliseconds or 0.6 seconds
-                const newItem = new Item(this.scene, x, y, itemDropped.toLowerCase(), item);
-                this.scene.items.push(newItem);
-            });
-            console.log(`Item Dropped: ${item.name}, XP added: ${xpAdded}`);
-            monstersInView[0].sprite.destroy();
-            monstersInView[0].levelText.destroy();
-            this.isEventRunning = false;
-            delete monsters[monstersInView[0].key];
-
-
-            const currentLevel = PlayerState.skills.dancing.level; // Assuming this is how you get the current level of dancing skill
-            const currentXp = PlayerState.skills.dancing.xp; // Current XP after adding
-            const xpToNextLevel = xpRequiredForLevel(currentLevel) - currentXp; // XP required to reach the next level
-
-            console.log(`XP added: ${xpAdded}, XP to next level: ${xpToNextLevel}`);
-        } else {
-            const lostEnergy = calculateEnergyLost(monstersInView[0].level); // calculate lostEnergy here
-            console.log(`Lost energy: ${lostEnergy}`);
-            PlayerState.energy -= lostEnergy;
-            this.isEventRunning = false;
-            monstersInView[0].sprite.destroy();
-            monstersInView[0].levelText.destroy();
-            this.isEventRunning = false;
-            delete monsters[monstersInView[0].key];
-
-
-        }
-        monstersInView[0].sprite.destroy();
-        monstersInView[0].levelText.destroy();
-        this.isEventTriggered = false;
-
+                    const x = monstersInView[0].sprite.x;
+                    const y = monstersInView[0].sprite.y;
+                    this.scene.time.delayedCall(300, () => {
+                        const newItem = new Item(this.scene, x, y, itemDropped.toLowerCase(), item);
+                        this.scene.items.push(newItem);
+                    });
+                    this.scene.time.delayedCall(1000, () => {
+                        monstersInView[0].sprite.destroy();
+                        monstersInView[0].levelText.destroy();
+                        this.isEventTriggered = false;
+                        PlayerState.lastEnergyUpdate = Date.now();
+                        delete monsters[monstersInView[0].key];
+                        clearInterval(eventInterval);
+                    });
+                } else {
+                    this._emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, 0);
+                    currentStep = 'monsterRoll';
+                }
+            } else if (currentStep === 'monsterRoll') {
+                const monsterRoll = Phaser.Math.Between(0, monstersInView[0].level * 10);
+                PlayerState.energy -= monsterRoll;
+                if (PlayerState.energy <= 0) {
+                    PlayerState.energy = 0;
+                    this._emitBattleUpdate(monsterLevel, monsterHealth, 0, monsterRoll);
+                    monstersInView[0].sprite.destroy();
+                    monstersInView[0].levelText.destroy();
+                    this.isEventTriggered = false;
+                    PlayerState.lastEnergyUpdate = Date.now();
+                    delete monsters[monstersInView[0].key];
+                    clearInterval(eventInterval);
+                } else {
+                    this._emitBattleUpdate(monsterLevel, monsterHealth, 0, monsterRoll);
+                    currentStep = 'playerRoll';
+                }
+            }
+        }, 2000);
+        this.scene.game.events.on('runAway', () => {
+            clearInterval(eventInterval);
+            this.isEventTriggered = false;
+        });
     }
 
     update(monsters) {

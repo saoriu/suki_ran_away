@@ -3,26 +3,36 @@ import { GAME_CONFIG } from './gameConstants';
 
 export const gameStyles = {
   game: {
-    width: GAME_CONFIG.CAMERA_WIDTH + 'px', // 500px
-    height: GAME_CONFIG.CAMERA_HEIGHT + 'px', // 500px
+    width: 720  + 'px', 
+    height: GAME_CONFIG.CAMERA_HEIGHT + 'px',
+    position: 'relative',
+    left: '40px',
+    fontFamily: 'bitcount-mono-single-square',
   },
   frameContainer: {
-    width: '556px',
+    width: '800px',
     height: '560px',
-    padding: '2px 0 0 0', // Top Right Bottom Left
+    padding: '2px 0 0 0px', // Top Right Bottom Left
     backgroundImage: 'url("/frame-mini3.png")', // Correct path
-    backgroundSize: '556px 560px',
+    backgroundSize: '800px 560px',
+    backgroundColor: 'white',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'left',
     position: 'relative',
   }
-  
 };
 
-// styles.js
+
 export const textStyles = {
-    playerLevelText: { fontSize: '20px', fill: '#ffffff' },
-    // other text styles go here
+    playerLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
+    monsterLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
+    quantity: { fontSize: '16px', fill: '#000', fontFamily: 'bitcount-mono-single-square' },
+    battleUI: {
+      fontSize: '15px',
+      color: '#ffffff',
+      fontWeight: 'bold',
+      backgroundColor: '#000000',
+    }
   };
   

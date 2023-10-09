@@ -1,11 +1,37 @@
 .App {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  font-family: "bitcount-mono-single-square", sans-serif !important;
+
+}
+
+h1 {
+  color: white;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
+
+#phaser-game {
+  font-family: "bitcount-mono-single-square", sans-serif;
+}
+
+
+.quantity {
+  color: black;
+  font-weight: 500;
+}
+
+.inventory-item {
+  width: 20px;
+  height: 20px;
+  background-color: burlywood;
+  padding: 15px;
+}
+
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

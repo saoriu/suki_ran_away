@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_CONFIG } from './gameConstants.js';
 import { eventOptions } from './eventOptions.js';
 import { PlayerState } from './playerState'; // Adjust the path as needed
+import { textStyles } from './styles.js';
 
 
 
@@ -29,10 +30,11 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
   if (Phaser.Math.FloatBetween(0, 1) < spawnProbability) {
 
-  const bufferStartI = visibleStartI - (tilesBuffer);
-  const bufferEndI = visibleEndI + (tilesBuffer);
-  const bufferStartJ = visibleStartJ - (tilesBuffer);
-  const bufferEndJ = visibleEndJ + (tilesBuffer);
+    const bufferStartI = visibleStartI - (tilesBuffer + 1); // extend outward by 1 tile
+    const bufferEndI = visibleEndI + (tilesBuffer + 1);    // extend outward by 1 tile
+    const bufferStartJ = visibleStartJ - (tilesBuffer + 1); // extend outward by 1 tile
+    const bufferEndJ = visibleEndJ + (tilesBuffer + 1);    // extend outward by 1 tile
+    
 
   // Check if any monster already exists in the extended area including the buffer, if yes, then return
   for (let i = bufferStartI; i <= bufferEndI; i++) {
@@ -81,12 +83,12 @@ const modifiedLevel = chosenMonster.level + levelVariation; // You can also subt
   // Deciding whether to spawn on the horizontal or vertical buffer area
   if (Phaser.Math.Between(0, 1) === 0) {
     // Horizontal buffer area (top or bottom)
-    spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
-    spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ; // top or bottom buffer row
+    spawnTileI = Phaser.Math.Between(bufferStartI + 1, bufferEndI - 1); 
+    spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ + 1 : bufferEndJ - 1; 
   } else {
     // Vertical buffer area (left or right)
-    spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
-    spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI; // left or right buffer column
+    spawnTileJ = Phaser.Math.Between(bufferStartJ + 1, bufferEndJ - 1);
+    spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI + 1 : bufferEndI - 1;
   }
 
     const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
@@ -98,13 +100,9 @@ const modifiedLevel = chosenMonster.level + levelVariation; // You can also subt
     const levelText = scene.add.text(
       monsterX + (tileWidth / 2),
       monsterY - 30,
-      `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${modifiedLevel}`, // Use modifiedLevel here
-      {
-          fontSize: '20px',
-          fill: '#ffffff',
-          align: 'center'
-      }
-  ).setOrigin(0.5);
+      `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${modifiedLevel}`,
+      textStyles.monsterLevelText // Corrected syntax
+    ).setOrigin(0.5);
   
 
 
@@ -116,6 +114,9 @@ const modifiedLevel = chosenMonster.level + levelVariation; // You can also subt
       levelText: levelText,
       event: chosenMonster // Store the entire event object here for future reference
     };
+
+    scene.registry.set('currentMonsterLevel', modifiedLevel);
+
 
     monster.setDepth(3);
     levelText.setDepth(3); // Ensure the text renders above the monsters and other game objects

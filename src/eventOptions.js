@@ -4,6 +4,7 @@ export const eventOptions = [
     description: 'A cute lil creature.',
     monster: 'bunny',
     level: 1,
+    health: 50,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
       rare: ['Apple', 'Gold'],
@@ -17,6 +18,7 @@ export const eventOptions = [
     description: 'An angel.',
     monster: 'espe',
     level: 1,
+    health: 50,
     possibleOutcomes: {
       common: ['Strawberry', 'Lemon'],
       rare: ['Ruby', 'Diamond'],
@@ -30,6 +32,7 @@ export const eventOptions = [
     description: 'A little rascal.',
     monster: 'raccoon',
     level: 2,
+    health: 100,
     possibleOutcomes: {
       common: ['Lemon', 'Pebble'],
       rare: ['Gold', 'Emerald'],
@@ -43,6 +46,7 @@ export const eventOptions = [
     description: 'Cute but fierce.',
     monster: 'panda',
     level: 3,
+    health: 150,
     possibleOutcomes: {
       common: ['Gold', 'Ruby'],
       rare: ['Diamond', 'Emerald'],
@@ -56,6 +60,7 @@ export const eventOptions = [
     description: 'A very interestinig creature, wonder what it drops.',
     monster: 'dragonfly',
     level: 10,
+    health: 500,
     possibleOutcomes: {
       common: ['Diamond', 'Thread'],
       rare: ['Gold', 'Silk'],
@@ -69,6 +74,7 @@ export const eventOptions = [
     monster: 'chicken',
     description: 'She may have something useful.',
     level: 1,
+    health: 50,
     possibleOutcomes: {
       common: ['Milk', 'Egg', 'Flour'],
       rare: ['Ruby', 'Gold'],
@@ -82,6 +88,7 @@ export const eventOptions = [
     monster: 'fox',
     description: 'Wonder what I can find.',
     level: 3,
+    health: 150,
     possibleOutcomes: {
       common: ['Blueberry', 'Strawberry', 'Pebble'],
       rare: ['Emerald', 'Gold'],
@@ -94,5 +101,5 @@ export const eventOptions = [
   const variation = 2; // Define the maximum increase in level
   const maxLevel = option.level + variation;
   const randomLevel = Math.floor(Math.random() * (maxLevel - option.level + 1)) + option.level;
-  return { ...option, level: randomLevel };});
-
+  return { ...option, level: randomLevel };
+});

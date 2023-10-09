@@ -1,17 +1,18 @@
 export const skills = {
-    dancing: { level: 1, xp: 0 },
-    gathering: { level: 1, xp: 0 },
+    dancing: { level: 1, xp: 0, totalXP: 0 },
+    creation: { level: 1, xp: 0, totalXP: 0 },
 };
 
 export const PlayerState = {
     level: skills.dancing.level + skills.gathering.level,
     energy: 100,
     skills: skills,
-    energyBonus: 0,
-    danceBonus: 0,
-    gatherBonus: 0,
-    luckBonus: 0,
-    eventsBonus: 0,
+    energyBonus: 0, //energy regeneration boost
+    danceBonus: 0, //rare dance moves boost
+    createBonus: 0, //save an item from being destroyed during creation
+    luckBonus: 0, //chance to get a rare item from a monster
+    eventsBonus: 0, //chance to get an event
+    speedBonus: 0, //chance to perform dance move first
     lastEnergyUpdate: Date.now(),
 };
 
@@ -27,15 +28,42 @@ export function addXpToSkill(skillName, xpToAdd) {
     const skill = PlayerState.skills[skillName];
     if (!skill) return;
 
-    skill.xp += xpToAdd; // Add the XP to the specified skill
-    
+    console.log(`Adding ${xpToAdd} XP to ${skillName}`);
+
+    skill.xp += xpToAdd; 
+    skill.totalXP += xpToAdd; 
+
     while (skill.xp >= xpRequiredForLevel(skill.level)) {
-        skill.xp -= xpRequiredForLevel(skill.level); // Subtract the XP required for level up
-        skill.level++; // Level up the skill
-    }
+        console.log(`Leveling up ${skillName} to level ${skill.level + 1}`);
+        skill.xp -= xpRequiredForLevel(skill.level); 
+        skill.level++; 
     
-    PlayerState.level = updatePlayerLevel(PlayerState.skills); // Update the overall player level
+        if (typeof window !== 'undefined' && window.game) {
+            window.game.events.emit('levelUp', skillName);
+        }
+    }    
+
+    if (typeof window !== 'undefined' && window.game) {
+        window.game.events.emit('updateSkillsDisplay');
+    }
+
+    PlayerState.level = updatePlayerLevel(PlayerState.skills);
 }
 
+
+export function getSkillXP(skillName) {
+    const skill = PlayerState.skills[skillName];
+    return skill ? skill.xp : 0;
+}
+
+export function getSkillLevel(skillName) {
+    const skill = PlayerState.skills[skillName];
+    return skill ? skill.level : 1;
+}
+
+export function getTotalSkillXP(skillName) {
+    const skill = PlayerState.skills[skillName];
+    return skill ? skill.totalXP : 0;
+}
 
 export default PlayerState;
