@@ -1,6 +1,6 @@
 export const skills = {
     dancing: { level: 1, xp: 0, totalXP: 0 },
-    creation: { level: 1, xp: 0, totalXP: 0 },
+    gathering: { level: 1, xp: 0, totalXP: 0 },
 };
 
 export const PlayerState = {

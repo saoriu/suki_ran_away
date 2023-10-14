@@ -28,10 +28,12 @@ export class GameEvents {
     }
 
     handleEvent(monsters) {
+        
         if (this.isEventRunning || this.isEventTriggered) return;
 
         const monstersInView = Object.entries(monsters)
             .filter(([_, monsterObj]) => {
+                if (!monsterObj || !monsterObj.sprite) return false;  // Ensure monsterObj.sprite exists
                 const dx = this.scene.cat.x - monsterObj.sprite.x;
                 const dy = this.scene.cat.y - monsterObj.sprite.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
@@ -51,6 +53,7 @@ export class GameEvents {
         this._emitBattleUpdate(monsterLevel, monsterHealth, 0, 0);
 
         let currentStep = Math.random() < 0.5 ? 'playerRoll' : 'monsterRoll';
+        const monsterKey = monstersInView[0].key;
 
         const eventInterval = setInterval(() => {
             const monstersInView = Object.entries(monsters)
@@ -70,6 +73,8 @@ export class GameEvents {
                 const playerRoll = Phaser.Math.Between(0, PlayerState.level * 10);
                 this._emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, 0);
                 monsterHealth -= playerRoll;
+                monsters[monsterKey].currentHealth -= playerRoll;
+
                 if (monsterHealth <= 0) {
                     this._emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, 0);
                     addXpToSkill('dancing', monstersInView[0].level * 50);
@@ -88,14 +93,15 @@ export class GameEvents {
                         const newItem = new Item(this.scene, x, y, itemDropped.toLowerCase(), item);
                         this.scene.items.push(newItem);
                     });
-                    this.scene.time.delayedCall(1000, () => {
                         monstersInView[0].sprite.destroy();
                         monstersInView[0].levelText.destroy();
+                        monstersInView[0].healthBar.fill.destroy();
+                        monstersInView[0].healthBar.outer.destroy();                        
+                        monstersInView[0].healthText.destroy();
                         this.isEventTriggered = false;
                         PlayerState.lastEnergyUpdate = Date.now();
                         delete monsters[monstersInView[0].key];
                         clearInterval(eventInterval);
-                    });
                 } else {
                     this._emitBattleUpdate(monsterLevel, monsterHealth, playerRoll, 0);
                     currentStep = 'monsterRoll';
@@ -108,6 +114,9 @@ export class GameEvents {
                     this._emitBattleUpdate(monsterLevel, monsterHealth, 0, monsterRoll);
                     monstersInView[0].sprite.destroy();
                     monstersInView[0].levelText.destroy();
+                    monstersInView[0].healthBar.fill.destroy();
+                    monstersInView[0].healthBar.outer.destroy();                    
+                    monstersInView[0].healthText.destroy();
                     this.isEventTriggered = false;
                     PlayerState.lastEnergyUpdate = Date.now();
                     delete monsters[monstersInView[0].key];

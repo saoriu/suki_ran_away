@@ -44,17 +44,22 @@ export class UIScene extends Phaser.Scene {
         this.playerRollText = this.add.text(10, 370, '', textStyles.battleUI);
         this.monsterRollText = this.add.text(250, 370, '', textStyles.battleUI);
 
-        this.monsterHealthBar = this.createMonsterHealthBar(250, 330);
-        this.add.existing(this.monsterHealthBar.outer);
-        this.add.existing(this.monsterHealthBar.fill);
+        // Commenting out the monster health bar
+        // this.monsterHealthBar = this.createMonsterHealthBar(250, 330);
+        // this.monsterHealthText = this.add.text(250, 350, '', textStyles.battleUI);
+
+        // this.add.existing(this.monsterHealthBar.outer);
+        // this.add.existing(this.monsterHealthBar.fill);
     }
 
     endBattleUI() {
         this.playerRollText.destroy();
         this.monsterRollText.destroy();
 
-        this.monsterHealthBar.outer.destroy();
-        this.monsterHealthBar.fill.destroy();
+        // Destroying the monster health bar
+        // this.monsterHealthBar.outer.destroy();
+        // this.monsterHealthBar.fill.destroy();
+        // this.monsterHealthText.destroy();
     }
 
     handleRunAway(runAwayValue) {
@@ -99,20 +104,8 @@ export class UIScene extends Phaser.Scene {
             this.time.delayedCall(1000, this.endBattleUI, [], this);
         }
 
-        const hue = Phaser.Math.Clamp((monsterHealth / (monsterLevel * 10)) * 120, 0, 120);
-        const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
-        const monsterHealthProgress = Math.max(0, monsterHealth / (monsterLevel * 10));
-        const targetWidth = 100 * monsterHealthProgress;
-
-        this.monsterHealthBar.fill.setFillStyle(color);
-        this.tweens.add({
-            targets: this.monsterHealthBar.fill,
-            displayWidth: targetWidth,
-            duration: 300,
-            ease: 'Sine.easeInOut'
-        });
     }
-
+    
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 100;
         const progressBarHeight = 4;
