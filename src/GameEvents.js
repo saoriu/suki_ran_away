@@ -9,7 +9,6 @@ export class GameEvents {
 
     constructor(scene, cat) {
         this.scene = scene;
-        this.isEventRunning = false;
         this.isEventTriggered = false;
 
         GameEvents.currentInstance = this; // Assign the current instance to the static property
@@ -29,7 +28,7 @@ export class GameEvents {
 
     handleEvent(monsters) {
         
-        if (this.isEventRunning || this.isEventTriggered) return;
+        if (this.isEventTriggered) return;
 
         const monstersInView = Object.entries(monsters)
             .filter(([_, monsterObj]) => {
