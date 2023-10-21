@@ -28,9 +28,12 @@ export class UIScene extends Phaser.Scene {
             }
         });
 
-        this.game.events.on('startBattle', this.initBattleUI, this);
-        this.game.events.on('updateBattleDisplay', this.updateBattleDisplay, this);
-        this.game.events.on('runAway', this.handleRunAway, this);
+        this.game.events.on('startBattle', this.initPlayerAttack, this);
+        this.game.events.on('startMonster', this.initMonsterAttack, this);
+        this.game.events.on('playerBattleUpdate', this.playerBattleUpdate, this);
+        this.game.events.on('monsterBattleUpdate', this.monsterBattleUpdate, this);
+        this.game.events.on('runAway', this.endBattleUI, this);
+
 
         this.energyBar = this.createEnergyBar(310, 318);
         this.add.existing(this.energyBar.outer);
@@ -40,37 +43,35 @@ export class UIScene extends Phaser.Scene {
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
     }
 
-    initBattleUI() {
+    initPlayerAttack() {
+        if (this.playerRollText) {
+            this.playerRollText.destroy();
+        }
         this.playerRollText = this.add.text(10, 370, '', textStyles.battleUI);
+    }
+
+    initMonsterAttack() {
+        if (this.monsterRollText) {
+            this.monsterRollText.destroy();
+        }
         this.monsterRollText = this.add.text(250, 370, '', textStyles.battleUI);
-
-        // Commenting out the monster health bar
-        // this.monsterHealthBar = this.createMonsterHealthBar(250, 330);
-        // this.monsterHealthText = this.add.text(250, 350, '', textStyles.battleUI);
-
-        // this.add.existing(this.monsterHealthBar.outer);
-        // this.add.existing(this.monsterHealthBar.fill);
     }
 
     endBattleUI() {
-        this.playerRollText.destroy();
-        this.monsterRollText.destroy();
-
-        // Destroying the monster health bar
-        // this.monsterHealthBar.outer.destroy();
-        // this.monsterHealthBar.fill.destroy();
-        // this.monsterHealthText.destroy();
-    }
-
-    handleRunAway(runAwayValue) {
-        if (runAwayValue) {
-            this.endBattleUI();
-        }
-    }
+        this.time.delayedCall(1000, () => {
+            if (this.playerRollText) {
+                this.playerRollText.destroy();
+            }
+            if (this.monsterRollText) {
+                this.monsterRollText.destroy();
+            }
+        }, [], this);
+            }
 
     handlePlayerPositionUpdate(position) {
         this.petEnergyText.setPosition(position.x, position.y - 50);
     }
+
 
     updateEnergyBar() {
         const energyProgress = Math.max(0, PlayerState.energy / 100);
@@ -88,23 +89,36 @@ export class UIScene extends Phaser.Scene {
         this.energyText.setText(`Energy: ${PlayerState.energy.toFixed(0)}`);
     }
 
-    updateBattleDisplay({ petEnergy, monsterHealth, playerRoll, monsterLevel, monsterRoll }) {
+    playerBattleUpdate({ playerRoll, monsterHealth }) {
+        if (this.delayedEndCall) {
+            this.time.removeEvent(this.delayedEndCall);
+        }
         if (playerRoll > 0) {
-            this.playerRollText.setText(`Player rolled: ${playerRoll.toFixed(0)}`);
-            this.monsterRollText.setText('');
-        } else if (monsterRoll > 0) {
-            this.monsterRollText.setText(`Monster rolled: ${monsterRoll.toFixed(0)}`);
-            this.playerRollText.setText('');
+            if (this.playerRollText) this.playerRollText.setText(`Player rolled: ${playerRoll.toFixed(0)}`);
+        } else {
+            if (this.playerRollText) this.playerRollText.setText(`Player missed!`);
         }
-        if (petEnergy <= 0) {
-            this.monsterRollText.setText(`Monster rolled: ${monsterRoll.toFixed(0)}`);
-            this.time.delayedCall(1000, this.endBattleUI, [], this);
-        } else if (monsterHealth <= 0) {
-            this.playerRollText.setText(`Player rolled: ${playerRoll.toFixed(0)}`);
-            this.time.delayedCall(1000, this.endBattleUI, [], this);
+        if (monsterHealth <= 0) {
+            if (this.playerRollText) this.playerRollText.setText(`Player rolled: ${playerRoll.toFixed(0)}`);
         }
-
+        this.time.delayedCall(0, this.endBattleUI, [], this);
+        this.delayedEndCall = this.time.delayedCall(0, this.endBattleUI, [], this);
     }
+    
+    monsterBattleUpdate({ monsterRoll, petEnergy }) {
+        if (this.delayedEndCall) {
+            this.time.removeEvent(this.delayedEndCall);
+        }
+        if (monsterRoll > 0) {
+            if (this.monsterRollText) this.monsterRollText.setText(`Monster rolled: ${monsterRoll.toFixed(0)}`);
+        }
+       else if (petEnergy <= 0) {
+            if (this.monsterRollText) this.monsterRollText.setText(`Monster rolled: ${monsterRoll.toFixed(0)}`);
+            this.time.delayedCall(0, this.endBattleUI, [], this);
+    }
+    this.delayedEndCall = this.time.delayedCall(0, this.endBattleUI, [], this);
+}
+    
     
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 100;
