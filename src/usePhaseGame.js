@@ -31,7 +31,7 @@ export const usePhaserGame = (gameRef) => {
                 default: 'arcade',
                 arcade: {
                     gravity: { y: 0 }, // No gravity in top-down games
-                    debug: false // Change to true to see the physics bodies
+                    debug: true // Change to true to see the physics bodies
                 }
             },
             autoRound: false,
@@ -57,10 +57,14 @@ export const usePhaserGame = (gameRef) => {
 
 
         function preload() {
-            // Loading idle frames
-            for (let i = 1; i <= 8; i++) this.load.image(`idle${i}`, `/idle${i}.png`);
+            // Loading sit frames
+            for (let i = 1; i <= 8; i++) this.load.image(`sit${i}`, `/sit${i}.png`);
             for (let i = 1; i <= 8; i++) this.load.image(`run${i}`, `/run${i}.png`);
+            for (let i = 1; i <= 11; i++) this.load.image(`dead${i}`, `/dead${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`scratch${i}`, `/scratch${i}.png`);
             for (let i = 1; i <= 13; i++) this.load.image(`tile${i}`, `/tile${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`sit-forward${i}`, `/sit-forward${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`sit-back${i}`, `/sit-back${i}.png`);
             for (let i = 1; i <= 8; i++) {
                 this.load.image(`up${i}`, `/up${i}.png`);
                 this.load.image(`down${i}`, `/down${i}.png`);
@@ -96,33 +100,97 @@ export const usePhaserGame = (gameRef) => {
 
         }
 
+        let isAttacking = false; // flag to check if scratch animation is already playing
 
         function create() {
             const camera = this.cameras.main;
             this.scene.launch('UIScene');
             camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
             //set the cat sprite to immovable:
-            cat = this.physics.add.sprite(80, 80, 'idle').setScale(2.5);
+            cat = this.physics.add.sprite(80, 80, 'sit').setScale(1);
             this.cat = cat; // Attach the cat sprite to the scene
             cat.body.setCircle(cat.width / 2);  // Circular hitbox for the cat
             cat.body.immovable = true;
-            // Creating idle animation
+            // Creating sit animation
             this.anims.create({
-                key: 'idle',
+                key: 'sit',
                 frames: [
-                    { key: 'idle1' },
-                    { key: 'idle2' },
-                    { key: 'idle3' },
-                    { key: 'idle4' },
-                    { key: 'idle5' },
-                    { key: 'idle6' },
-                    { key: 'idle7' },
-                    { key: 'idle8' }
+                    { key: 'sit1' },
+                    { key: 'sit2' },
+                    { key: 'sit3' },
+                    { key: 'sit4' },
+                    { key: 'sit5' },
+                    { key: 'sit6' },
+                    { key: 'sit7' },
+                    { key: 'sit8' }
                 ],
                 frameRate: 7,
                 repeat: -1 // to loop the animation indefinitely
             });
 
+            this.anims.create({
+                key: 'sit-forward',
+                frames: [
+                    { key: 'sit-forward1' },
+                    { key: 'sit-forward2' },
+                    { key: 'sit-forward3' },
+                    { key: 'sit-forward4' },
+                    { key: 'sit-forward5' },
+                    { key: 'sit-forward6' },
+                    { key: 'sit-forward7' },
+                    { key: 'sit-forward8' }
+                ],
+                frameRate: 7,
+                repeat: -1 // to loop the animation indefinitely
+            });
+
+            this.anims.create({
+                key: 'sit-back',
+                frames: [
+                    { key: 'sit-back1' },
+                    { key: 'sit-back2' },
+                    { key: 'sit-back3' },
+                    { key: 'sit-back4' },
+                    { key: 'sit-back5' },
+                    { key: 'sit-back6' },
+                    { key: 'sit-back7' },
+                    { key: 'sit-back8' }
+                ],
+                frameRate: 7,
+                repeat: -1 // to loop the animation indefinitely
+            });
+
+            this.anims.create({
+                key: 'scratch',
+                frames: [
+                    { key: 'scratch1' },
+                    { key: 'scratch2' },
+                    { key: 'scratch3' },
+                    { key: 'scratch4' }
+                ],
+                frameRate: 8,
+                repeat: 0 // to loop the animation indefinitely
+            });
+
+            this.anims.create({
+                key: 'dead',
+                frames: [
+                    { key: 'dead1' },
+                    { key: 'dead2' },
+                    { key: 'dead3' },
+                    { key: 'dead4' },
+                    { key: 'dead5' },
+                    { key: 'dead6' },
+                    { key: 'dead7' },
+                    { key: 'dead8' },
+                    { key: 'dead9' },
+                    { key: 'dead10' },
+                    { key: 'dead11' }
+                ],
+                frameRate: 9,
+                override: true,  // Ensure that it can override other animations
+                repeat: 0
+            });
 
             this.anims.create({
                 key: 'run',
@@ -170,19 +238,34 @@ export const usePhaserGame = (gameRef) => {
             cursors = this.input.keyboard.createCursorKeys();
             playerLevelText = this.add.text(cat.x, cat.y - 20, `Level: ${PlayerState.level}`, textStyles.playerLevelText).setOrigin(0.5);
             playerLevelText.setDepth(100); // high value to ensure it renders above other objects
-            this.handleItemPickup = Inventory.handleItemPickup.bind(this);
+            this.handleItemPickup = Inventory.handleItemPickup.bind(this);           
             this.addToInventory = Inventory.addToInventory.bind(this);
+            cat.on('animationcomplete', (animation, frame) => {
+                if (animation.key === 'dead') {
+                    this.isFainting = false; // Reset the fainting flag
+                    cat.play('sit'); // Switch to sit animation after fainting
+                } else if (animation.key === 'scratch') {
+                    isAttacking = false;
+                    if (!this.isFainting) {
+                        cat.play('sit'); // Return to sit animation after attacking
+                    }
+                }
+            }, this);            
             this.input.keyboard.on('keydown-SPACE', () => {
+                if (this.isFainting) return; // Prevent any action if player is fainting
+            
                 this.gameEvents.handleEvent(monsters);
                 this.handleItemPickup();
+            
+                if (!isAttacking && !this.isFainting) { 
+                    isAttacking = true; 
+                    cat.play('scratch', true);
+                }
             });
-            ;
             this.inventoryContainer = this.add.container(10, 10); // Adjust the position as needed
             this.inventory = []; // Initialize the inventory
             this.maxInventorySize = 20; // Or whatever your max inventory size is
             this.items = []; // Initialize the items array
-            createTilesAround(0, 0, this);
-
         }
 
         function createTilesAround(centerX, centerY, scene) {
@@ -221,28 +304,50 @@ export const usePhaserGame = (gameRef) => {
         }
 
         let lastUpdateTime = 0;
+        let lastDirection = null; // Variable to store the last direction the cat moved
         const updateInterval = 1000 / 10; // For 10 FPS
 
         function update(time) {
+
             if (time - lastUpdateTime < updateInterval) {
                 return; // Exit early if not enough time has passed since the last update
             }
-            this.physics.collide(cat, Object.values(monsters).map(m => m.sprite), function(catSprite, monsterSprite) {
+            this.physics.collide(cat, Object.values(monsters).map(m => m.sprite), function (catSprite, monsterSprite) {
                 // Calculate angle between cat and monster
                 const angle = Phaser.Math.Angle.Between(catSprite.x, catSprite.y, monsterSprite.x, monsterSprite.y);
-            
+
                 // Determine push distance
                 const pushDistance = 1;
-            
+
                 // Calculate new x and y for the monster using the angle and push distance
                 monsterSprite.x += pushDistance * Math.cos(angle);
                 monsterSprite.y += pushDistance * Math.sin(angle);
-                
+
                 console.log("Collision detected!");
             });
-            
-            
+
+            if (isAttacking) {
+            cat.play('scratch', true);
+            cat.on('animationcomplete', (animation, frame) => {
+                if (isAttacking) {
+                    cat.play('sit');
+                    isAttacking = false; // set flag to false to indicate scratch animation is finished
+                }
+            }, this);
+        }
+
+        if (PlayerState.energy <= 0 && !this.isFainting) {
+            this.isFainting = true;
+            console.log("Player has fainted!");
+            isAttacking = false; // Ensure the scratch state is also reset
+            cat.anims.stop(); // Forcefully stop the current animation
+            cat.play('dead');
+        }
+        
+
             const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
+    
+
             const moveSpeed = tileWidth / GAME_CONFIG.MOVE_SPEED;
             this.gameEvents.update(monsters);
             regenerateEnergy(this); // Assuming 'this' is the scene
@@ -252,8 +357,71 @@ export const usePhaserGame = (gameRef) => {
                     cursors.up.isDown ? 'up' :
                         cursors.down.isDown ? 'down' : null;
 
+            if (this.isFainting) {
+                return;
+            }
+
+            if (isAttacking) {
+                return;
+            }
+
+            if (cursors.left.isDown) {
+                cat.setVelocityX(-moveSpeed);
+                cat.play('run', true);
+                lastDirection = 'left';
+            } else if (cursors.right.isDown) {
+                cat.setVelocityX(moveSpeed);
+                cat.play('run', true);
+                lastDirection = 'right';
+            } else {
+                cat.setVelocityX(0);
+            }
+            
+            if (cursors.up.isDown) {
+                cat.setVelocityY(-moveSpeed);
+                cat.play('up', true);
+                lastDirection = 'up';
+            } else if (cursors.down.isDown) {
+                cat.setVelocityY(moveSpeed);
+                cat.play('down', true);
+                lastDirection = 'down';
+            } else {
+                cat.setVelocityY(0);
+            }
+            
+            // Check if the cat has stopped moving and play the appropriate sitting animation based on the last direction
+            if (cat.body.velocity.x === 0 && cat.body.velocity.y === 0) {
+                switch (lastDirection) {
+                    case 'up':
+                        cat.play('sit-back', true);
+                        break;
+                    case 'down':
+                        cat.play('sit-forward', true);
+                        break;
+                    default:
+                        cat.play('sit', true);
+                        break;
+                }
+            }
+            
+
+
+            if (!moveTile) {
+                switch (lastDirection) {
+                    case 'up':
+                        cat.play('sit-back', true);
+                        break;
+                    case 'down':
+                        cat.play('sit-forward', true);
+                        break;
+                    default:
+                        cat.play('sit', true);
+                        break;
+                }
+            }
+            
+            
             if (moveTile) {
-                // Resume running animation
 
                 switch (moveTile) {
                     case 'left':
@@ -286,11 +454,11 @@ export const usePhaserGame = (gameRef) => {
                 createTilesAround(cat.x, cat.y, this);
                 removeFarTiles(cat.x, cat.y, this);
 
-            } else if (cat.anims.currentAnim.key !== 'idle') {
-                // Play idle animation if the player is not moving
-                cat.play('idle');
+                if (this.isFainting || isAttacking) {
+                    return;
+                }        
+                
             }
-
             playerLevelText.x = cat.x;
             playerLevelText.y = cat.y - 60; // adjust as needed
             playerLevelText.setText(`Level: ${PlayerState.level}`);
@@ -300,7 +468,7 @@ export const usePhaserGame = (gameRef) => {
                 const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
                 const healthProgress = Math.max(0, currentHealth / maxHealth);
                 const targetWidth = 100 * healthProgress;
-            
+
                 if (healthBar.fill) {
                     healthBar.fill.setFillStyle(color);
                     scene.tweens.add({
@@ -320,21 +488,21 @@ export const usePhaserGame = (gameRef) => {
                         monsterObj.healthText.setText(`HP: ${monsterObj.currentHealth}`);
                     }
                 }
-                if(monsterObj.healthBar && monsterObj.sprite) {
-                    monsterObj.healthBar.outer.x = monsterObj.sprite.x -30;
+                if (monsterObj.healthBar && monsterObj.sprite) {
+                    monsterObj.healthBar.outer.x = monsterObj.sprite.x - 30;
                     monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height + 55; // Adjust this value as needed
-            
-                    monsterObj.healthBar.fill.x = monsterObj.sprite.x -28;
+
+                    monsterObj.healthBar.fill.x = monsterObj.sprite.x - 28;
                     monsterObj.healthBar.fill.y = monsterObj.sprite.y + monsterObj.sprite.height + 55; // Adjust this value as needed
-            
+
                     monsterObj.healthText.x = monsterObj.sprite.x + 20;
                     monsterObj.healthText.y = monsterObj.sprite.y + monsterObj.sprite.height + 75; // Adjust this value as needed
                 }
             });
-            
+
 
         }
-        
+
 
         function removeFarTiles(centerX, centerY, scene) {
             const camera = scene.cameras.main;
@@ -366,14 +534,6 @@ export const usePhaserGame = (gameRef) => {
                         monsters[key].healthText.destroy();
                         delete monsters[key];
                     }
-                }
-            });
-
-            Object.values(monsters).forEach((monsterObj) => {
-                if ((monsterObj.currentHealth <= 0) || (PlayerState.energy <= 0)) {
-                    monsterObj.healthBar.outer.destroy();
-                    monsterObj.healthBar.fill.destroy();
-                    monsterObj.healthText.destroy();
                 }
             });
         }
