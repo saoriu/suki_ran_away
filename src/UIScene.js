@@ -7,6 +7,11 @@ export class UIScene extends Phaser.Scene {
         super({ key: 'UIScene' });
     }
 
+    preload() {
+        this.load.image('dancingFrame', '/skill-bars.png');
+      }
+    
+
     create() {
         this.energyText = null;
         this.isLevelingUp = false;
@@ -30,8 +35,6 @@ export class UIScene extends Phaser.Scene {
 
         this.game.events.on('startBattle', this.initPlayerAttack, this);
         this.game.events.on('startMonster', this.initMonsterAttack, this);
-        this.game.events.on('playerBattleUpdate', this.playerBattleUpdate, this);
-        this.game.events.on('monsterBattleUpdate', this.monsterBattleUpdate, this);
         this.game.events.on('runAway', this.endBattleUI, this);
 
 
@@ -72,57 +75,42 @@ export class UIScene extends Phaser.Scene {
         this.petEnergyText.setPosition(position.x, position.y - 50);
     }
 
-
     updateEnergyBar() {
+        const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
         const energyProgress = Math.max(0, PlayerState.energy / 100);
-        const targetWidth = 100 * energyProgress;
+        const targetWidth = 80 * energyProgress;
         const hue = (PlayerState.energy / 100) * 120;
         const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
-
+      
         this.energyBar.fill.setFillStyle(color);
         this.tweens.add({
-            targets: this.energyBar.fill,
-            displayWidth: targetWidth,
-            duration: 100,
-            ease: 'Sine.easeInOut'
+          targets: this.energyBar.fill,
+          displayWidth: targetWidth,
+          duration: 100,
+          ease: 'Sine.easeInOut'
         });
-        this.energyText.setText(`Energy: ${PlayerState.energy.toFixed(0)}`);
-    }
+        this.energyText.setText(`${PlayerState.energy.toFixed(0)}`, textStyles.energyText);
+      
+        const energyChange = Math.abs(previousEnergy - PlayerState.energy);
+        if (energyChange > 1) {
+          const changeText = this.add.text(this.energyText.x, this.energyText.y - 20, `${previousEnergy > PlayerState.energy ? '-' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fill: previousEnergy > PlayerState.energy ? '#ff0000' : '#00ff00' });
+          this.tweens.add({
+            targets: changeText,
+            y: changeText.y - 20,
+            alpha: 0,
+            duration: 1200,
+            onComplete: () => {
+              changeText.destroy();
+            }
+          });
+        }
+      
+        PlayerState.previousEnergy = PlayerState.energy; // Store the current energy as previous for next update
+      }
 
-    playerBattleUpdate({ playerRoll, monsterHealth }) {
-        if (this.delayedEndCall) {
-            this.time.removeEvent(this.delayedEndCall);
-        }
-        if (playerRoll > 0) {
-            if (this.playerRollText) this.playerRollText.setText(`Player rolled: ${playerRoll.toFixed(0)}`);
-        } else {
-            if (this.playerRollText) this.playerRollText.setText(`Player missed!`);
-        }
-        if (monsterHealth <= 0) {
-            if (this.playerRollText) this.playerRollText.setText(`Player rolled: ${playerRoll.toFixed(0)}`);
-        }
-        this.time.delayedCall(0, this.endBattleUI, [], this);
-        this.delayedEndCall = this.time.delayedCall(0, this.endBattleUI, [], this);
-    }
-    
-    monsterBattleUpdate({ monsterRoll, petEnergy }) {
-        if (this.delayedEndCall) {
-            this.time.removeEvent(this.delayedEndCall);
-        }
-        if (monsterRoll > 0) {
-            if (this.monsterRollText) this.monsterRollText.setText(`Monster rolled: ${monsterRoll.toFixed(0)}`);
-        }
-       else if (petEnergy <= 0) {
-            if (this.monsterRollText) this.monsterRollText.setText(`Monster rolled: ${monsterRoll.toFixed(0)}`);
-            this.time.delayedCall(0, this.endBattleUI, [], this);
-    }
-    this.delayedEndCall = this.time.delayedCall(0, this.endBattleUI, [], this);
-}
-    
-    
     createMonsterHealthBar(x, y) {
-        const progressBarWidth = 100;
-        const progressBarHeight = 4;
+        const progressBarWidth = 80;
+        const progressBarHeight = 6;
         const borderOffset = 2;
         const outerRect = this.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
         outerRect.setOrigin(0, 0.5);
@@ -139,11 +127,11 @@ export class UIScene extends Phaser.Scene {
 
         this.tweens.add({
             targets: this.dancingBar.fill,
-            displayWidth: 150,
+            displayHeight: 184,
             duration: 500,
             ease: 'Sine.easeInOut',
             onComplete: () => {
-                this.dancingBar.fill.displayWidth = 0;
+                this.dancingBar.fill.displayHeight = 0;
                 this.isLevelingUp = false;
                 this.updateSkillsDisplay();
             }
@@ -151,21 +139,21 @@ export class UIScene extends Phaser.Scene {
     }
 
     createProgressBar(x, y) {
-        const progressBarWidth = 150;
-        const progressBarHeight = 10;
+        const progressBarWidth = 10;
+        const progressBarHeight = 184;
         const borderOffset = 2;
-        const outerRect = this.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
-        outerRect.setOrigin(0, 0.5);
-
-        const progressFill = this.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0x00ff00);
-        progressFill.setOrigin(0, 0.5);
-        progressFill.displayWidth = 0;
-
+        const outerRect = this.add.rectangle(-560, 200 + progressBarHeight / 2, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
+        outerRect.setOrigin(0, 1); // Set the origin to the bottom left corner
+      
+        const progressFill = this.add.rectangle(-560 + borderOffset, 200 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x00ff00);
+        progressFill.setOrigin(0, 1); // Set the origin to the bottom left corner
+        progressFill.displayHeight = 0;
+      
         return { outer: outerRect, fill: progressFill };
-    }
+      }
 
     createEnergyBar(x, y) {
-        const progressBarWidth = 100;
+        const progressBarWidth = 80;
         const progressBarHeight = 6;
         const borderOffset = 2;
         const outerRect = this.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
@@ -200,23 +188,24 @@ export class UIScene extends Phaser.Scene {
         }
 
         if (this.dancingText && this.dancingXPText) {
-            this.skillsContainer.remove([this.dancingText, this.dancingXPText], true);
+            this.skillsContainer.remove([this.dancingText, this.dancingXPText, this.dancingFrame], true);
         }
 
         const currentXP = getSkillXP('dancing');
         const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
         const dancingXPProgress = currentXP / requiredXP;
-        const targetWidth = 150 * dancingXPProgress;
+        const targetWidth = 184 * dancingXPProgress;
 
         this.tweens.add({
             targets: this.dancingBar.fill,
-            displayWidth: targetWidth,
+            displayHeight: targetWidth,
             duration: 500,
             ease: 'Sine.easeInOut'
         });
 
-        this.dancingText = this.add.text(-530, 0, `Dancing Lvl: ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-        this.dancingXPText = this.add.text(-530, 25, `XP: ${getTotalSkillXP('dancing')}`, textStyles.playerLevelText);
-        this.skillsContainer.add([this.dancingText, this.dancingXPText]);
-    }
+        this.dancingFrame = this.add.image(-550, 200, 'dancingFrame').setScale(0.4).setAngle(90);
+        this.dancingText = this.add.text(-200, 430, `Dancing Lvl: ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
+        this.dancingXPText = this.add.text(-230, 450, `XP: ${getTotalSkillXP('dancing')}`, textStyles.playerLevelText);
+        this.skillsContainer.add([this.dancingText, this.dancingXPText, this.dancingFrame]);
+      }
 }

@@ -27,6 +27,7 @@ export const gameStyles = {
 export const textStyles = {
     playerLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
     monsterLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
+    energyText: { fontFamily: 'bitcount-mono-single-square', fontWeight: 'bolder', fill: '#ffffff' },
     quantity: { fontSize: '16px', fill: '#000', fontFamily: 'bitcount-mono-single-square' },
     battleUI: {
       fontSize: '15px',

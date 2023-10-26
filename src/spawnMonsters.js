@@ -100,8 +100,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     
 
     function createHealthBar(scene, x, y) {
-      const progressBarWidth = 100;
-      const progressBarHeight = 4;
+      const progressBarWidth = 80;
+      const progressBarHeight = 6;
       const borderOffset = 2;
   
       const outerRect = scene.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
