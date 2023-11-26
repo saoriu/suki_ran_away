@@ -97,7 +97,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       textStyles.monsterLevelText // Corrected syntax
     ).setOrigin(0.5);
 
-    
+    const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
 
     function createHealthBar(scene, x, y) {
       const progressBarWidth = 80;
@@ -116,10 +116,14 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const monsterHealthBar = createHealthBar(scene, monsterX, monsterY + monster.height + 55, modifiedLevel * 10);
 
   const healthText = scene.add.text(monsterX, monsterY + monster.height + 75, `HP: ${modifiedLevel * 10}`, textStyles.healthText).setOrigin(0.5);
-    
-    monsters[`${spawnTileI},${spawnTileJ}`] = {
+
+  monsters[monsterKey] = {
         sprite: monster,
+        key: monsterKey,
         level: modifiedLevel,
+        isAggressive: true, 
+        isColliding: false,
+        isFollowing: true,
         levelText: levelText,
         event: chosenMonster,
         healthBar: {
@@ -130,6 +134,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
         maxHealth: modifiedLevel * 10,
         currentHealth: modifiedLevel * 10
     };
+
+    console.log(monsters)
     
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);

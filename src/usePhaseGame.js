@@ -40,7 +40,7 @@ export const usePhaserGame = (gameRef) => {
 
         };
 
-
+ 
         gameRef.current = new Phaser.Game(config);
         console.log("gameInstance created: ", gameRef.current);
         window.game = gameRef.current;
@@ -107,13 +107,16 @@ export const usePhaserGame = (gameRef) => {
         function create() {
             const camera = this.cameras.main;
             this.scene.launch('UIScene');
-            camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
+            this.collidingMonsters = {};
+            this.monsters = {};
+            camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT + 13); // restrict camera size
             //set the cat sprite to immovable:
-            cat = this.physics.add.sprite(80, 80, 'sit').setScale(0.5);
+            cat = this.physics.add.sprite(80, 80, 'sit').setScale(0.35);
             this.cat = cat; // Attach the cat sprite to the scene
             cat.body.setCircle(cat.width * 2.5);  // Circular hitbox for the cat
             cat.body.setOffset(cat.width / 1, cat.height / 2); // Offset the circle to center it
             cat.body.immovable = true;
+            this.collidingMonsterKey = null;
             this.anims.create({
                 key: 'sit',
                 frames: [
@@ -269,8 +272,9 @@ export const usePhaserGame = (gameRef) => {
             cursors = this.input.keyboard.createCursorKeys();
             playerLevelText = this.add.text(cat.x, cat.y - 20, `Level: ${PlayerState.level}`, textStyles.playerLevelText).setOrigin(0.5);
             playerLevelText.setDepth(100); // high value to ensure it renders above other objects
-            this.handleItemPickup = Inventory.handleItemPickup.bind(this);           
+            this.handleItemPickup = Inventory.handleItemPickup.bind(this);
             this.addToInventory = Inventory.addToInventory.bind(this);
+            this.clearInventory = Inventory.clearInventory.bind(this);
             cat.on('animationcomplete', (animation, frame) => {
                 if (animation.key === 'dead') {
                     cat.play('sit'); // Switch to sit animation after fainting
@@ -282,40 +286,40 @@ export const usePhaserGame = (gameRef) => {
                         cat.play('sit'); // Return to sit animation after attacking
                     }
                 }
-            }, this);            
+            }, this);
             let canAttack = true;
             let spaceInterval;
-            
+
             this.input.keyboard.on('keydown', (event) => {
                 if (event.code === 'Space' && !spaceInterval && !this.isFainting) {
-                    if (this.isFainting) return; // Prevent any action if player is fainting
-            
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
-            
-                        if (canAttack) {
-                            this.gameEvents.playerAttack(monsters);
+
+                        if (canAttack && this.collidingMonsterKey) {
+                            this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
                             isAttacking = true;
                             cat.play('scratch', true);
                             canAttack = false;
                             setTimeout(() => {
                                 if (!this.isFainting) {
-                                canAttack = true;
-                                isAttacking = false;
+                                    canAttack = true;
+                                    isAttacking = false;
                                 }
                             }, 500);
                         }
                     }, 100);
                 }
             });
-            
+
+
+
             this.input.keyboard.on('keyup', (event) => {
                 if (event.code === 'Space') {
                     clearInterval(spaceInterval);
                     spaceInterval = null;
                 }
             });
-            
+
             this.inventoryContainer = this.add.container(10, 10); // Adjust the position as needed
             this.inventory = []; // Initialize the inventory
             this.maxInventorySize = 20; // Or whatever your max inventory size is
@@ -361,38 +365,58 @@ export const usePhaserGame = (gameRef) => {
         let lastDirection = null; // Variable to store the last direction the cat moved
         const updateInterval = 1000 / 10; // For 10 FPS
 
+
         function update(time) {
 
             if (time - lastUpdateTime < updateInterval) {
                 return; // Exit early if not enough time has passed since the last update
             }
+
             this.physics.collide(cat, Object.values(monsters).map(m => m.sprite), function (catSprite, monsterSprite) {
+                for (const [key, monster] of Object.entries(monsters)) {
+                    if (monster.sprite === monsterSprite) {
+                        monster.isColliding = true;
+                        this.collidingMonsters[key] = monster;
+                    }
+                }
+            
+                if (Object.keys(this.collidingMonsters).length > 0) {
+                    // Target the first monster in the collidingMonsters object
+                    this.collidingMonsterKey = Object.keys(this.collidingMonsters)[0];
+                } else {
+                    this.collidingMonsterKey = null;
+                }
+            
+                console.log("collidingMonsters: ", this.collidingMonsters);
+            }, null, this);
 
-                console.log("Collision detected!");
+            // After collision detection logic
+Object.keys(this.collidingMonsters).forEach(key => {
+    if (!this.collidingMonsters[key].isColliding) {
+        delete this.collidingMonsters[key];
+    }
+});
 
-            });
+this.physics.collide(Object.values(monsters).map(m => m.sprite));
 
             if (isAttacking) {
-            cat.play('scratch', true);
-            cat.on('animationcomplete', (animation, frame) => {
-                if (isAttacking) {
-                    cat.play('sit');
-                    isAttacking = false; // set flag to false to indicate scratch animation is finished
-                }
-            }, this);
-        }
+                cat.play('scratch', true);
+                cat.on('animationcomplete', (animation, frame) => {
+                    if (isAttacking) {
+                        cat.play('sit');
+                        isAttacking = false; // set flag to false to indicate scratch animation is finished
+                    }
+                }, this);
+            }
 
-        if (PlayerState.energy <= 0 && !this.isFainting) {
-            this.isFainting = true;
-            console.log("Player has fainted!");
-            isAttacking = false; // Ensure the scratch state is also reset
-            cat.anims.stop(); // Forcefully stop the current animation
-            cat.play('dead');
-        }
-        
+            if (PlayerState.energy <= 0 && !this.isFainting) {
+                handlePlayerDeath.call(this);
+            }
+            
+
 
             const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
-    
+
 
             const moveSpeed = tileWidth / GAME_CONFIG.MOVE_SPEED;
             const diagonalVelocity = moveSpeed / Math.sqrt(2) // Multiply by 0.7 to adjust diagonal speed
@@ -401,13 +425,13 @@ export const usePhaserGame = (gameRef) => {
             regenerateEnergy(this); // Assuming 'this' is the scene
             removeFarTiles(cat.x, cat.y, this); // <--- Passing gameEvents here
             const moveTile = cursors.left.isDown && cursors.up.isDown ? 'upLeft' :
-            cursors.right.isDown && cursors.up.isDown ? 'upRight' :
-            cursors.left.isDown && cursors.down.isDown ? 'downLeft' :
-            cursors.right.isDown && cursors.down.isDown ? 'downRight' :
-            cursors.left.isDown ? 'left' :
-            cursors.right.isDown ? 'right' :
-            cursors.up.isDown ? 'up' :
-            cursors.down.isDown ? 'down' : null;
+                cursors.right.isDown && cursors.up.isDown ? 'upRight' :
+                    cursors.left.isDown && cursors.down.isDown ? 'downLeft' :
+                        cursors.right.isDown && cursors.down.isDown ? 'downRight' :
+                            cursors.left.isDown ? 'left' :
+                                cursors.right.isDown ? 'right' :
+                                    cursors.up.isDown ? 'up' :
+                                        cursors.down.isDown ? 'down' : null;
 
             if (this.isFainting) {
                 return;
@@ -420,58 +444,58 @@ export const usePhaserGame = (gameRef) => {
                 cat.setVelocityX(-moveSpeed);
                 lastDirection = 'left';
                 if (!cat.anims.isPlaying) {
-                  cat.play('run', true);
+                    cat.play('run', true);
                 }
-              } else if (cursors.right.isDown) {
+            } else if (cursors.right.isDown) {
                 cat.setVelocityX(moveSpeed);
                 lastDirection = 'right';
                 if (!cat.anims.isPlaying) {
-                  cat.play('run', true);
+                    cat.play('run', true);
                 }
-              } else {
+            } else {
                 cat.setVelocityX(0);
-              }
-              
-              if (cursors.up.isDown) {
+            }
+
+            if (cursors.up.isDown) {
                 cat.setVelocityY(-moveSpeed);
                 lastDirection = 'up';
                 if (!cat.anims.isPlaying) {
-                  cat.play('up', true);
+                    cat.play('up', true);
                 }
-              } else if (cursors.down.isDown) {
+            } else if (cursors.down.isDown) {
                 cat.setVelocityY(moveSpeed);
                 lastDirection = 'down';
                 if (!cat.anims.isPlaying) {
-                  cat.play('down', true);
+                    cat.play('down', true);
                 }
-              } else {
+            } else {
                 cat.setVelocityY(0);
-              }
-              
+            }
 
-              
-              // Check if the cat has stopped moving and play the appropriate sitting animation based on the last direction
-              if (cat.body.velocity.x === 0 && cat.body.velocity.y === 0) {
+
+
+            // Check if the cat has stopped moving and play the appropriate sitting animation based on the last direction
+            if (cat.body.velocity.x === 0 && cat.body.velocity.y === 0) {
                 switch (lastDirection) {
-                  case 'up':
-                    if (!cat.anims.isPlaying) {
-                      cat.play('sit-back', true);
-                    }
-                    break;
-                  case 'down':
-                    if (!cat.anims.isPlaying) {
-                      cat.play('sit-forward', true);
-                    }
-                    break;
-                  default:
-                    if (!cat.anims.isPlaying) {
-                      cat.play('sit', true);
-                    }
-                    break;
+                    case 'up':
+                        if (!cat.anims.isPlaying) {
+                            cat.play('sit-back', true);
+                        }
+                        break;
+                    case 'down':
+                        if (!cat.anims.isPlaying) {
+                            cat.play('sit-forward', true);
+                        }
+                        break;
+                    default:
+                        if (!cat.anims.isPlaying) {
+                            cat.play('sit', true);
+                        }
+                        break;
                 }
-              }
-            
-            
+            }
+
+
             // Check if the cat has stopped moving and play the appropriate sitting animation based on the last direction
             if (cat.body.velocity.x === 0 && cat.body.velocity.y === 0) {
                 switch (lastDirection) {
@@ -486,7 +510,7 @@ export const usePhaserGame = (gameRef) => {
                         break;
                 }
             }
-            
+
 
 
             if (!moveTile) {
@@ -502,8 +526,8 @@ export const usePhaserGame = (gameRef) => {
                         break;
                 }
             }
-            
-            
+
+
             if (moveTile) {
 
                 switch (moveTile) {
@@ -534,7 +558,7 @@ export const usePhaserGame = (gameRef) => {
                         cat.play('run-diagonal-back', true);
                         cat.flipX = true; // flip when moving left
                         this.scene.get('UIScene').events.emit('updatePlayerPosition', { x: cat.x, y: cat.y });
-                        break;   
+                        break;
                     case 'upRight':
                         cat.x += diagonalVelocity;
                         cat.y -= diagonalVelocity;
@@ -555,7 +579,7 @@ export const usePhaserGame = (gameRef) => {
                         cat.play('run-diagonal-front', true);
                         cat.flipX = false; // don't flip when moving right
                         this.scene.get('UIScene').events.emit('updatePlayerPosition', { x: cat.x, y: cat.y });
-                        break;        
+                        break;
                     default:
                         console.warn(`Unexpected moveTile value: ${moveTile}`);
                         this.scene.get('UIScene').events.emit('updatePlayerPosition', { x: cat.x, y: cat.y });
@@ -567,8 +591,8 @@ export const usePhaserGame = (gameRef) => {
 
                 if (this.isFainting || isAttacking) {
                     return;
-                }        
-                
+                }
+
             }
             playerLevelText.x = cat.x;
             playerLevelText.y = cat.y - 60; // adjust as needed
@@ -592,46 +616,76 @@ export const usePhaserGame = (gameRef) => {
                     console.error("The healthBar object does not have a fill property.");
                 }
             }
+          
+            function handlePlayerDeath() {
+                if (this.isFainting) return; // Prevent multiple calls if already processing death
+            
+                this.isFainting = true;
+                isAttacking = false; // Ensure no attack is in progress
+                cat.anims.stop(); // Stop current animations
+                cat.play('dead'); // Play death animation
+
+                //reset the colliding monsters and colliding monster key:
+                this.collidingMonsters = {};
+                this.collidingMonsterKey = null;
+            
+                // Clear monsters and inventory
+                Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
+                monsters = {};
+                this.clearInventory();
+            
+                // Reset relevant player states
+                PlayerState.energy = 100; // Or any other logic for resetting player state
+                // ... other state resets as needed
+            }
+            
             Object.values(monsters).forEach(monsterObj => {
-                if (monsterObj && monsterObj.healthBar) {
-                    // If the previousHealth property is not set, initialize it to the current health
-                    if (!monsterObj.hasOwnProperty('previousHealth')) {
-                        monsterObj.previousHealth = monsterObj.currentHealth;
-                    }
+                // Check if monster object and its essential properties still exist
+                if (!monsterObj || !monsterObj.sprite || !monsterObj.healthBar) return;
             
-                    const healthChange = monsterObj.previousHealth - monsterObj.currentHealth;
-                    if (healthChange !== 0) {
-                        const changeText = this.add.text(monsterObj.sprite.x, monsterObj.sprite.y - 20, `-${healthChange}`, { font: '16px Arial', fill: '#ff0000' });
-                        this.tweens.add({
-                            targets: changeText,
-                            y: changeText.y - 20,
-                            alpha: 0,
-                            duration: 1000,
-                            onComplete: () => {
-                                changeText.destroy();
-                            }
-                        });
-                    }
-            
-                    updateHealthBar(this, monsterObj.healthBar, monsterObj.currentHealth, monsterObj.maxHealth);
-            
-                    if (monsterObj.healthText) {
-                        monsterObj.healthText.setText(`HP: ${monsterObj.currentHealth}`);
-                    }
-                    monsterObj.previousHealth = monsterObj.currentHealth;  // Update previousHealth for the next iteration
+                // If the previousHealth property is not set, initialize it to the current health
+                if (!monsterObj.hasOwnProperty('previousHealth')) {
+                    monsterObj.previousHealth = monsterObj.currentHealth;
                 }
-                if (monsterObj.healthBar && monsterObj.sprite) {
+            
+                const healthChange = monsterObj.previousHealth - monsterObj.currentHealth;
+                if (healthChange !== 0 && monsterObj.sprite) {
+                    const changeText = this.add.text(monsterObj.sprite.x, monsterObj.sprite.y - 20, `-${healthChange}`, { font: '16px Arial', fill: '#ff0000' });
+                    this.tweens.add({
+                        targets: changeText,
+                        y: changeText.y - 20,
+                        alpha: 0,
+                        duration: 1000,
+                        onComplete: () => {
+                            changeText.destroy();
+                        }
+                    });
+                }
+            
+                updateHealthBar(this, monsterObj.healthBar, monsterObj.currentHealth, monsterObj.maxHealth);
+            
+                // Check if healthText is valid and update it
+                if (monsterObj.healthText && monsterObj.currentHealth > 0 && monsterObj.sprite) {
+                    monsterObj.healthText.setText(`HP: ${monsterObj.currentHealth}`);
+                }
+                monsterObj.previousHealth = monsterObj.currentHealth;  // Update previousHealth for the next iteration
+            
+                // Update positions of monster health bar and text only if the sprite is still valid
+                if (monsterObj.sprite) {
                     monsterObj.healthBar.outer.x = monsterObj.sprite.x - 30;
-                    monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height + 55; // Adjust this value as needed
+                    monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
             
                     monsterObj.healthBar.fill.x = monsterObj.sprite.x - 28;
-                    monsterObj.healthBar.fill.y = monsterObj.sprite.y + monsterObj.sprite.height + 55; // Adjust this value as needed
+                    monsterObj.healthBar.fill.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
             
                     monsterObj.healthText.x = monsterObj.sprite.x + 20;
-                    monsterObj.healthText.y = monsterObj.sprite.y + monsterObj.sprite.height + 75; // Adjust this value as needed
+                    monsterObj.healthText.y = monsterObj.sprite.y + monsterObj.sprite.height + 75;
+            
+                    monsterObj.levelText.x = monsterObj.sprite.x + (tileWidth / 2);
+                    monsterObj.levelText.y = monsterObj.sprite.y - 30;
                 }
             });
-
+            
 
         }
 
@@ -650,22 +704,6 @@ export const usePhaserGame = (gameRef) => {
                 if (i < startI || i > endI || j < startJ || j > endJ) {
                     tiles[key].destroy();
                     delete tiles[key];
-                }
-            });
-
-            // Removing far monsters and their health
-            Object.keys(monsters).forEach((key) => {
-                const [i, j] = key.split(',').map(Number);
-                if (i < startI || i > endI || j < startJ || j > endJ) {
-                    if (monsters[key]) {
-                        monsters[key].sprite && monsters[key].sprite.destroy();
-                        monsters[key].levelText && monsters[key].levelText.destroy();
-                        monsters[key].isRemoved = true; // Add this flag
-                        monsters[key].healthBar.outer.destroy();
-                        monsters[key].healthBar.fill.destroy();
-                        monsters[key].healthText.destroy();
-                        delete monsters[key];
-                    }
                 }
             });
         }

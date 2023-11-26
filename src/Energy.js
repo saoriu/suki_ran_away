@@ -1,16 +1,8 @@
 import { PlayerState } from './playerState';
 import { GameEvents } from './GameEvents'; // Make sure the path is correct
 
-
-// Function to calculate energy cost
-export function calculateEnergyCost(monsterLevel) {
-  const danceLevel = PlayerState.skills.dancing.level;
-  const eventEnergyCost = monsterLevel * (1 - (danceLevel / 300)); 
-  return Math.max(eventEnergyCost, 0); 
-}
-
 export function regenerateEnergy(scene) {
-  if (GameEvents.currentInstance && GameEvents.currentInstance.isEventTriggered) return;
+  if (GameEvents.currentInstance && !GameEvents.currentInstance.isEventTriggered) {
   const now = Date.now();
   const elapsedSeconds = (now - PlayerState.lastEnergyUpdate) / 1000;
 
@@ -21,6 +13,7 @@ export function regenerateEnergy(scene) {
   if (scene && scene.game) {
       scene.game.events.emit('energyChanged');
   }
+}
 }
 
 

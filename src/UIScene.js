@@ -91,9 +91,9 @@ export class UIScene extends Phaser.Scene {
         });
         this.energyText.setText(`${PlayerState.energy.toFixed(0)}`, textStyles.energyText);
       
-        const energyChange = Math.abs(previousEnergy - PlayerState.energy);
-        if (energyChange > 1) {
-          const changeText = this.add.text(this.energyText.x, this.energyText.y - 20, `${previousEnergy > PlayerState.energy ? '-' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fill: previousEnergy > PlayerState.energy ? '#ff0000' : '#00ff00' });
+        const energyChange = PlayerState.energy - previousEnergy;
+        if (energyChange < 0) {
+          const changeText = this.add.text(this.energyText.x, this.energyText.y - 20, `${previousEnergy > PlayerState.energy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fill: previousEnergy > PlayerState.energy ? '#ff0000' : '#00ff00' });
           this.tweens.add({
             targets: changeText,
             y: changeText.y - 20,

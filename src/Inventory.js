@@ -38,6 +38,11 @@ export function addToInventory(itemConfig) {
     return true;
 }
 
+export function clearInventory() {
+    this.registry.set('inventory', []);
+    this.scene.get('UIScene').updateInventoryDisplay();
+}
+
 
 export function updateInventoryDisplay() {
     console.log('Updating Inventory Display'); // Check if this method is being called
