@@ -1,20 +1,21 @@
 import { PlayerState } from './playerState';
-import { GameEvents } from './GameEvents'; // Make sure the path is correct
 
 export function regenerateEnergy(scene) {
-  if (GameEvents.currentInstance && !GameEvents.currentInstance.isEventTriggered) {
-  const now = Date.now();
-  const elapsedSeconds = (now - PlayerState.lastEnergyUpdate) / 1000;
+    const now = Date.now();
 
-  PlayerState.energy = Math.min(PlayerState.energy + elapsedSeconds, 100); // Cap energy at 100
+    // Check if 3 seconds have passed since the last damage
+    console.log(PlayerState.lastDamageTime);
+    if (now - PlayerState.lastDamageTime < 1000) return; // Do not regenerate if damaged recently
 
-  PlayerState.lastEnergyUpdate = now;
+    const elapsedSeconds = (now - PlayerState.lastEnergyUpdate) / 1000;
+    PlayerState.energy = Math.min(PlayerState.energy + elapsedSeconds, 100); // Cap energy at 100
+    PlayerState.lastEnergyUpdate = now;
 
-  if (scene && scene.game) {
-      scene.game.events.emit('energyChanged');
-  }
+    if (scene && scene.game) {
+        scene.game.events.emit('energyChanged');
+    }
 }
-}
+
 
 
 

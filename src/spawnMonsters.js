@@ -17,6 +17,11 @@ function calculateSpawnProbability(baseProbability, eventsBonus) {
 }
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters) {
+  for (const key in monsters) {
+    if (!monsters[key].sprite || !monsters[key].sprite.active) {
+        delete monsters[key];
+    }
+}
   const camera = scene.cameras.main;
   const visibleStartI = Math.floor((centerX - camera.width / 2) / tileWidth);
   const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);
@@ -95,7 +100,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       monsterY - 30,
       `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${modifiedLevel}`,
       textStyles.monsterLevelText // Corrected syntax
-    ).setOrigin(0.5);
+    ).setOrigin(0.5).setVisible(false);
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
 
@@ -105,7 +110,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       const borderOffset = 2;
   
       const outerRect = scene.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
-      outerRect.setOrigin(0, 0.5);
+      outerRect.setOrigin(0, 0.5).setVisible(false);
   
       const progressFill = scene.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0xff0000);
       progressFill.setOrigin(0, 0.5);
@@ -114,11 +119,14 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       return { outer: outerRect, fill: progressFill };
   }
   const monsterHealthBar = createHealthBar(scene, monsterX, monsterY + monster.height + 55, modifiedLevel * 10);
+  monsterHealthBar.outer.setVisible(false); // Initially invisible
+  monsterHealthBar.fill.setVisible(false);  // Initially invisible
 
-  const healthText = scene.add.text(monsterX, monsterY + monster.height + 75, `HP: ${modifiedLevel * 10}`, textStyles.healthText).setOrigin(0.5);
+  const healthText = scene.add.text(monsterX, monsterY + monster.height + 75, `HP: ${modifiedLevel * 10}`, textStyles.healthText).setOrigin(0.5).setVisible(false);
 
   monsters[monsterKey] = {
         sprite: monster,
+        speed: chosenMonster.speed,
         key: monsterKey,
         level: modifiedLevel,
         isAggressive: true, 

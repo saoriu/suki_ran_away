@@ -4,7 +4,6 @@ import Phaser from 'phaser';
 import { spawnMonsters } from './spawnMonsters';
 import { PlayerState } from './playerState';
 import { GAME_CONFIG } from './gameConstants.js';
-import { textStyles } from './styles.js';
 import { GameEvents } from './GameEvents';
 import { regenerateEnergy } from './Energy';
 import * as Inventory from './Inventory';
@@ -40,7 +39,7 @@ export const usePhaserGame = (gameRef) => {
 
         };
 
- 
+
         gameRef.current = new Phaser.Game(config);
         console.log("gameInstance created: ", gameRef.current);
         window.game = gameRef.current;
@@ -53,7 +52,6 @@ export const usePhaserGame = (gameRef) => {
         let cursors;
         let monsters = {};
         const tilesBuffer = GAME_CONFIG.TILES_BUFFER;
-        let playerLevelText; // Define at the start of your useEffect, where other game variables are defined
 
 
         function preload() {
@@ -270,8 +268,6 @@ export const usePhaserGame = (gameRef) => {
             this.gameEvents = new GameEvents(this, cat);
             createTilesAround(0, 0, this);
             cursors = this.input.keyboard.createCursorKeys();
-            playerLevelText = this.add.text(cat.x, cat.y - 20, `Level: ${PlayerState.level}`, textStyles.playerLevelText).setOrigin(0.5);
-            playerLevelText.setDepth(100); // high value to ensure it renders above other objects
             this.handleItemPickup = Inventory.handleItemPickup.bind(this);
             this.addToInventory = Inventory.addToInventory.bind(this);
             this.clearInventory = Inventory.clearInventory.bind(this);
@@ -279,6 +275,7 @@ export const usePhaserGame = (gameRef) => {
                 if (animation.key === 'dead') {
                     cat.play('sit'); // Switch to sit animation after fainting
                     this.isFainting = false; // Reset the fainting flag
+                    this.isDead = false;
                     canAttack = true;
                 } else if (animation.key === 'scratch') {
                     isAttacking = false;
@@ -294,11 +291,12 @@ export const usePhaserGame = (gameRef) => {
                 if (event.code === 'Space' && !spaceInterval && !this.isFainting) {
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
+                        isAttacking = true;
+
+
 
                         if (canAttack && this.collidingMonsterKey) {
                             this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
-                            isAttacking = true;
-                            cat.play('scratch', true);
                             canAttack = false;
                             setTimeout(() => {
                                 if (!this.isFainting) {
@@ -370,6 +368,11 @@ export const usePhaserGame = (gameRef) => {
                 return; // Exit early if not enough time has passed since the last update
             }
 
+
+            if (PlayerState.energy <= 0 && !this.isFainting) {
+                handlePlayerDeath.call(this);
+            }
+
             this.physics.collide(cat, Object.values(monsters).map(m => m.sprite), function (catSprite, monsterSprite) {
                 for (const [key, monster] of Object.entries(monsters)) {
                     if (monster.sprite === monsterSprite) {
@@ -377,27 +380,30 @@ export const usePhaserGame = (gameRef) => {
                         this.collidingMonsters[key] = monster;
                     }
                 }
-            
-                if (Object.keys(this.collidingMonsters).length > 0) {
-                    // Target the first monster in the collidingMonsters object
-                    this.collidingMonsterKey = Object.keys(this.collidingMonsters)[0];
-                } else {
-                    this.collidingMonsterKey = null;
-                }
-            
-                console.log("collidingMonsters: ", this.collidingMonsters);
             }, null, this);
 
-            // After collision detection logic
-Object.keys(this.collidingMonsters).forEach(key => {
-    if (!this.collidingMonsters[key].isColliding) {
-        delete this.collidingMonsters[key];
-    }
-});
+            updateTargetMonsterKey.call(this); // Update the target monster key after collision detection
 
-this.physics.collide(Object.values(monsters).map(m => m.sprite));
 
-            if (isAttacking) {
+            Object.keys(this.collidingMonsters).forEach(key => {
+                if (!this.collidingMonsters[key].isColliding) {
+                    delete this.collidingMonsters[key];
+                    updateTargetMonsterKey.call(this); // Re-evaluate target monster after each deletion
+                }
+            });
+
+            this.physics.collide(Object.values(monsters).map(m => m.sprite));
+
+            if (isAttacking && this.collidingMonsterKey) {
+                cat.play('scratch', true);
+                cat.on('animationcomplete', (animation, frame) => {
+                    if (isAttacking) {
+                        cat.play('sit');
+                        isAttacking = false; // set flag to false to indicate scratch animation is finished
+                    }
+                }, this);
+                updateTargetMonsterKey.call(this);
+            } else if (isAttacking && !this.isDead) {
                 cat.play('scratch', true);
                 cat.on('animationcomplete', (animation, frame) => {
                     if (isAttacking) {
@@ -406,12 +412,6 @@ this.physics.collide(Object.values(monsters).map(m => m.sprite));
                     }
                 }, this);
             }
-
-            if (PlayerState.energy <= 0 && !this.isFainting) {
-                handlePlayerDeath.call(this);
-            }
-            
-
 
             const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
 
@@ -592,9 +592,6 @@ this.physics.collide(Object.values(monsters).map(m => m.sprite));
                 }
 
             }
-            playerLevelText.x = cat.x;
-            playerLevelText.y = cat.y - 60; // adjust as needed
-            playerLevelText.setText(`Level: ${PlayerState.level}`);
 
             function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
                 const hue = Phaser.Math.Clamp((currentHealth / maxHealth) * 120, 0, 120);
@@ -614,10 +611,13 @@ this.physics.collide(Object.values(monsters).map(m => m.sprite));
                     console.error("The healthBar object does not have a fill property.");
                 }
             }
-          
+
             function handlePlayerDeath() {
                 if (this.isFainting) return; // Prevent multiple calls if already processing death
-            
+
+                this.isDead = true;
+
+
                 this.isFainting = true;
                 isAttacking = false; // Ensure no attack is in progress
                 cat.anims.stop(); // Stop current animations
@@ -626,26 +626,56 @@ this.physics.collide(Object.values(monsters).map(m => m.sprite));
                 //reset the colliding monsters and colliding monster key:
                 this.collidingMonsters = {};
                 this.collidingMonsterKey = null;
-            
+
                 // Clear monsters and inventory
                 Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
                 monsters = {};
                 this.clearInventory();
-            
+
                 // Reset relevant player states
                 PlayerState.energy = 100; // Or any other logic for resetting player state
                 // ... other state resets as needed
             }
-            
+
+            function updateTargetMonsterKey() {
+                this.collidingMonsterKey = null; // Reset the target monster key
+
+                // Determine the colliding monster that the player is facing
+                for (const [key, monster] of Object.entries(this.collidingMonsters)) {
+                    if (isMonsterInFront(cat, monster, lastDirection)) {
+                        this.collidingMonsterKey = key;
+                        break; // Break the loop once the first facing monster is found
+                    }
+                }
+            }
+
+
+            function isMonsterInFront(player, monster, lastDirection) {
+                switch (lastDirection) {
+                    case 'left':
+                        return monster.sprite.x < player.x;
+                    case 'right':
+                        return monster.sprite.x > player.x;
+                    case 'up':
+                        return monster.sprite.y < player.y;
+                    case 'down':
+                        return monster.sprite.y > player.y;
+                    default:
+                        return false;
+                }
+            }
+
+
+
             Object.values(monsters).forEach(monsterObj => {
                 // Check if monster object and its essential properties still exist
                 if (!monsterObj || !monsterObj.sprite || !monsterObj.healthBar) return;
-            
+
                 // If the previousHealth property is not set, initialize it to the current health
                 if (!monsterObj.hasOwnProperty('previousHealth')) {
                     monsterObj.previousHealth = monsterObj.currentHealth;
                 }
-            
+
                 const healthChange = monsterObj.previousHealth - monsterObj.currentHealth;
                 if (healthChange !== 0 && monsterObj.sprite) {
                     const changeText = this.add.text(monsterObj.sprite.x, monsterObj.sprite.y - 20, `-${healthChange}`, { font: '16px Arial', fill: '#ff0000' });
@@ -659,31 +689,31 @@ this.physics.collide(Object.values(monsters).map(m => m.sprite));
                         }
                     });
                 }
-            
+
                 updateHealthBar(this, monsterObj.healthBar, monsterObj.currentHealth, monsterObj.maxHealth);
-            
+
                 // Check if healthText is valid and update it
                 if (monsterObj.healthText && monsterObj.currentHealth > 0 && monsterObj.sprite) {
                     monsterObj.healthText.setText(`HP: ${monsterObj.currentHealth}`);
                 }
                 monsterObj.previousHealth = monsterObj.currentHealth;  // Update previousHealth for the next iteration
-            
+
                 // Update positions of monster health bar and text only if the sprite is still valid
                 if (monsterObj.sprite) {
                     monsterObj.healthBar.outer.x = monsterObj.sprite.x - 30;
                     monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
-            
+
                     monsterObj.healthBar.fill.x = monsterObj.sprite.x - 28;
                     monsterObj.healthBar.fill.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
-            
+
                     monsterObj.healthText.x = monsterObj.sprite.x + 20;
                     monsterObj.healthText.y = monsterObj.sprite.y + monsterObj.sprite.height + 75;
-            
+
                     monsterObj.levelText.x = monsterObj.sprite.x + (tileWidth / 2);
                     monsterObj.levelText.y = monsterObj.sprite.y - 30;
                 }
             });
-            
+
 
         }
 

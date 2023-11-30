@@ -7,6 +7,7 @@ export const PlayerState = {
     level: skills.dancing.level + skills.gathering.level,
     energy: 100,
     skills: skills,
+    lastDamageTime: Date.now(),
     energyBonus: 0, //energy regeneration boost
     danceBonus: 0, //rare dance moves boost
     createBonus: 0, //save an item from being destroyed during creation

@@ -4,7 +4,7 @@ export const eventOptions = [
     description: 'A cute lil creature.',
     monster: 'bunny',
     level: 1,
-    health: 50,
+    speed: 2,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
       rare: ['Apple', 'Gold'],
@@ -18,7 +18,7 @@ export const eventOptions = [
     description: 'An angel.',
     monster: 'espe',
     level: 1,
-    health: 50,
+    speed: 1,
     possibleOutcomes: {
       common: ['Strawberry', 'Lemon'],
       rare: ['Ruby', 'Diamond'],
@@ -32,7 +32,7 @@ export const eventOptions = [
     description: 'A little rascal.',
     monster: 'raccoon',
     level: 2,
-    health: 100,
+    speed: 1,
     possibleOutcomes: {
       common: ['Lemon', 'Pebble'],
       rare: ['Gold', 'Emerald'],
@@ -45,8 +45,8 @@ export const eventOptions = [
     event: 'monster3',
     description: 'Cute but fierce.',
     monster: 'panda',
-    level: 3,
-    health: 150,
+    level: 5,
+    speed: 1,
     possibleOutcomes: {
       common: ['Gold', 'Ruby'],
       rare: ['Diamond', 'Emerald'],
@@ -60,21 +60,21 @@ export const eventOptions = [
     description: 'A very interestinig creature, wonder what it drops.',
     monster: 'dragonfly',
     level: 10,
-    health: 500,
+    speed: 3,
     possibleOutcomes: {
       common: ['Diamond', 'Thread'],
       rare: ['Gold', 'Silk'],
       ultrarare: ['Silk']
     },
     skill: 'dancing',
-    monsterChance: 'ultrare'
+    monsterChance: 'ultrarare'
   },
   {
     event: 'monster5',
     monster: 'chicken',
     description: 'She may have something useful.',
     level: 1,
-    health: 50,
+    speed: 1,
     possibleOutcomes: {
       common: ['Milk', 'Egg', 'Flour'],
       rare: ['Ruby', 'Gold'],
@@ -87,8 +87,8 @@ export const eventOptions = [
     event: 'monster6',
     monster: 'fox',
     description: 'Wonder what I can find.',
-    level: 3,
-    health: 150,
+    level: 4,
+    speed: 2,
     possibleOutcomes: {
       common: ['Blueberry', 'Strawberry', 'Pebble'],
       rare: ['Emerald', 'Gold'],
