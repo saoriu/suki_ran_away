@@ -311,8 +311,6 @@ export const usePhaserGame = (gameRef) => {
                 }
             });
 
-
-
             this.input.keyboard.on('keyup', (event) => {
                 if (event.code === 'Space') {
                     clearInterval(spaceInterval);
