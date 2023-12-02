@@ -96,7 +96,7 @@ export class UIScene extends Phaser.Scene {
       
         const energyChange = displayedEnergy - previousEnergy;
         if (energyChange < 0) {
-          const changeText = this.add.text(this.energyText.x, this.energyText.y - 20, `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' });
+          const changeText = this.add.text(this.energyText.x + 25, this.energyText.y, `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square',fontSize: '20px' ,fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' });
           this.tweens.add({
             targets: changeText,
             y: changeText.y - 20,
@@ -207,8 +207,8 @@ export class UIScene extends Phaser.Scene {
         });
 
         this.dancingFrame = this.add.image(-550, 200, 'dancingFrame').setScale(0.4).setAngle(90);
-        this.dancingText = this.add.text(-280, 0, `Dancing Lvl: ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-        this.dancingXPText = this.add.text(-280, 20, `XP: ${getTotalSkillXP('dancing')}`, textStyles.playerLevelText);
-        this.skillsContainer.add([this.dancingFrame]); //this.dancingText, this.dancingXPText, for later?
+        this.dancingText = this.add.text(-560, 70, `Lvl ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
+        this.dancingXPText = this.add.text(-280, 20, `${getTotalSkillXP('dancing')} XP`, textStyles.playerLevelText);
+        this.skillsContainer.add([this.dancingText, this.dancingFrame]);
       }
 }
