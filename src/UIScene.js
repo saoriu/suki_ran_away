@@ -41,7 +41,7 @@ export class UIScene extends Phaser.Scene {
         this.energyBar = this.createEnergyBar(310, 318);
         this.add.existing(this.energyBar.outer);
         this.add.existing(this.energyBar.fill);
-        this.energyText = this.add.text(310, 330, `Energy: ${PlayerState.energy.toFixed(0)}`, textStyles.energyText);
+        this.energyText = this.add.text(310, 330, ``, textStyles.energyText); //dont display energy count until i wanna move it to a UI
         this.updateEnergyBar();
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
     }
@@ -77,9 +77,10 @@ export class UIScene extends Phaser.Scene {
 
     updateEnergyBar() {
         const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
-        const energyProgress = Math.max(0, PlayerState.energy / 100);
+        const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
+        const energyProgress = displayedEnergy / 100;
         const targetWidth = 80 * energyProgress;
-        const hue = (PlayerState.energy / 100) * 120;
+        const hue = (displayedEnergy / 100) * 120; // Use displayedEnergy for hue calculation
         const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
       
         this.energyBar.fill.setFillStyle(color);
@@ -89,11 +90,13 @@ export class UIScene extends Phaser.Scene {
           duration: 100,
           ease: 'Sine.easeInOut'
         });
-        this.energyText.setText(`${PlayerState.energy.toFixed(0)}`, textStyles.energyText);
+    
+        // Update the text with the capped energy value
+       // this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
       
-        const energyChange = PlayerState.energy - previousEnergy;
+        const energyChange = displayedEnergy - previousEnergy;
         if (energyChange < 0) {
-          const changeText = this.add.text(this.energyText.x, this.energyText.y - 20, `${previousEnergy > PlayerState.energy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fill: previousEnergy > PlayerState.energy ? '#ff0000' : '#00ff00' });
+          const changeText = this.add.text(this.energyText.x, this.energyText.y - 20, `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' });
           this.tweens.add({
             targets: changeText,
             y: changeText.y - 20,
@@ -104,10 +107,10 @@ export class UIScene extends Phaser.Scene {
             }
           });
         }
-      
-        PlayerState.previousEnergy = PlayerState.energy; // Store the current energy as previous for next update
-      }
-
+    
+        PlayerState.previousEnergy = displayedEnergy; // Store the capped energy as previous for next update
+    }
+    
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 80;
         const progressBarHeight = 6;
@@ -204,8 +207,8 @@ export class UIScene extends Phaser.Scene {
         });
 
         this.dancingFrame = this.add.image(-550, 200, 'dancingFrame').setScale(0.4).setAngle(90);
-        this.dancingText = this.add.text(-200, 430, `Dancing Lvl: ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-        this.dancingXPText = this.add.text(-230, 450, `XP: ${getTotalSkillXP('dancing')}`, textStyles.playerLevelText);
-        this.skillsContainer.add([this.dancingText, this.dancingXPText, this.dancingFrame]);
+        this.dancingText = this.add.text(-280, 0, `Dancing Lvl: ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
+        this.dancingXPText = this.add.text(-280, 20, `XP: ${getTotalSkillXP('dancing')}`, textStyles.playerLevelText);
+        this.skillsContainer.add([this.dancingFrame]); //this.dancingText, this.dancingXPText, for later?
       }
 }

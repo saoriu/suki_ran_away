@@ -77,11 +77,14 @@ export class GameEvents {
         let monsterLevel = targetMonster.level;
 
         // Emit player battle update event
-        const playerRoll = Phaser.Math.Between(0, PlayerState.level * 10);
+        const playerRoll = Phaser.Math.Between(0, PlayerState.level * 7);
         this._emitPlayerBattleUpdate(monsterLevel, monsterHealth, playerRoll);
 
         // Apply damage to the monster
         targetMonster.currentHealth -= playerRoll;
+        if (playerRoll > 0) {
+        targetMonster.isHurt = true;  // Assuming each monster object has an isHurt property
+        }
 
         // Check if the monster is defeated
         if (targetMonster.currentHealth <= 0) {
@@ -100,45 +103,52 @@ export class GameEvents {
 monsterAttack(monsters, targetMonsterKey) {
     if (this.scene.isFainting) return; // Skip if player is dead
 
-    if (PlayerState.energy > 0) {
-        const targetMonster = monsters[targetMonsterKey];
-        if (!targetMonster) {
-            console.log(`No target monster found with key: ${targetMonsterKey}`);
-            return;
-        }
-
-        const attackCooldown = 1000; // 1 second in milliseconds
-        const currentTime = Date.now();
-        if (currentTime - targetMonster.lastAttackTime < attackCooldown) {
-            return; // Skip the attack if the cooldown has not elapsed
-        }
-        targetMonster.lastAttackTime = currentTime;
-
-        this.currentBattleMonsterKey = {
-            key: targetMonster.key,
-            timestamp: Date.now()
-        };
-
-        PlayerState.lastEnergyUpdate = Date.now();
-        this.scene.game.events.emit('startBattle');
-
-        let monsterLevel = targetMonster.level;
-        const monsterRoll = Phaser.Math.Between(0, monsterLevel * 1);
-        PlayerState.energy -= monsterRoll;
-        this.monsterHasAttacked = true;
-        this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
-
-        if (monsterRoll > 0) {
-            PlayerState.lastDamageTime = Date.now(); // Correctly update the last damage time in PlayerState
-            }
-
-        if (PlayerState.energy <= 0) {
-            PlayerState.energy = 0;
-            this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
-            this.endBattleForMonster(targetMonster);
-        }
+    const targetMonster = monsters[targetMonsterKey];
+    if (!targetMonster) {
+        console.log(`No target monster found with key: ${targetMonsterKey}`);
+        return;
     }
+
+    const attackCooldown = 1000; // 1 second in milliseconds
+    const currentTime = Date.now();
+    if (currentTime - targetMonster.lastAttackTime < attackCooldown) {
+        return; // Skip the attack if the cooldown has not elapsed
+    }
+    targetMonster.lastAttackTime = currentTime;
+
+    this.currentBattleMonsterKey = {
+        key: targetMonster.key,
+        timestamp: Date.now()
+    };
+
+    PlayerState.lastEnergyUpdate = Date.now();
+    this.scene.game.events.emit('startBattle');
+
+    let monsterLevel = targetMonster.level;
+    const monsterRoll = Phaser.Math.Between(0, monsterLevel * 1);
+    targetMonster.isAttacking = true;
+    this.monsterHasAttacked = true;
+
+    // Time to impact (in milliseconds)
+    const timeToImpact = 300; // Adjust based on your animation, e.g., 0.3 seconds = 300 ms
+
+    // Delay damage application to synchronize with the attack animation's impact frame
+    setTimeout(() => {
+        if (PlayerState.energy > 0) {
+            PlayerState.energy -= monsterRoll;
+            PlayerState.lastDamageTime = Date.now(); // Update the last damage time in PlayerState
+            this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
+
+            if (PlayerState.energy <= 0) {
+                PlayerState.energy = 0;
+                this.endBattleForMonster(targetMonster);
+            }
+        }
+    }, timeToImpact);
+
+    // Resetting the attacking flag should be handled after the animation completes
 }
+
 
 
 
@@ -190,6 +200,7 @@ monsterAttack(monsters, targetMonsterKey) {
 
             // Reset battle flags
             this.monsterHasAttacked = false;
+            targetMonster.isDead = true
             targetMonster.isColliding = false;
             PlayerState.lastEnergyUpdate = Date.now();
             this.currentBattleMonsterKey = null;
@@ -207,12 +218,11 @@ monsterAttack(monsters, targetMonsterKey) {
         const player = this.scene.cat;
         const tileWidth = GAME_CONFIG.TILE_WIDTH;
         const maxDistance = 30 * tileWidth;
-        const runningDistance = 5 * tileWidth;
+        const runningDistance = 1.5 * tileWidth;
     
         Object.values(monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return; // Check if monster and its sprite are valid
 
-            console.log('monster', monster)
             const distance = this.calculateDistance(player, monster); // Calculate distance between player and monster
     
             if (distance > maxDistance) {
@@ -223,24 +233,35 @@ monsterAttack(monsters, targetMonsterKey) {
             if (distance > runningDistance) {
                 monster.isColliding = false; // Reset colliding status
                 monster.isFollowing = true; // Monster starts following the player
+                monster.isMoving = true;
             } else {
                 this.handleMonsterEngagement(monsters, monster); // Handle close-range engagement
+                monster.isMoving = false;
             }
     
             this.updateMonsterMovement(player, monster, distance); // Update monster movement based on current state
         });
     }
     
-    calculateDistance(player, monster) {
-        const distanceX = player.x - monster.sprite.x;
-        const distanceY = player.y - monster.sprite.y;
-        return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-    }
+calculateDistance(player, monster) {
+    const playerCenterX = player.x + player.body.offset.x;
+    const playerCenterY = player.y + player.body.offset.y;
+    const monsterCenterX = monster.sprite.x + monster.sprite.body.offset.x;
+    const monsterCenterY = monster.sprite.y + monster.sprite.body.offset.y;
+
+    const distanceX = playerCenterX - monsterCenterX;
+    const distanceY = playerCenterY - monsterCenterY;
+    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+    // Subtracting the radii to calculate distance between the edges of the bodies
+    const playerRadius = player.body.width / 2;
+    const monsterRadius = monster.sprite.body.width / 2;
+    return Math.max(0, distance - (playerRadius + monsterRadius));
+}
+
     
     handleMonsterEngagement(monsters, monster) {
-        console.log(`Handling engagement for monster ${monster.key}, isColliding: ${monster.isColliding}`);
         if (monster.isColliding) {
-            console.log(`Monster ${monster.key} is attacking`);
             this.monsterAttack(monsters, monster.key);
             monster.isFollowing = false;
         } else {

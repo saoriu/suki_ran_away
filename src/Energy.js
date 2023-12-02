@@ -4,8 +4,7 @@ export function regenerateEnergy(scene) {
     const now = Date.now();
 
     // Check if 3 seconds have passed since the last damage
-    console.log(PlayerState.lastDamageTime);
-    if (now - PlayerState.lastDamageTime < 1000) return; // Do not regenerate if damaged recently
+    if (now - PlayerState.lastDamageTime < 1000 || PlayerState.isDead) return; // Do not regenerate if damaged recently
 
     const elapsedSeconds = (now - PlayerState.lastEnergyUpdate) / 1000;
     PlayerState.energy = Math.min(PlayerState.energy + elapsedSeconds, 100); // Cap energy at 100

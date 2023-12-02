@@ -8,6 +8,7 @@ export const PlayerState = {
     energy: 100,
     skills: skills,
     lastDamageTime: Date.now(),
+    isDead: false,
     energyBonus: 0, //energy regeneration boost
     danceBonus: 0, //rare dance moves boost
     createBonus: 0, //save an item from being destroyed during creation

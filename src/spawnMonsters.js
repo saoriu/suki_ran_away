@@ -19,9 +19,9 @@ function calculateSpawnProbability(baseProbability, eventsBonus) {
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters) {
   for (const key in monsters) {
     if (!monsters[key].sprite || !monsters[key].sprite.active) {
-        delete monsters[key];
+      delete monsters[key];
     }
-}
+  }
   const camera = scene.cameras.main;
   const visibleStartI = Math.floor((centerX - camera.width / 2) / tileWidth);
   const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);
@@ -90,10 +90,17 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
     const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
     const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
-    const monsterSpriteKey = chosenMonster.monster;
+    const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
+    const initialAnimationKey = `${monsterSpriteKey}_run`; // Assuming 'idle' animation with frame 
 
-    const monster = scene.physics.add.sprite(monsterX, monsterY, monsterSpriteKey).setOrigin(0).setScale(GAME_CONFIG.SCALE);
-    monster.body.setCircle(monster.width / 2);
+
+
+    const monster = scene.physics.add.sprite(monsterX, monsterY, monsterSpriteKey)
+      .play(initialAnimationKey) // Check this line
+      .setOrigin(0.5)
+      .setScale(GAME_CONFIG.SCALE); monster.body.setCircle(monster.width / 5);
+    monster.body.setOffset(monster.width / 5, monster.height / 2);
+    monster.play(`${monsterSpriteKey}`); // Playing idle animation
 
     const levelText = scene.add.text(
       monsterX + (tileWidth / 2),
@@ -108,46 +115,46 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       const progressBarWidth = 80;
       const progressBarHeight = 6;
       const borderOffset = 2;
-  
+
       const outerRect = scene.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
       outerRect.setOrigin(0, 0.5).setVisible(false);
-  
+
       const progressFill = scene.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0xff0000);
       progressFill.setOrigin(0, 0.5);
       progressFill.displayWidth = progressBarWidth;
-  
+
       return { outer: outerRect, fill: progressFill };
-  }
-  const monsterHealthBar = createHealthBar(scene, monsterX, monsterY + monster.height + 55, modifiedLevel * 10);
-  monsterHealthBar.outer.setVisible(false); // Initially invisible
-  monsterHealthBar.fill.setVisible(false);  // Initially invisible
+    }
+    const monsterHealthBar = createHealthBar(scene, monsterX, monsterY + monster.height + 55, modifiedLevel * 10);
+    monsterHealthBar.outer.setVisible(false); // Initially invisible
+    monsterHealthBar.fill.setVisible(false);  // Initially invisible
 
-  const healthText = scene.add.text(monsterX, monsterY + monster.height + 75, `HP: ${modifiedLevel * 10}`, textStyles.healthText).setOrigin(0.5).setVisible(false);
+    const healthText = scene.add.text(monsterX, monsterY + monster.height + 75, `HP: ${modifiedLevel * 10}`, textStyles.healthText).setOrigin(0.5).setVisible(false);
 
-  monsters[monsterKey] = {
-        sprite: monster,
-        speed: chosenMonster.speed,
-        key: monsterKey,
-        level: modifiedLevel,
-        isAggressive: true, 
-        isColliding: false,
-        isFollowing: true,
-        levelText: levelText,
-        event: chosenMonster,
-        healthBar: {
-          outer: monsterHealthBar.outer,
-          fill: monsterHealthBar.fill
+    monsters[monsterKey] = {
+      sprite: monster,
+      speed: chosenMonster.speed,
+      key: monsterKey,
+      level: modifiedLevel,
+      isAggressive: true,
+      isColliding: false,
+      isFollowing: true,
+      levelText: levelText,
+      event: chosenMonster,
+      healthBar: {
+        outer: monsterHealthBar.outer,
+        fill: monsterHealthBar.fill
       },
-        healthText: healthText,
-        maxHealth: modifiedLevel * 10,
-        currentHealth: modifiedLevel * 10
+      healthText: healthText,
+      maxHealth: modifiedLevel * 10,
+      currentHealth: modifiedLevel * 10
     };
 
     console.log(monsters)
-    
+
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
-    monster.setDepth(3); 
+    monster.setDepth(3);
     levelText.setDepth(4); // Ensure the text renders above the monsters and other game objects
     monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
     monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite

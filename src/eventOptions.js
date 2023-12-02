@@ -14,20 +14,6 @@ export const eventOptions = [
     monsterChance: 'common'
   },
   {
-    event: 'monster5',
-    description: 'An angel.',
-    monster: 'espe',
-    level: 1,
-    speed: 1,
-    possibleOutcomes: {
-      common: ['Strawberry', 'Lemon'],
-      rare: ['Ruby', 'Diamond'],
-      ultrarare: ['Emerald']
-    },
-    skill: 'dancing',
-    monsterChance: 'common'
-  },
-  {
     event: 'monster2',
     description: 'A little rascal.',
     monster: 'raccoon',
@@ -82,20 +68,6 @@ export const eventOptions = [
     },
     skill: 'dancing',
     monsterChance: 'common'
-  },
-  {
-    event: 'monster6',
-    monster: 'fox',
-    description: 'Wonder what I can find.',
-    level: 4,
-    speed: 2,
-    possibleOutcomes: {
-      common: ['Blueberry', 'Strawberry', 'Pebble'],
-      rare: ['Emerald', 'Gold'],
-      ultrarare: ['Diamond']
-    },
-    skill: 'dancing',
-    monsterChance: 'rare'
   }
 ].map(option => {
   const variation = 2; // Define the maximum increase in level

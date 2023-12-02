@@ -69,18 +69,36 @@ export const usePhaserGame = (gameRef) => {
             };
             for (let i = 1; i <= 8; i++) this.load.image(`run-diagonal-back${i}`, `/rundiagonal${i}.png`);
             for (let i = 1; i <= 8; i++) this.load.image(`run-diagonal-front${i}`, `/rundiagonalfront${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`raccoon_run-${i}`, `/raccoon_run-${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`raccoon-${i}`, `/raccoon_idle-${i}.png`);
+            for (let i = 1; i <= 7; i++) this.load.image(`raccoon_attack-${i}`, `/raccoon_attack-${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`panda_run-${i}`, `/panda_run-${i}.png`);
+            for (let i = 1; i <= 4; i++) this.load.image(`panda-${i}`, `/panda_idle-${i}.png`);
+            for (let i = 1; i <= 5; i++) this.load.image(`panda_attack-${i}`, `/panda_attack-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`dragonfly_run-${i}`, `/dragonfly_run-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`dragonfly-${i}`, `/dragonfly_idle-${i}.png`);
+            for (let i = 1; i <= 7; i++) this.load.image(`dragonfly_attack-${i}`, `/dragonfly_attack-${i}.png`);
+            for (let i = 1; i <= 4; i++) this.load.image(`chicken_run-${i}`, `/chicken_run-${i}.png`);
+            for (let i = 1; i <= 4; i++) this.load.image(`chicken-${i}`, `/chicken_idle-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`chicken_attack-${i}`, `/chicken_attack-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`bunny_run-${i}`, `/bunny_run-${i}.png`);
+            for (let i = 1; i <= 4; i++) this.load.image(`bunny-${i}`, `/bunny_idle-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`bunny_attack-${i}`, `/bunny_attack-${i}.png`);
+            for (let i = 1; i <= 7; i++) this.load.image(`raccoon_hurt-${i}`, `/raccoon_hurt-${i}.png`);
+            for (let i = 1; i <= 7; i++) this.load.image(`panda_hurt-${i}`, `/panda_hurt-${i}.png`);
+            for (let i = 1; i <= 5; i++) this.load.image(`dragonfly_hurt-${i}`, `/dragonfly_hurt-${i}.png`);
+            for (let i = 1; i <= 5; i++) this.load.image(`chicken_hurt-${i}`, `/chicken_hurt-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`bunny_hurt-${i}`, `/bunny_hurt-${i}.png`);
+            for (let i = 1; i <= 16; i++) this.load.image(`bunny_die-${i}`, `/bunny_die-${i}.png`);
+            for (let i = 1; i <= 10; i++) this.load.image(`chicken_die-${i}`, `/chicken_die-${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`dragonfly_die-${i}`, `/dragonfly_die-${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`panda_die-${i}`, `/panda_die-${i}.png`);
+            for (let i = 1; i <= 8; i++) this.load.image(`raccoon_die-${i}`, `/raccoon_die-${i}.png`);
             this.load.image('frame', '/frame-mini.png');
             this.load.image('grid', '/grid.png');
             this.load.image('grid-hover', '/grid-hover.png');
             this.load.image('grid-hovers', '/grid-hovers.png');
             this.load.image('grid-new', '/grid-new.png');
-            this.load.image('chicken', '/chicken.png');
-            this.load.image('fox', '/fox.png');
-            this.load.image('panda', '/panda.png');
-            this.load.image('dragonfly', '/dragonfly.png');
-            this.load.image('raccoon', '/raccoon.png');
-            this.load.image('bunny', '/bunny.png');
-            this.load.image('espe', '/espe.png');
             this.load.image('apple', '/apple.png');
             this.load.image('cotton', '/cotton.png');
             this.load.image('diamond', '/diamond.png');
@@ -115,6 +133,365 @@ export const usePhaserGame = (gameRef) => {
             cat.body.setOffset(cat.width / 1, cat.height / 2); // Offset the circle to center it
             cat.body.immovable = true;
             this.collidingMonsterKey = null;
+            // Bunny Idle Animation
+this.anims.create({
+    key: 'bunny',
+    frames: [
+        { key: 'bunny-1' }, { key: 'bunny-2' }, 
+        { key: 'bunny-3' }, { key: 'bunny-4' }
+    ],
+    frameRate: 10,
+    repeat: 0
+});
+
+// Bunny Run Animation
+this.anims.create({
+    key: 'bunny_run',
+    frames: [
+        { key: 'bunny_run-1' }, { key: 'bunny_run-2' }, 
+        { key: 'bunny_run-3' }, { key: 'bunny_run-4' }, 
+        { key: 'bunny_run-5' }, { key: 'bunny_run-6' }
+    ],
+    frameRate: 12,
+    repeat: 0
+});
+
+// Bunny Attack Animation
+this.anims.create({
+    key: 'bunny_attack',
+    frames: [
+        { key: 'bunny_attack-1' }, { key: 'bunny_attack-2' }, 
+        { key: 'bunny_attack-3' }, { key: 'bunny_attack-4' }, 
+        { key: 'bunny_attack-5' }, { key: 'bunny_attack-6' }
+    ],
+    frameRate: 10,
+    repeat: 0
+});
+
+// Bunny Hurt Animation
+this.anims.create({
+    key: 'bunny_hurt',
+    frames: [
+        { key: 'bunny_hurt-1' }, { key: 'bunny_hurt-2' }, 
+        { key: 'bunny_hurt-3' }, { key: 'bunny_hurt-4' }, 
+        { key: 'bunny_hurt-5' }, { key: 'bunny_hurt-6' }
+    ],
+    frameRate: 12,
+    repeat: 0
+});
+
+// Bunny Die Animation
+this.anims.create({
+    key: 'bunny_die',
+    frames: [
+        { key: 'bunny_die-1' }, { key: 'bunny_die-2' }, 
+        { key: 'bunny_die-3' }, { key: 'bunny_die-4' }, 
+        { key: 'bunny_die-5' }, { key: 'bunny_die-6' }, 
+        { key: 'bunny_die-7' }, { key: 'bunny_die-8' },
+        { key: 'bunny_die-9' }, { key: 'bunny_die-10' },
+        { key: 'bunny_die-11' }, { key: 'bunny_die-12' },
+        { key: 'bunny_die-13' }, { key: 'bunny_die-14' },
+        { key: 'bunny_die-15' }, { key: 'bunny_die-16' }
+    ],
+    frameRate: 10,
+    repeat: 0
+});
+
+                  // Chicken Animations
+                  this.anims.create({
+                    key: 'chicken',
+                    frames: [
+                        { key: 'chicken-1' },
+                        { key: 'chicken-2' },
+                        { key: 'chicken-3' },
+                        { key: 'chicken-4' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'chicken_run',
+                    frames: [
+                        { key: 'chicken_run-1' },
+                        { key: 'chicken_run-2' },
+                        { key: 'chicken_run-3' },
+                        { key: 'chicken_run-4' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'chicken_attack',
+                    frames: [
+                        { key: 'chicken_attack-1' },
+                        { key: 'chicken_attack-2' },
+                        { key: 'chicken_attack-3' },
+                        { key: 'chicken_attack-4' },
+                        { key: 'chicken_attack-5' },
+                        { key: 'chicken_attack-6' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'chicken_hurt',
+                    frames: [
+                        { key: 'chicken_hurt-1' },
+                        { key: 'chicken_hurt-2' },
+                        { key: 'chicken_hurt-3' },
+                        { key: 'chicken_hurt-4' },
+                        { key: 'chicken_hurt-5' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'chicken_die',
+                    frames: [
+                        { key: 'chicken_die-1' },
+                        { key: 'chicken_die-2' },
+                        { key: 'chicken_die-3' },
+                        { key: 'chicken_die-4' },
+                        { key: 'chicken_die-5' },
+                        { key: 'chicken_die-6' },
+                        { key: 'chicken_die-7' },
+                        { key: 'chicken_die-8' },
+                        { key: 'chicken_die-9' },
+                        { key: 'chicken_die-10' }
+                    ],
+                    frameRate: 20,
+                    repeat: 0
+                });
+    
+                // Dragonfly Animations
+                this.anims.create({
+                    key: 'dragonfly',
+                    frames: [
+                        { key: 'dragonfly-1' },
+                        { key: 'dragonfly-2' },
+                        { key: 'dragonfly-3' },
+                        { key: 'dragonfly-4' },
+                        { key: 'dragonfly-5' },
+                        { key: 'dragonfly-6' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'dragonfly_run',
+                    frames: [
+                        { key: 'dragonfly_run-1' },
+                        { key: 'dragonfly_run-2' },
+                        { key: 'dragonfly_run-3' },
+                        { key: 'dragonfly_run-4' },
+                        { key: 'dragonfly_run-5' },
+                        { key: 'dragonfly_run-6' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'dragonfly_attack',
+                    frames: [
+                        { key: 'dragonfly_attack-1' },
+                        { key: 'dragonfly_attack-2' },
+                        { key: 'dragonfly_attack-3' },
+                        { key: 'dragonfly_attack-4' },
+                        { key: 'dragonfly_attack-5' },
+                        { key: 'dragonfly_attack-6' },
+                        { key: 'dragonfly_attack-7' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'dragonfly_hurt',
+                    frames: [
+                        { key: 'dragonfly_hurt-1' },
+                        { key: 'dragonfly_hurt-2' },
+                        { key: 'dragonfly_hurt-3' },
+                        { key: 'dragonfly_hurt-4' },
+                        { key: 'dragonfly_hurt-5' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'dragonfly_die',
+                    frames: [
+                        { key: 'dragonfly_die-1' },
+                        { key: 'dragonfly_die-2' },
+                        { key: 'dragonfly_die-3' },
+                        { key: 'dragonfly_die-4' },
+                        { key: 'dragonfly_die-5' },
+                        { key: 'dragonfly_die-6' },
+                        { key: 'dragonfly_die-7' },
+                        { key: 'dragonfly_die-8' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                // Panda Animations
+                this.anims.create({
+                    key: 'panda',
+                    frames: [
+                        { key: 'panda-1' },
+                        { key: 'panda-2' },
+                        { key: 'panda-3' },
+                        { key: 'panda-4' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'panda_run',
+                    frames: [
+                        { key: 'panda_run-1' },
+                        { key: 'panda_run-2' },
+                        { key: 'panda_run-3' },
+                        { key: 'panda_run-4' },
+                        { key: 'panda_run-5' },
+                        { key: 'panda_run-6' },
+                        { key: 'panda_run-7' },
+                        { key: 'panda_run-8' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'panda_attack',
+                    frames: [
+                        { key: 'panda_attack-1' },
+                        { key: 'panda_attack-2' },
+                        { key: 'panda_attack-3' },
+                        { key: 'panda_attack-4' },
+                        { key: 'panda_attack-5' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'panda_hurt',
+                    frames: [
+                        { key: 'panda_hurt-1' },
+                        { key: 'panda_hurt-2' },
+                        { key: 'panda_hurt-3' },
+                        { key: 'panda_hurt-4' },
+                        { key: 'panda_hurt-5' },
+                        { key: 'panda_hurt-6' },
+                        { key: 'panda_hurt-7' }
+                    ],
+                    frameRate: 14,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'panda_die',
+                    frames: [
+                        { key: 'panda_die-1' },
+                        { key: 'panda_die-2' },
+                        { key: 'panda_die-3' },
+                        { key: 'panda_die-4' },
+                        { key: 'panda_die-5' },
+                        { key: 'panda_die-6' },
+                        { key: 'panda_die-7' },
+                        { key: 'panda_die-8' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                // Raccoon Animations
+                this.anims.create({
+                    key: 'raccoon',
+                    frames: [
+                        { key: 'raccoon-1' },
+                        { key: 'raccoon-2' },
+                        { key: 'raccoon-3' },
+                        { key: 'raccoon-4' },
+                        { key: 'raccoon-5' },
+                        { key: 'raccoon-6' },
+                        { key: 'raccoon-7' },
+                        { key: 'raccoon-8' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'raccoon_run',
+                    frames: [
+                        { key: 'raccoon_run-1' },
+                        { key: 'raccoon_run-2' },
+                        { key: 'raccoon_run-3' },
+                        { key: 'raccoon_run-4' },
+                        { key: 'raccoon_run-5' },
+                        { key: 'raccoon_run-6' },
+                        { key: 'raccoon_run-7' },
+                        { key: 'raccoon_run-8' }
+                    ],
+                    frameRate: 14,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'raccoon_attack',
+                    frames: [
+                        { key: 'raccoon_attack-1' },
+                        { key: 'raccoon_attack-2' },
+                        { key: 'raccoon_attack-3' },
+                        { key: 'raccoon_attack-4' },
+                        { key: 'raccoon_attack-5' },
+                        { key: 'raccoon_attack-6' },
+                        { key: 'raccoon_attack-7' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'raccoon_hurt',
+                    frames: [
+                        { key: 'raccoon_hurt-1' },
+                        { key: 'raccoon_hurt-2' },
+                        { key: 'raccoon_hurt-3' },
+                        { key: 'raccoon_hurt-4' },
+                        { key: 'raccoon_hurt-5' },
+                        { key: 'raccoon_hurt-6' },
+                        { key: 'raccoon_hurt-7' }
+                    ],
+                    frameRate: 14,
+                    repeat: 0
+                });
+    
+                this.anims.create({
+                    key: 'raccoon_die',
+                    frames: [
+                        { key: 'raccoon_die-1' },
+                        { key: 'raccoon_die-2' },
+                        { key: 'raccoon_die-3' },
+                        { key: 'raccoon_die-4' },
+                        { key: 'raccoon_die-5' },
+                        { key: 'raccoon_die-6' },
+                        { key: 'raccoon_die-7' },
+                        { key: 'raccoon_die-8' }
+                    ],
+                    frameRate: 10,
+                    repeat: 0
+                });
+    
             this.anims.create({
                 key: 'sit',
                 frames: [
@@ -128,7 +505,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'sit8' }
                 ],
                 frameRate: 7,
-                repeat: -1 // to loop the animation indefinitely
+                repeat: 0 // to loop the animation indefinitely
             });
             this.anims.create({
                 key: 'run-diagonal-back',
@@ -143,7 +520,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'run-diagonal-back8' }
                 ],
                 frameRate: 17,
-                repeat: -1 // to loop the animation indefinitely
+                repeat: 0 // to loop the animation indefinitely
             });
             this.anims.create({
                 key: 'run-diagonal-front',
@@ -158,7 +535,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'run-diagonal-front8' }
                 ],
                 frameRate: 17,
-                repeat: -1 // to loop the animation indefinitely
+                repeat: 0 // to loop the animation indefinitely
             });
             this.anims.create({
                 key: 'sit-forward',
@@ -173,7 +550,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'sit-forward8' }
                 ],
                 frameRate: 7,
-                repeat: -1 // to loop the animation indefinitely
+                repeat: 0 // to loop the animation indefinitely
             });
 
             this.anims.create({
@@ -189,7 +566,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'sit-back8' }
                 ],
                 frameRate: 7,
-                repeat: -1 // to loop the animation indefinitely
+                repeat: 0 // to loop the animation indefinitely
             });
 
             this.anims.create({
@@ -237,7 +614,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'run8' }
                 ],
                 frameRate: 10,
-                repeat: -1 // to loop the animation indefinitely
+                repeat: 0 // to loop the animation indefinitely
             });
             cat.play('run'); // start playing the animation
 
@@ -250,7 +627,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'up7' }, { key: 'up8' }
                 ],
                 frameRate: 7,
-                repeat: -1
+                repeat: 0
             });
 
             this.anims.create({
@@ -262,7 +639,7 @@ export const usePhaserGame = (gameRef) => {
                     { key: 'down7' }, { key: 'down8' }
                 ],
                 frameRate: 7,
-                repeat: -1
+                repeat: 0
             });
             camera.startFollow(cat);
             this.gameEvents = new GameEvents(this, cat);
@@ -292,8 +669,6 @@ export const usePhaserGame = (gameRef) => {
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
                         isAttacking = true;
-
-
 
                         if (canAttack && this.collidingMonsterKey) {
                             this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
@@ -393,6 +768,7 @@ export const usePhaserGame = (gameRef) => {
             });
 
             this.physics.collide(Object.values(monsters).map(m => m.sprite));
+            
 
             if (isAttacking && this.collidingMonsterKey) {
                 cat.play('scratch', true);
@@ -412,6 +788,43 @@ export const usePhaserGame = (gameRef) => {
                     }
                 }, this);
             }
+            Object.values(monsters).forEach(monster => {
+                if (!monster || !monster.sprite || !monster.sprite.active) return;
+
+                if (cat.x < monster.sprite.x) {
+                    // Player is to the left, flip monster to the left
+                    monster.sprite.setFlipX(true);
+                } else {
+                    // Player is to the right, flip monster to the right
+                    monster.sprite.setFlipX(false);
+                }
+            
+                if (monster.isHurt) {
+                    monster.sprite.play(`${monster.event.monster}_hurt`, true);
+                    monster.sprite.once('animationcomplete', () => {
+                        if (monster.sprite && monster.sprite.active) {
+                            monster.isHurt = false; // Reset the flag after playing the hurt animation
+                            // Optionally, you can switch to another animation here, such as idle
+                            monster.sprite.play(`${monster.event.monster}`, true);
+                        }
+                    }, this);
+                } else if (monster.isAttacking) {
+                    monster.sprite.play(`${monster.event.monster}_attack`, true);
+                    monster.sprite.once('animationcomplete', (animation) => {
+                        if (animation.key === `${monster.event.monster}_attack`) {
+                            monster.isAttacking = false;
+                        }
+                    }, this);
+                } else if (monster.currentHealth <= 0) {
+                    monster.sprite.play(`${monster.event.monster}_die`, true);
+                } else if (monster.isMoving) {
+                    monster.sprite.play(`${monster.event.monster}_run`, true);
+                } else {
+                    // Default animation (idle)
+                    monster.sprite.play(`${monster.event.monster}`, true);
+                }
+            });
+            
 
             const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
 
@@ -614,27 +1027,34 @@ export const usePhaserGame = (gameRef) => {
 
             function handlePlayerDeath() {
                 if (this.isFainting) return; // Prevent multiple calls if already processing death
-
+            
                 this.isDead = true;
-
-
+                PlayerState.isDead = true;
+            
                 this.isFainting = true;
                 isAttacking = false; // Ensure no attack is in progress
                 cat.anims.stop(); // Stop current animations
                 cat.play('dead'); // Play death animation
-
+            
                 //reset the colliding monsters and colliding monster key:
                 this.collidingMonsters = {};
                 this.collidingMonsterKey = null;
-
+            
                 // Clear monsters and inventory
                 Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
                 monsters = {};
                 this.clearInventory();
-
-                // Reset relevant player states
-                PlayerState.energy = 100; // Or any other logic for resetting player state
-                // ... other state resets as needed
+            
+                // Listen for the 'animationcomplete' event
+                cat.on('animationcomplete', (animation) => {
+                    // Check if the completed animation is 'dead'
+                    if (animation.key === 'dead') {
+                        PlayerState.isDead = false;
+                        // Reset relevant player states
+                        PlayerState.energy = 100; // Or any other logic for resetting player state
+                        // ... other state resets as needed
+                    }
+                }, this);
             }
 
             function updateTargetMonsterKey() {
