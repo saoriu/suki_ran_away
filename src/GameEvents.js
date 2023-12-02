@@ -125,7 +125,8 @@ monsterAttack(monsters, targetMonsterKey) {
     this.scene.game.events.emit('startBattle');
 
     let monsterLevel = targetMonster.level;
-    const monsterRoll = Phaser.Math.Between(0, monsterLevel * 1);
+    let monsterDamage = targetMonster.damage;
+    const monsterRoll = Phaser.Math.Between(0, monsterDamage * 1);
     targetMonster.isAttacking = true;
     this.monsterHasAttacked = true;
 
@@ -218,7 +219,7 @@ monsterAttack(monsters, targetMonsterKey) {
         const player = this.scene.cat;
         const tileWidth = GAME_CONFIG.TILE_WIDTH;
         const maxDistance = 30 * tileWidth;
-        const runningDistance = 1.5 * tileWidth;
+        const runningDistance = 0.7 * tileWidth;
     
         Object.values(monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return; // Check if monster and its sprite are valid

@@ -94,6 +94,14 @@ export const usePhaserGame = (gameRef) => {
             for (let i = 1; i <= 8; i++) this.load.image(`dragonfly_die-${i}`, `/dragonfly_die-${i}.png`);
             for (let i = 1; i <= 8; i++) this.load.image(`panda_die-${i}`, `/panda_die-${i}.png`);
             for (let i = 1; i <= 8; i++) this.load.image(`raccoon_die-${i}`, `/raccoon_die-${i}.png`);
+            for (let i = 1; i <= 12; i++) this.load.image(`turtle_die-${i}`, `/turtle_die-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`turtle_hurt-${i}`, `/turtle_hurt-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`turtle_attack-${i}`, `/turtle_hide-${i}.png`);
+            for (let i = 1; i <= 5; i++) this.load.image(`turtle_run-${i}`, `/turtle_walk-${i}.png`);
+            for (let i = 1; i <= 6; i++) this.load.image(`turtle-${i}`, `/turtle_idle-${i}.png`);
+
+
+            
             this.load.image('frame', '/frame-mini.png');
             this.load.image('grid', '/grid.png');
             this.load.image('grid-hover', '/grid-hover.png');
@@ -133,365 +141,408 @@ export const usePhaserGame = (gameRef) => {
             cat.body.setOffset(cat.width / 1, cat.height / 2); // Offset the circle to center it
             cat.body.immovable = true;
             this.collidingMonsterKey = null;
+
+            // Turtle Idle Animation
+            this.anims.create({
+                key: 'turtle',
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `turtle-${i + 1}` })),
+                frameRate: 12,
+                repeat: 0
+            });
+
+            // Turtle Run Animation
+            this.anims.create({
+                key: 'turtle_run',
+                frames: Array.from({ length: 5 }, (_, i) => ({ key: `turtle_run-${i + 1}` })),
+                frameRate: 12,
+                repeat: 0
+            });
+
+            // Turtle Hurt Animation
+            this.anims.create({
+                key: 'turtle_hurt',
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `turtle_hurt-${i + 1}` })),
+                frameRate: 12,
+                repeat: 0
+            });
+
+            // Turtle Die Animation
+            this.anims.create({
+                key: 'turtle_die',
+                frames: Array.from({ length: 12 }, (_, i) => ({ key: `turtle_die-${i + 1}` })),
+                frameRate: 10,
+                repeat: 0
+            });
+
+            // Turtle Attack Animation
+            this.anims.create({
+                key: 'turtle_attack',
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `turtle_attack-${i + 1}` })),
+                frameRate: 12,
+                repeat: 0
+            });
+
             // Bunny Idle Animation
-this.anims.create({
-    key: 'bunny',
-    frames: [
-        { key: 'bunny-1' }, { key: 'bunny-2' }, 
-        { key: 'bunny-3' }, { key: 'bunny-4' }
-    ],
-    frameRate: 10,
-    repeat: 0
-});
+            this.anims.create({
+                key: 'bunny',
+                frames: [
+                    { key: 'bunny-1' }, { key: 'bunny-2' },
+                    { key: 'bunny-3' }, { key: 'bunny-4' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
 
-// Bunny Run Animation
-this.anims.create({
-    key: 'bunny_run',
-    frames: [
-        { key: 'bunny_run-1' }, { key: 'bunny_run-2' }, 
-        { key: 'bunny_run-3' }, { key: 'bunny_run-4' }, 
-        { key: 'bunny_run-5' }, { key: 'bunny_run-6' }
-    ],
-    frameRate: 12,
-    repeat: 0
-});
+            // Bunny Run Animation
+            this.anims.create({
+                key: 'bunny_run',
+                frames: [
+                    { key: 'bunny_run-1' }, { key: 'bunny_run-2' },
+                    { key: 'bunny_run-3' }, { key: 'bunny_run-4' },
+                    { key: 'bunny_run-5' }, { key: 'bunny_run-6' }
+                ],
+                frameRate: 12,
+                repeat: 0
+            });
 
-// Bunny Attack Animation
-this.anims.create({
-    key: 'bunny_attack',
-    frames: [
-        { key: 'bunny_attack-1' }, { key: 'bunny_attack-2' }, 
-        { key: 'bunny_attack-3' }, { key: 'bunny_attack-4' }, 
-        { key: 'bunny_attack-5' }, { key: 'bunny_attack-6' }
-    ],
-    frameRate: 10,
-    repeat: 0
-});
+            // Bunny Attack Animation
+            this.anims.create({
+                key: 'bunny_attack',
+                frames: [
+                    { key: 'bunny_attack-1' }, { key: 'bunny_attack-2' },
+                    { key: 'bunny_attack-3' }, { key: 'bunny_attack-4' },
+                    { key: 'bunny_attack-5' }, { key: 'bunny_attack-6' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
 
-// Bunny Hurt Animation
-this.anims.create({
-    key: 'bunny_hurt',
-    frames: [
-        { key: 'bunny_hurt-1' }, { key: 'bunny_hurt-2' }, 
-        { key: 'bunny_hurt-3' }, { key: 'bunny_hurt-4' }, 
-        { key: 'bunny_hurt-5' }, { key: 'bunny_hurt-6' }
-    ],
-    frameRate: 12,
-    repeat: 0
-});
+            // Bunny Hurt Animation
+            this.anims.create({
+                key: 'bunny_hurt',
+                frames: [
+                    { key: 'bunny_hurt-1' }, { key: 'bunny_hurt-2' },
+                    { key: 'bunny_hurt-3' }, { key: 'bunny_hurt-4' },
+                    { key: 'bunny_hurt-5' }, { key: 'bunny_hurt-6' }
+                ],
+                frameRate: 12,
+                repeat: 0
+            });
 
-// Bunny Die Animation
-this.anims.create({
-    key: 'bunny_die',
-    frames: [
-        { key: 'bunny_die-1' }, { key: 'bunny_die-2' }, 
-        { key: 'bunny_die-3' }, { key: 'bunny_die-4' }, 
-        { key: 'bunny_die-5' }, { key: 'bunny_die-6' }, 
-        { key: 'bunny_die-7' }, { key: 'bunny_die-8' },
-        { key: 'bunny_die-9' }, { key: 'bunny_die-10' },
-        { key: 'bunny_die-11' }, { key: 'bunny_die-12' },
-        { key: 'bunny_die-13' }, { key: 'bunny_die-14' },
-        { key: 'bunny_die-15' }, { key: 'bunny_die-16' }
-    ],
-    frameRate: 10,
-    repeat: 0
-});
+            // Bunny Die Animation
+            this.anims.create({
+                key: 'bunny_die',
+                frames: [
+                    { key: 'bunny_die-1' }, { key: 'bunny_die-2' },
+                    { key: 'bunny_die-3' }, { key: 'bunny_die-4' },
+                    { key: 'bunny_die-5' }, { key: 'bunny_die-6' },
+                    { key: 'bunny_die-7' }, { key: 'bunny_die-8' },
+                    { key: 'bunny_die-9' }, { key: 'bunny_die-10' },
+                    { key: 'bunny_die-11' }, { key: 'bunny_die-12' },
+                    { key: 'bunny_die-13' }, { key: 'bunny_die-14' },
+                    { key: 'bunny_die-15' }, { key: 'bunny_die-16' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
 
-                  // Chicken Animations
-                  this.anims.create({
-                    key: 'chicken',
-                    frames: [
-                        { key: 'chicken-1' },
-                        { key: 'chicken-2' },
-                        { key: 'chicken-3' },
-                        { key: 'chicken-4' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'chicken_run',
-                    frames: [
-                        { key: 'chicken_run-1' },
-                        { key: 'chicken_run-2' },
-                        { key: 'chicken_run-3' },
-                        { key: 'chicken_run-4' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'chicken_attack',
-                    frames: [
-                        { key: 'chicken_attack-1' },
-                        { key: 'chicken_attack-2' },
-                        { key: 'chicken_attack-3' },
-                        { key: 'chicken_attack-4' },
-                        { key: 'chicken_attack-5' },
-                        { key: 'chicken_attack-6' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'chicken_hurt',
-                    frames: [
-                        { key: 'chicken_hurt-1' },
-                        { key: 'chicken_hurt-2' },
-                        { key: 'chicken_hurt-3' },
-                        { key: 'chicken_hurt-4' },
-                        { key: 'chicken_hurt-5' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'chicken_die',
-                    frames: [
-                        { key: 'chicken_die-1' },
-                        { key: 'chicken_die-2' },
-                        { key: 'chicken_die-3' },
-                        { key: 'chicken_die-4' },
-                        { key: 'chicken_die-5' },
-                        { key: 'chicken_die-6' },
-                        { key: 'chicken_die-7' },
-                        { key: 'chicken_die-8' },
-                        { key: 'chicken_die-9' },
-                        { key: 'chicken_die-10' }
-                    ],
-                    frameRate: 20,
-                    repeat: 0
-                });
-    
-                // Dragonfly Animations
-                this.anims.create({
-                    key: 'dragonfly',
-                    frames: [
-                        { key: 'dragonfly-1' },
-                        { key: 'dragonfly-2' },
-                        { key: 'dragonfly-3' },
-                        { key: 'dragonfly-4' },
-                        { key: 'dragonfly-5' },
-                        { key: 'dragonfly-6' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'dragonfly_run',
-                    frames: [
-                        { key: 'dragonfly_run-1' },
-                        { key: 'dragonfly_run-2' },
-                        { key: 'dragonfly_run-3' },
-                        { key: 'dragonfly_run-4' },
-                        { key: 'dragonfly_run-5' },
-                        { key: 'dragonfly_run-6' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'dragonfly_attack',
-                    frames: [
-                        { key: 'dragonfly_attack-1' },
-                        { key: 'dragonfly_attack-2' },
-                        { key: 'dragonfly_attack-3' },
-                        { key: 'dragonfly_attack-4' },
-                        { key: 'dragonfly_attack-5' },
-                        { key: 'dragonfly_attack-6' },
-                        { key: 'dragonfly_attack-7' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'dragonfly_hurt',
-                    frames: [
-                        { key: 'dragonfly_hurt-1' },
-                        { key: 'dragonfly_hurt-2' },
-                        { key: 'dragonfly_hurt-3' },
-                        { key: 'dragonfly_hurt-4' },
-                        { key: 'dragonfly_hurt-5' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'dragonfly_die',
-                    frames: [
-                        { key: 'dragonfly_die-1' },
-                        { key: 'dragonfly_die-2' },
-                        { key: 'dragonfly_die-3' },
-                        { key: 'dragonfly_die-4' },
-                        { key: 'dragonfly_die-5' },
-                        { key: 'dragonfly_die-6' },
-                        { key: 'dragonfly_die-7' },
-                        { key: 'dragonfly_die-8' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                // Panda Animations
-                this.anims.create({
-                    key: 'panda',
-                    frames: [
-                        { key: 'panda-1' },
-                        { key: 'panda-2' },
-                        { key: 'panda-3' },
-                        { key: 'panda-4' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'panda_run',
-                    frames: [
-                        { key: 'panda_run-1' },
-                        { key: 'panda_run-2' },
-                        { key: 'panda_run-3' },
-                        { key: 'panda_run-4' },
-                        { key: 'panda_run-5' },
-                        { key: 'panda_run-6' },
-                        { key: 'panda_run-7' },
-                        { key: 'panda_run-8' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'panda_attack',
-                    frames: [
-                        { key: 'panda_attack-1' },
-                        { key: 'panda_attack-2' },
-                        { key: 'panda_attack-3' },
-                        { key: 'panda_attack-4' },
-                        { key: 'panda_attack-5' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'panda_hurt',
-                    frames: [
-                        { key: 'panda_hurt-1' },
-                        { key: 'panda_hurt-2' },
-                        { key: 'panda_hurt-3' },
-                        { key: 'panda_hurt-4' },
-                        { key: 'panda_hurt-5' },
-                        { key: 'panda_hurt-6' },
-                        { key: 'panda_hurt-7' }
-                    ],
-                    frameRate: 14,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'panda_die',
-                    frames: [
-                        { key: 'panda_die-1' },
-                        { key: 'panda_die-2' },
-                        { key: 'panda_die-3' },
-                        { key: 'panda_die-4' },
-                        { key: 'panda_die-5' },
-                        { key: 'panda_die-6' },
-                        { key: 'panda_die-7' },
-                        { key: 'panda_die-8' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                // Raccoon Animations
-                this.anims.create({
-                    key: 'raccoon',
-                    frames: [
-                        { key: 'raccoon-1' },
-                        { key: 'raccoon-2' },
-                        { key: 'raccoon-3' },
-                        { key: 'raccoon-4' },
-                        { key: 'raccoon-5' },
-                        { key: 'raccoon-6' },
-                        { key: 'raccoon-7' },
-                        { key: 'raccoon-8' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'raccoon_run',
-                    frames: [
-                        { key: 'raccoon_run-1' },
-                        { key: 'raccoon_run-2' },
-                        { key: 'raccoon_run-3' },
-                        { key: 'raccoon_run-4' },
-                        { key: 'raccoon_run-5' },
-                        { key: 'raccoon_run-6' },
-                        { key: 'raccoon_run-7' },
-                        { key: 'raccoon_run-8' }
-                    ],
-                    frameRate: 14,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'raccoon_attack',
-                    frames: [
-                        { key: 'raccoon_attack-1' },
-                        { key: 'raccoon_attack-2' },
-                        { key: 'raccoon_attack-3' },
-                        { key: 'raccoon_attack-4' },
-                        { key: 'raccoon_attack-5' },
-                        { key: 'raccoon_attack-6' },
-                        { key: 'raccoon_attack-7' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'raccoon_hurt',
-                    frames: [
-                        { key: 'raccoon_hurt-1' },
-                        { key: 'raccoon_hurt-2' },
-                        { key: 'raccoon_hurt-3' },
-                        { key: 'raccoon_hurt-4' },
-                        { key: 'raccoon_hurt-5' },
-                        { key: 'raccoon_hurt-6' },
-                        { key: 'raccoon_hurt-7' }
-                    ],
-                    frameRate: 14,
-                    repeat: 0
-                });
-    
-                this.anims.create({
-                    key: 'raccoon_die',
-                    frames: [
-                        { key: 'raccoon_die-1' },
-                        { key: 'raccoon_die-2' },
-                        { key: 'raccoon_die-3' },
-                        { key: 'raccoon_die-4' },
-                        { key: 'raccoon_die-5' },
-                        { key: 'raccoon_die-6' },
-                        { key: 'raccoon_die-7' },
-                        { key: 'raccoon_die-8' }
-                    ],
-                    frameRate: 10,
-                    repeat: 0
-                });
-    
+
+
+            // Chicken Animations
+            this.anims.create({
+                key: 'chicken',
+                frames: [
+                    { key: 'chicken-1' },
+                    { key: 'chicken-2' },
+                    { key: 'chicken-3' },
+                    { key: 'chicken-4' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'chicken_run',
+                frames: [
+                    { key: 'chicken_run-1' },
+                    { key: 'chicken_run-2' },
+                    { key: 'chicken_run-3' },
+                    { key: 'chicken_run-4' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'chicken_attack',
+                frames: [
+                    { key: 'chicken_attack-1' },
+                    { key: 'chicken_attack-2' },
+                    { key: 'chicken_attack-3' },
+                    { key: 'chicken_attack-4' },
+                    { key: 'chicken_attack-5' },
+                    { key: 'chicken_attack-6' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'chicken_hurt',
+                frames: [
+                    { key: 'chicken_hurt-1' },
+                    { key: 'chicken_hurt-2' },
+                    { key: 'chicken_hurt-3' },
+                    { key: 'chicken_hurt-4' },
+                    { key: 'chicken_hurt-5' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'chicken_die',
+                frames: [
+                    { key: 'chicken_die-1' },
+                    { key: 'chicken_die-2' },
+                    { key: 'chicken_die-3' },
+                    { key: 'chicken_die-4' },
+                    { key: 'chicken_die-5' },
+                    { key: 'chicken_die-6' },
+                    { key: 'chicken_die-7' },
+                    { key: 'chicken_die-8' },
+                    { key: 'chicken_die-9' },
+                    { key: 'chicken_die-10' }
+                ],
+                frameRate: 20,
+                repeat: 0
+            });
+
+            // Dragonfly Animations
+            this.anims.create({
+                key: 'dragonfly',
+                frames: [
+                    { key: 'dragonfly-1' },
+                    { key: 'dragonfly-2' },
+                    { key: 'dragonfly-3' },
+                    { key: 'dragonfly-4' },
+                    { key: 'dragonfly-5' },
+                    { key: 'dragonfly-6' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'dragonfly_run',
+                frames: [
+                    { key: 'dragonfly_run-1' },
+                    { key: 'dragonfly_run-2' },
+                    { key: 'dragonfly_run-3' },
+                    { key: 'dragonfly_run-4' },
+                    { key: 'dragonfly_run-5' },
+                    { key: 'dragonfly_run-6' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'dragonfly_attack',
+                frames: [
+                    { key: 'dragonfly_attack-1' },
+                    { key: 'dragonfly_attack-2' },
+                    { key: 'dragonfly_attack-3' },
+                    { key: 'dragonfly_attack-4' },
+                    { key: 'dragonfly_attack-5' },
+                    { key: 'dragonfly_attack-6' },
+                    { key: 'dragonfly_attack-7' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'dragonfly_hurt',
+                frames: [
+                    { key: 'dragonfly_hurt-1' },
+                    { key: 'dragonfly_hurt-2' },
+                    { key: 'dragonfly_hurt-3' },
+                    { key: 'dragonfly_hurt-4' },
+                    { key: 'dragonfly_hurt-5' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'dragonfly_die',
+                frames: [
+                    { key: 'dragonfly_die-1' },
+                    { key: 'dragonfly_die-2' },
+                    { key: 'dragonfly_die-3' },
+                    { key: 'dragonfly_die-4' },
+                    { key: 'dragonfly_die-5' },
+                    { key: 'dragonfly_die-6' },
+                    { key: 'dragonfly_die-7' },
+                    { key: 'dragonfly_die-8' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            // Panda Animations
+            this.anims.create({
+                key: 'panda',
+                frames: [
+                    { key: 'panda-1' },
+                    { key: 'panda-2' },
+                    { key: 'panda-3' },
+                    { key: 'panda-4' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'panda_run',
+                frames: [
+                    { key: 'panda_run-1' },
+                    { key: 'panda_run-2' },
+                    { key: 'panda_run-3' },
+                    { key: 'panda_run-4' },
+                    { key: 'panda_run-5' },
+                    { key: 'panda_run-6' },
+                    { key: 'panda_run-7' },
+                    { key: 'panda_run-8' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'panda_attack',
+                frames: [
+                    { key: 'panda_attack-1' },
+                    { key: 'panda_attack-2' },
+                    { key: 'panda_attack-3' },
+                    { key: 'panda_attack-4' },
+                    { key: 'panda_attack-5' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'panda_hurt',
+                frames: [
+                    { key: 'panda_hurt-1' },
+                    { key: 'panda_hurt-2' },
+                    { key: 'panda_hurt-3' },
+                    { key: 'panda_hurt-4' },
+                    { key: 'panda_hurt-5' },
+                    { key: 'panda_hurt-6' },
+                    { key: 'panda_hurt-7' }
+                ],
+                frameRate: 14,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'panda_die',
+                frames: [
+                    { key: 'panda_die-1' },
+                    { key: 'panda_die-2' },
+                    { key: 'panda_die-3' },
+                    { key: 'panda_die-4' },
+                    { key: 'panda_die-5' },
+                    { key: 'panda_die-6' },
+                    { key: 'panda_die-7' },
+                    { key: 'panda_die-8' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            // Raccoon Animations
+            this.anims.create({
+                key: 'raccoon',
+                frames: [
+                    { key: 'raccoon-1' },
+                    { key: 'raccoon-2' },
+                    { key: 'raccoon-3' },
+                    { key: 'raccoon-4' },
+                    { key: 'raccoon-5' },
+                    { key: 'raccoon-6' },
+                    { key: 'raccoon-7' },
+                    { key: 'raccoon-8' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'raccoon_run',
+                frames: [
+                    { key: 'raccoon_run-1' },
+                    { key: 'raccoon_run-2' },
+                    { key: 'raccoon_run-3' },
+                    { key: 'raccoon_run-4' },
+                    { key: 'raccoon_run-5' },
+                    { key: 'raccoon_run-6' },
+                    { key: 'raccoon_run-7' },
+                    { key: 'raccoon_run-8' }
+                ],
+                frameRate: 14,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'raccoon_attack',
+                frames: [
+                    { key: 'raccoon_attack-1' },
+                    { key: 'raccoon_attack-2' },
+                    { key: 'raccoon_attack-3' },
+                    { key: 'raccoon_attack-4' },
+                    { key: 'raccoon_attack-5' },
+                    { key: 'raccoon_attack-6' },
+                    { key: 'raccoon_attack-7' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'raccoon_hurt',
+                frames: [
+                    { key: 'raccoon_hurt-1' },
+                    { key: 'raccoon_hurt-2' },
+                    { key: 'raccoon_hurt-3' },
+                    { key: 'raccoon_hurt-4' },
+                    { key: 'raccoon_hurt-5' },
+                    { key: 'raccoon_hurt-6' },
+                    { key: 'raccoon_hurt-7' }
+                ],
+                frameRate: 14,
+                repeat: 0
+            });
+
+            this.anims.create({
+                key: 'raccoon_die',
+                frames: [
+                    { key: 'raccoon_die-1' },
+                    { key: 'raccoon_die-2' },
+                    { key: 'raccoon_die-3' },
+                    { key: 'raccoon_die-4' },
+                    { key: 'raccoon_die-5' },
+                    { key: 'raccoon_die-6' },
+                    { key: 'raccoon_die-7' },
+                    { key: 'raccoon_die-8' }
+                ],
+                frameRate: 10,
+                repeat: 0
+            });
+
             this.anims.create({
                 key: 'sit',
                 frames: [
@@ -729,8 +780,21 @@ this.anims.create({
             }
             cat.setDepth(3);
             spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters);
+            setupCollider(scene);
 
         }
+        
+        function setupCollider(scene) {
+            scene.physics.add.collider(cat, Object.values(monsters).map(m => m.sprite), function (catSprite, monsterSprite) {
+                for (const [key, monster] of Object.entries(monsters)) {
+                    if (monster.sprite === monsterSprite) {
+                        monster.isColliding = true;
+                        this.collidingMonsters[key] = monster;
+                    }
+                }
+            }.bind(scene), null, scene); // Bind the callback to the scene
+        }
+        
 
         let lastUpdateTime = 0;
         let lastDirection = null; // Variable to store the last direction the cat moved
@@ -768,7 +832,7 @@ this.anims.create({
             });
 
             this.physics.collide(Object.values(monsters).map(m => m.sprite));
-            
+
 
             if (isAttacking && this.collidingMonsterKey) {
                 cat.play('scratch', true);
@@ -798,7 +862,7 @@ this.anims.create({
                     // Player is to the right, flip monster to the right
                     monster.sprite.setFlipX(false);
                 }
-            
+
                 if (monster.isHurt) {
                     monster.sprite.play(`${monster.event.monster}_hurt`, true);
                     monster.sprite.once('animationcomplete', () => {
@@ -824,13 +888,13 @@ this.anims.create({
                     monster.sprite.play(`${monster.event.monster}`, true);
                 }
             });
-            
+
 
             const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
 
 
             const moveSpeed = tileWidth / GAME_CONFIG.MOVE_SPEED;
-            const diagonalVelocity = moveSpeed / Math.sqrt(2) // Multiply by 0.7 to adjust diagonal speed
+            const diagonalVelocity = ( moveSpeed / Math.sqrt(2) ) * 1.008 // Multiply by 0.7 to adjust diagonal speed
 
             this.gameEvents.update(monsters);
             regenerateEnergy(this); // Assuming 'this' is the scene
@@ -1027,24 +1091,24 @@ this.anims.create({
 
             function handlePlayerDeath() {
                 if (this.isFainting) return; // Prevent multiple calls if already processing death
-            
+
                 this.isDead = true;
                 PlayerState.isDead = true;
-            
+
                 this.isFainting = true;
                 isAttacking = false; // Ensure no attack is in progress
                 cat.anims.stop(); // Stop current animations
                 cat.play('dead'); // Play death animation
-            
+
                 //reset the colliding monsters and colliding monster key:
                 this.collidingMonsters = {};
                 this.collidingMonsterKey = null;
-            
+
                 // Clear monsters and inventory
                 Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
                 monsters = {};
                 this.clearInventory();
-            
+
                 // Listen for the 'animationcomplete' event
                 cat.on('animationcomplete', (animation) => {
                     // Check if the completed animation is 'dead'

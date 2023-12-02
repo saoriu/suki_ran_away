@@ -70,10 +70,19 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
     if (!chosenMonster) return;
 
-    // ... after choosing the monster
-    const levelVariation = Phaser.Math.Between(0, 3);
-    const modifiedLevel = chosenMonster.level + levelVariation; // You can also subtract if you want a range of +/- 3
+// ... after choosing the monster
+const levelVariation = Phaser.Math.Between(0, 3);
+let damage = chosenMonster.damage;
 
+if (chosenMonster.monster !== 'turtle') {
+    damage = chosenMonster.damage + levelVariation;
+} else {
+    damage = chosenMonster.damage;
+}
+
+const modifiedLevel = chosenMonster.level + levelVariation; // You can also subtract if you want a range of +/- 3
+
+// Use the 'damage' and 'modifiedLevel' variables in your code
     // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
     let spawnTileI, spawnTileJ;
 
@@ -134,6 +143,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     monsters[monsterKey] = {
       sprite: monster,
       speed: chosenMonster.speed,
+      damage: damage,
       key: monsterKey,
       level: modifiedLevel,
       isAggressive: true,
