@@ -17,6 +17,7 @@ export class UIScene extends Phaser.Scene {
         this.timeCircle = this.add.graphics();
         this.timeCircle.fillCircle(65, 65, 51); // Draw a circle at (100,100) with radius 50
         this.energyText = null;
+        this.activeChangeTexts = 0;
         this.isLevelingUp = false;
         this.game.events.on('updatePlayerPosition', this.handlePlayerPositionUpdate, this);
         this.game.events.on('gameTime', (gameTime) => {
@@ -215,7 +216,7 @@ export class UIScene extends Phaser.Scene {
         this.dancingXPText = this.add.text(-545, 120, `${getTotalSkillXP('dancing')} XP`, textStyles.playerLevelText);
         this.skillsContainer.add([this.dancingText, this.dancingXPText]);
     }
-    
+
     updateEnergyBar() {
         const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
         const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
@@ -231,10 +232,13 @@ export class UIScene extends Phaser.Scene {
     
         // Update the text with the capped energy value
         // this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
-    
+
         const energyChange = displayedEnergy - previousEnergy;
         if (energyChange < 0) {
-            const changeText = this.add.text(this.energyText.x + 75, this.energyText.y + 50, `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fontSize: '20px', fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' }); // Moved more to the right and down
+            // Adjust the y-position based on the number of active texts
+            const changeText = this.add.text(this.energyText.x + 75, this.energyText.y + 50 + (this.activeChangeTexts * 20), `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fontSize: '20px', fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' });
+            this.activeChangeTexts++;
+    
             this.tweens.add({
                 targets: changeText,
                 y: changeText.y - 20,
@@ -242,6 +246,7 @@ export class UIScene extends Phaser.Scene {
                 duration: 1200,
                 onComplete: () => {
                     changeText.destroy();
+                    this.activeChangeTexts--; // Decrease the counter when a text is removed
                 }
             });
         }
