@@ -21,23 +21,22 @@ export const usePhaserGame = (gameRef) => {
         const config = {
             type: Phaser.AUTO,
             parent: 'phaser-game',
-            width: GAME_CONFIG.CAMERA_WIDTH + 220, // Add extra 200px for the UI
-            height: GAME_CONFIG.CAMERA_HEIGHT,
+            width: GAME_CONFIG.CAMERA_WIDTH, // Add extra 200px for the UI
+            height: GAME_CONFIG.CAMERA_HEIGHT + GAME_CONFIG.UI_HEIGHT,
             fps: {
                 target: 100, // Set your desired frame rate here
             },
             physics: {
-                default: 'arcade',
-                arcade: {
-                    gravity: { y: 0 }, // No gravity in top-down games
-                    debug: false // Change to true to see the physics bodies
+                default: 'matter',
+                matter: {
+                    gravity: { y: 0 },
+                    debug: false // Set to false in production
                 }
             },
             autoRound: false,
             antialias: true,
             scene: [mainScene, UIScene], // MainScene and UIScene included here
-
-        };
+            };
 
 
         gameRef.current = new Phaser.Game(config);
@@ -101,7 +100,7 @@ export const usePhaserGame = (gameRef) => {
             for (let i = 1; i <= 6; i++) this.load.image(`turtle-${i}`, `/turtle_idle-${i}.png`);
 
 
-            
+
             this.load.image('frame', '/frame-mini.png');
             this.load.image('grid', '/grid.png');
             this.load.image('grid-hover', '/grid-hover.png');
@@ -133,16 +132,21 @@ export const usePhaserGame = (gameRef) => {
             this.scene.launch('UIScene');
             this.collidingMonsters = {};
             this.monsters = {};
-            camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT + 13); // restrict camera size
-            //set the cat sprite to immovable:
-            cat = this.physics.add.sprite(80, 80, 'sit').setScale(0.35);
+            camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
+
+            cat = this.matter.add.sprite(80, 80, 'sit').setScale(0.35);
             this.cat = cat; // Attach the cat sprite to the scene
-            cat.body.setCircle(cat.width * 2.5);  // Circular hitbox for the cat
-            cat.body.setOffset(cat.width / 1, cat.height / 2); // Offset the circle to center it
-            cat.body.immovable = true;
+
+            const catBody = Phaser.Physics.Matter.Matter.Bodies.circle(80, 80, cat.width * 0.8, {
+                inertia: Infinity, // Prevent rotation
+                inverseInertia: 0,
+                inStatic: false,
+                mass: 20 // Set the mass greater than any monster, e.g., 2
+            });
+            this.cat.setExistingBody(catBody).setPosition(80, 80);
+
             this.collidingMonsterKey = null;
 
-            // Turtle Idle Animation
             this.anims.create({
                 key: 'turtle',
                 frames: Array.from({ length: 6 }, (_, i) => ({ key: `turtle-${i + 1}` })),
@@ -150,7 +154,6 @@ export const usePhaserGame = (gameRef) => {
                 repeat: 0
             });
 
-            // Turtle Run Animation
             this.anims.create({
                 key: 'turtle_run',
                 frames: Array.from({ length: 5 }, (_, i) => ({ key: `turtle_run-${i + 1}` })),
@@ -158,7 +161,6 @@ export const usePhaserGame = (gameRef) => {
                 repeat: 0
             });
 
-            // Turtle Hurt Animation
             this.anims.create({
                 key: 'turtle_hurt',
                 frames: Array.from({ length: 6 }, (_, i) => ({ key: `turtle_hurt-${i + 1}` })),
@@ -166,7 +168,6 @@ export const usePhaserGame = (gameRef) => {
                 repeat: 0
             });
 
-            // Turtle Die Animation
             this.anims.create({
                 key: 'turtle_die',
                 frames: Array.from({ length: 12 }, (_, i) => ({ key: `turtle_die-${i + 1}` })),
@@ -174,7 +175,6 @@ export const usePhaserGame = (gameRef) => {
                 repeat: 0
             });
 
-            // Turtle Attack Animation
             this.anims.create({
                 key: 'turtle_attack',
                 frames: Array.from({ length: 6 }, (_, i) => ({ key: `turtle_attack-${i + 1}` })),
@@ -182,211 +182,107 @@ export const usePhaserGame = (gameRef) => {
                 repeat: 0
             });
 
-            // Bunny Idle Animation
             this.anims.create({
                 key: 'bunny',
-                frames: [
-                    { key: 'bunny-1' }, { key: 'bunny-2' },
-                    { key: 'bunny-3' }, { key: 'bunny-4' }
-                ],
+                frames: Array.from({ length: 4 }, (_, i) => ({ key: `bunny-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
-            // Bunny Run Animation
             this.anims.create({
                 key: 'bunny_run',
-                frames: [
-                    { key: 'bunny_run-1' }, { key: 'bunny_run-2' },
-                    { key: 'bunny_run-3' }, { key: 'bunny_run-4' },
-                    { key: 'bunny_run-5' }, { key: 'bunny_run-6' }
-                ],
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `bunny_run-${i + 1}` })),
                 frameRate: 12,
                 repeat: 0
             });
 
-            // Bunny Attack Animation
             this.anims.create({
                 key: 'bunny_attack',
-                frames: [
-                    { key: 'bunny_attack-1' }, { key: 'bunny_attack-2' },
-                    { key: 'bunny_attack-3' }, { key: 'bunny_attack-4' },
-                    { key: 'bunny_attack-5' }, { key: 'bunny_attack-6' }
-                ],
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `bunny_attack-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
-            // Bunny Hurt Animation
             this.anims.create({
                 key: 'bunny_hurt',
-                frames: [
-                    { key: 'bunny_hurt-1' }, { key: 'bunny_hurt-2' },
-                    { key: 'bunny_hurt-3' }, { key: 'bunny_hurt-4' },
-                    { key: 'bunny_hurt-5' }, { key: 'bunny_hurt-6' }
-                ],
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `bunny_hurt-${i + 1}` })),
                 frameRate: 12,
                 repeat: 0
             });
 
-            // Bunny Die Animation
             this.anims.create({
                 key: 'bunny_die',
-                frames: [
-                    { key: 'bunny_die-1' }, { key: 'bunny_die-2' },
-                    { key: 'bunny_die-3' }, { key: 'bunny_die-4' },
-                    { key: 'bunny_die-5' }, { key: 'bunny_die-6' },
-                    { key: 'bunny_die-7' }, { key: 'bunny_die-8' },
-                    { key: 'bunny_die-9' }, { key: 'bunny_die-10' },
-                    { key: 'bunny_die-11' }, { key: 'bunny_die-12' },
-                    { key: 'bunny_die-13' }, { key: 'bunny_die-14' },
-                    { key: 'bunny_die-15' }, { key: 'bunny_die-16' }
-                ],
+                frames: Array.from({ length: 16 }, (_, i) => ({ key: `bunny_die-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
-
-
-            // Chicken Animations
             this.anims.create({
                 key: 'chicken',
-                frames: [
-                    { key: 'chicken-1' },
-                    { key: 'chicken-2' },
-                    { key: 'chicken-3' },
-                    { key: 'chicken-4' }
-                ],
+                frames: Array.from({ length: 4 }, (_, i) => ({ key: `chicken-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'chicken_run',
-                frames: [
-                    { key: 'chicken_run-1' },
-                    { key: 'chicken_run-2' },
-                    { key: 'chicken_run-3' },
-                    { key: 'chicken_run-4' }
-                ],
+                frames: Array.from({ length: 4 }, (_, i) => ({ key: `chicken_run-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'chicken_attack',
-                frames: [
-                    { key: 'chicken_attack-1' },
-                    { key: 'chicken_attack-2' },
-                    { key: 'chicken_attack-3' },
-                    { key: 'chicken_attack-4' },
-                    { key: 'chicken_attack-5' },
-                    { key: 'chicken_attack-6' }
-                ],
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `chicken_attack-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'chicken_hurt',
-                frames: [
-                    { key: 'chicken_hurt-1' },
-                    { key: 'chicken_hurt-2' },
-                    { key: 'chicken_hurt-3' },
-                    { key: 'chicken_hurt-4' },
-                    { key: 'chicken_hurt-5' }
-                ],
+                frames: Array.from({ length: 5 }, (_, i) => ({ key: `chicken_hurt-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'chicken_die',
-                frames: [
-                    { key: 'chicken_die-1' },
-                    { key: 'chicken_die-2' },
-                    { key: 'chicken_die-3' },
-                    { key: 'chicken_die-4' },
-                    { key: 'chicken_die-5' },
-                    { key: 'chicken_die-6' },
-                    { key: 'chicken_die-7' },
-                    { key: 'chicken_die-8' },
-                    { key: 'chicken_die-9' },
-                    { key: 'chicken_die-10' }
-                ],
+                frames: Array.from({ length: 10 }, (_, i) => ({ key: `chicken_die-${i + 1}` })),
                 frameRate: 20,
                 repeat: 0
             });
 
-            // Dragonfly Animations
             this.anims.create({
                 key: 'dragonfly',
-                frames: [
-                    { key: 'dragonfly-1' },
-                    { key: 'dragonfly-2' },
-                    { key: 'dragonfly-3' },
-                    { key: 'dragonfly-4' },
-                    { key: 'dragonfly-5' },
-                    { key: 'dragonfly-6' }
-                ],
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `dragonfly-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'dragonfly_run',
-                frames: [
-                    { key: 'dragonfly_run-1' },
-                    { key: 'dragonfly_run-2' },
-                    { key: 'dragonfly_run-3' },
-                    { key: 'dragonfly_run-4' },
-                    { key: 'dragonfly_run-5' },
-                    { key: 'dragonfly_run-6' }
-                ],
+                frames: Array.from({ length: 6 }, (_, i) => ({ key: `dragonfly_run-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'dragonfly_attack',
-                frames: [
-                    { key: 'dragonfly_attack-1' },
-                    { key: 'dragonfly_attack-2' },
-                    { key: 'dragonfly_attack-3' },
-                    { key: 'dragonfly_attack-4' },
-                    { key: 'dragonfly_attack-5' },
-                    { key: 'dragonfly_attack-6' },
-                    { key: 'dragonfly_attack-7' }
-                ],
+                frames: Array.from({ length: 7 }, (_, i) => ({ key: `dragonfly_attack-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'dragonfly_hurt',
-                frames: [
-                    { key: 'dragonfly_hurt-1' },
-                    { key: 'dragonfly_hurt-2' },
-                    { key: 'dragonfly_hurt-3' },
-                    { key: 'dragonfly_hurt-4' },
-                    { key: 'dragonfly_hurt-5' }
-                ],
+                frames: Array.from({ length: 5 }, (_, i) => ({ key: `dragonfly_hurt-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'dragonfly_die',
-                frames: [
-                    { key: 'dragonfly_die-1' },
-                    { key: 'dragonfly_die-2' },
-                    { key: 'dragonfly_die-3' },
-                    { key: 'dragonfly_die-4' },
-                    { key: 'dragonfly_die-5' },
-                    { key: 'dragonfly_die-6' },
-                    { key: 'dragonfly_die-7' },
-                    { key: 'dragonfly_die-8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `dragonfly_die-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
@@ -394,72 +290,35 @@ export const usePhaserGame = (gameRef) => {
             // Panda Animations
             this.anims.create({
                 key: 'panda',
-                frames: [
-                    { key: 'panda-1' },
-                    { key: 'panda-2' },
-                    { key: 'panda-3' },
-                    { key: 'panda-4' }
-                ],
+                frames: Array.from({ length: 4 }, (_, i) => ({ key: `panda-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'panda_run',
-                frames: [
-                    { key: 'panda_run-1' },
-                    { key: 'panda_run-2' },
-                    { key: 'panda_run-3' },
-                    { key: 'panda_run-4' },
-                    { key: 'panda_run-5' },
-                    { key: 'panda_run-6' },
-                    { key: 'panda_run-7' },
-                    { key: 'panda_run-8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `panda_run-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'panda_attack',
-                frames: [
-                    { key: 'panda_attack-1' },
-                    { key: 'panda_attack-2' },
-                    { key: 'panda_attack-3' },
-                    { key: 'panda_attack-4' },
-                    { key: 'panda_attack-5' }
-                ],
+                frames: Array.from({ length: 5 }, (_, i) => ({ key: `panda_attack-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'panda_hurt',
-                frames: [
-                    { key: 'panda_hurt-1' },
-                    { key: 'panda_hurt-2' },
-                    { key: 'panda_hurt-3' },
-                    { key: 'panda_hurt-4' },
-                    { key: 'panda_hurt-5' },
-                    { key: 'panda_hurt-6' },
-                    { key: 'panda_hurt-7' }
-                ],
+                frames: Array.from({ length: 7 }, (_, i) => ({ key: `panda_hurt-${i + 1}` })),
                 frameRate: 14,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'panda_die',
-                frames: [
-                    { key: 'panda_die-1' },
-                    { key: 'panda_die-2' },
-                    { key: 'panda_die-3' },
-                    { key: 'panda_die-4' },
-                    { key: 'panda_die-5' },
-                    { key: 'panda_die-6' },
-                    { key: 'panda_die-7' },
-                    { key: 'panda_die-8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `panda_die-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
@@ -467,139 +326,60 @@ export const usePhaserGame = (gameRef) => {
             // Raccoon Animations
             this.anims.create({
                 key: 'raccoon',
-                frames: [
-                    { key: 'raccoon-1' },
-                    { key: 'raccoon-2' },
-                    { key: 'raccoon-3' },
-                    { key: 'raccoon-4' },
-                    { key: 'raccoon-5' },
-                    { key: 'raccoon-6' },
-                    { key: 'raccoon-7' },
-                    { key: 'raccoon-8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `raccoon-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'raccoon_run',
-                frames: [
-                    { key: 'raccoon_run-1' },
-                    { key: 'raccoon_run-2' },
-                    { key: 'raccoon_run-3' },
-                    { key: 'raccoon_run-4' },
-                    { key: 'raccoon_run-5' },
-                    { key: 'raccoon_run-6' },
-                    { key: 'raccoon_run-7' },
-                    { key: 'raccoon_run-8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `raccoon_run-${i + 1}` })),
                 frameRate: 14,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'raccoon_attack',
-                frames: [
-                    { key: 'raccoon_attack-1' },
-                    { key: 'raccoon_attack-2' },
-                    { key: 'raccoon_attack-3' },
-                    { key: 'raccoon_attack-4' },
-                    { key: 'raccoon_attack-5' },
-                    { key: 'raccoon_attack-6' },
-                    { key: 'raccoon_attack-7' }
-                ],
+                frames: Array.from({ length: 7 }, (_, i) => ({ key: `raccoon_attack-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'raccoon_hurt',
-                frames: [
-                    { key: 'raccoon_hurt-1' },
-                    { key: 'raccoon_hurt-2' },
-                    { key: 'raccoon_hurt-3' },
-                    { key: 'raccoon_hurt-4' },
-                    { key: 'raccoon_hurt-5' },
-                    { key: 'raccoon_hurt-6' },
-                    { key: 'raccoon_hurt-7' }
-                ],
+                frames: Array.from({ length: 7 }, (_, i) => ({ key: `raccoon_hurt-${i + 1}` })),
                 frameRate: 14,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'raccoon_die',
-                frames: [
-                    { key: 'raccoon_die-1' },
-                    { key: 'raccoon_die-2' },
-                    { key: 'raccoon_die-3' },
-                    { key: 'raccoon_die-4' },
-                    { key: 'raccoon_die-5' },
-                    { key: 'raccoon_die-6' },
-                    { key: 'raccoon_die-7' },
-                    { key: 'raccoon_die-8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `raccoon_die-${i + 1}` })),
                 frameRate: 10,
                 repeat: 0
             });
 
             this.anims.create({
                 key: 'sit',
-                frames: [
-                    { key: 'sit1' },
-                    { key: 'sit2' },
-                    { key: 'sit3' },
-                    { key: 'sit4' },
-                    { key: 'sit5' },
-                    { key: 'sit6' },
-                    { key: 'sit7' },
-                    { key: 'sit8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `sit${i + 1}` })),
                 frameRate: 7,
                 repeat: 0 // to loop the animation indefinitely
             });
             this.anims.create({
                 key: 'run-diagonal-back',
-                frames: [
-                    { key: 'run-diagonal-back1' },
-                    { key: 'run-diagonal-back2' },
-                    { key: 'run-diagonal-back3' },
-                    { key: 'run-diagonal-back4' },
-                    { key: 'run-diagonal-back5' },
-                    { key: 'run-diagonal-back6' },
-                    { key: 'run-diagonal-back7' },
-                    { key: 'run-diagonal-back8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `run-diagonal-back${i + 1}` })),
                 frameRate: 17,
                 repeat: 0 // to loop the animation indefinitely
             });
             this.anims.create({
                 key: 'run-diagonal-front',
-                frames: [
-                    { key: 'run-diagonal-front1' },
-                    { key: 'run-diagonal-front2' },
-                    { key: 'run-diagonal-front3' },
-                    { key: 'run-diagonal-front4' },
-                    { key: 'run-diagonal-front5' },
-                    { key: 'run-diagonal-front6' },
-                    { key: 'run-diagonal-front7' },
-                    { key: 'run-diagonal-front8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `run-diagonal-front${i + 1}` })),
                 frameRate: 17,
                 repeat: 0 // to loop the animation indefinitely
             });
             this.anims.create({
                 key: 'sit-forward',
-                frames: [
-                    { key: 'sit-forward1' },
-                    { key: 'sit-forward2' },
-                    { key: 'sit-forward3' },
-                    { key: 'sit-forward4' },
-                    { key: 'sit-forward5' },
-                    { key: 'sit-forward6' },
-                    { key: 'sit-forward7' },
-                    { key: 'sit-forward8' }
-                ],
+                frames: Array.from({ length: 8 }, (_, i) => ({ key: `sit-forward${i + 1}` })),
                 frameRate: 7,
                 repeat: 0 // to loop the animation indefinitely
             });
@@ -779,47 +559,53 @@ export const usePhaserGame = (gameRef) => {
 
             }
             cat.setDepth(3);
-            spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters);
-            setupCollider(scene);
 
+            spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters);
         }
-        
-        function setupCollider(scene) {
-            scene.physics.add.collider(cat, Object.values(monsters).map(m => m.sprite), function (catSprite, monsterSprite) {
-                for (const [key, monster] of Object.entries(monsters)) {
-                    if (monster.sprite === monsterSprite) {
-                        monster.isColliding = true;
-                        this.collidingMonsters[key] = monster;
-                    }
-                }
-            }.bind(scene), null, scene); // Bind the callback to the scene
-        }
-        
+
+
+
 
         let lastUpdateTime = 0;
         let lastDirection = null; // Variable to store the last direction the cat moved
         const updateInterval = 1000 / 10; // For 10 FPS
 
+        let lastPlayerX = 0;
+let lastPlayerY = 0;
+const positionChangeThreshold = 20; // Adjust this value as needed
+let gameTime = 0; // In-game hours
+let daysPassed = 0; // In-game days
 
-        function update(time) {
+function update(time, delta) {
+    if (time - lastUpdateTime < updateInterval) {
+        return; // Exit early if not enough time has passed since the last update
+    }
 
-            if (time - lastUpdateTime < updateInterval) {
-                return; // Exit early if not enough time has passed since the last update
-            }
+    // Increment gameTime every second
+    gameTime += delta / 10000;
+    if (gameTime >= 24) {
+        // A new day has passed
+        gameTime = 0;
+        daysPassed++;
+    }
+
+    this.game.events.emit('gameTime', gameTime);
+    this.game.events.emit('daysPassed', daysPassed)
+
+
 
 
             if (PlayerState.energy <= 0 && !this.isFainting) {
                 handlePlayerDeath.call(this);
             }
 
-            this.physics.collide(cat, Object.values(monsters).map(m => m.sprite), function (catSprite, monsterSprite) {
-                for (const [key, monster] of Object.entries(monsters)) {
-                    if (monster.sprite === monsterSprite) {
-                        monster.isColliding = true;
-                        this.collidingMonsters[key] = monster;
-                    }
-                }
-            }, null, this);
+            if (Math.abs(cat.x - lastPlayerX) > positionChangeThreshold || 
+            Math.abs(cat.y - lastPlayerY) > positionChangeThreshold) {
+    
+            createTilesAround(cat.x, cat.y, this);
+            lastPlayerX = cat.x;
+            lastPlayerY = cat.y;
+        }
 
             updateTargetMonsterKey.call(this); // Update the target monster key after collision detection
 
@@ -831,7 +617,34 @@ export const usePhaserGame = (gameRef) => {
                 }
             });
 
-            this.physics.collide(Object.values(monsters).map(m => m.sprite));
+            // Create a map of monster body IDs to monster keys
+            const monsterBodyIdToKey = {};
+            for (const [key, monster] of Object.entries(monsters)) {
+                if (monster.sprite && monster.sprite.body) {
+                    monsterBodyIdToKey[monster.sprite.body.id] = key;
+                }
+            }
+
+            this.matter.world.on('collisionstart', (event) => {
+                event.pairs.forEach(pair => {
+                    // Ensure both bodies in the pair are defined
+                    if (pair.bodyA && pair.bodyB) {
+                        // Check if either body in the pair is a monster
+                        const monsterKeyA = monsterBodyIdToKey[pair.bodyA.id];
+                        const monsterKeyB = monsterBodyIdToKey[pair.bodyB.id];
+
+                        if (monsterKeyA && pair.bodyB.id === this.cat.body.id) {
+                            console.log(`Colliding with monster: ${monsterKeyA}`);
+                            monsters[monsterKeyA].isColliding = true;
+                            this.collidingMonsters[monsterKeyA] = monsters[monsterKeyA];
+                        } else if (monsterKeyB && pair.bodyA.id === this.cat.body.id) {
+                            console.log(`Colliding with monster: ${monsterKeyB}`);
+                            monsters[monsterKeyB].isColliding = true;
+                            this.collidingMonsters[monsterKeyB] = monsters[monsterKeyB];
+                        }
+                    }
+                });
+            });
 
 
             if (isAttacking && this.collidingMonsterKey) {
@@ -894,7 +707,7 @@ export const usePhaserGame = (gameRef) => {
 
 
             const moveSpeed = tileWidth / GAME_CONFIG.MOVE_SPEED;
-            const diagonalVelocity = ( moveSpeed / Math.sqrt(2) ) * 1.008 // Multiply by 0.7 to adjust diagonal speed
+            const diagonalVelocity = (moveSpeed / Math.sqrt(2)) * 0.6 // Multiply by 0.7 to adjust diagonal speed
 
             this.gameEvents.update(monsters);
             regenerateEnergy(this); // Assuming 'this' is the scene
@@ -1153,7 +966,7 @@ export const usePhaserGame = (gameRef) => {
 
             Object.values(monsters).forEach(monsterObj => {
                 // Check if monster object and its essential properties still exist
-                if (!monsterObj || !monsterObj.sprite || !monsterObj.healthBar) return;
+                if (!monsterObj || !monsterObj.sprite || !monsterObj.sprite.active || !monsterObj.healthBar || !monsterObj.sprite.body) return;
 
                 // If the previousHealth property is not set, initialize it to the current health
                 if (!monsterObj.hasOwnProperty('previousHealth')) {

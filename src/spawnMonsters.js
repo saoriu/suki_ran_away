@@ -70,19 +70,20 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
     if (!chosenMonster) return;
 
-// ... after choosing the monster
-const levelVariation = Phaser.Math.Between(0, 3);
-let damage = chosenMonster.damage;
+    // ... after choosing the monster
+    const levelVariation = Phaser.Math.Between(0, 3);
+    let damage = chosenMonster.damage;
+    const monsterMass = chosenMonster.monsterMass;
 
-if (chosenMonster.monster !== 'turtle') {
-    damage = chosenMonster.damage + levelVariation;
-} else {
-    damage = chosenMonster.damage;
-}
+    if (chosenMonster.monster !== 'turtle') {
+      damage = chosenMonster.damage + levelVariation;
+    } else {
+      damage = chosenMonster.damage;
+    }
 
-const modifiedLevel = chosenMonster.level + levelVariation; // You can also subtract if you want a range of +/- 3
+    const modifiedLevel = chosenMonster.level + levelVariation; // You can also subtract if you want a range of +/- 3
 
-// Use the 'damage' and 'modifiedLevel' variables in your code
+    // Use the 'damage' and 'modifiedLevel' variables in your code
     // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
     let spawnTileI, spawnTileJ;
 
@@ -100,16 +101,23 @@ const modifiedLevel = chosenMonster.level + levelVariation; // You can also subt
     const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
     const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
     const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
-    const initialAnimationKey = `${monsterSpriteKey}_run`; // Assuming 'idle' animation with frame 
 
+    const monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
+      isStatic: false // Set to true if you want the monster to be immovable
+    }).setScale(GAME_CONFIG.SCALE);
 
+    const monsterBody = Phaser.Physics.Matter.Matter.Bodies.circle(monsterX, monsterY, monster.width * 0.6, {
+      inertia: Infinity, // Prevent rotation
+      inverseInertia: 0,
+      mass: monsterMass
+    });
+    monster.setExistingBody(monsterBody).setPosition(monsterX, monsterY);
 
-    const monster = scene.physics.add.sprite(monsterX, monsterY, monsterSpriteKey)
-      .play(initialAnimationKey) // Check this line
-      .setOrigin(0.5)
-      .setScale(GAME_CONFIG.SCALE); monster.body.setCircle(monster.width / 5);
-    monster.body.setOffset(monster.width / 5, monster.height / 2);
+//console log the monster and its mass:
+    console.log(monster);
+        
     monster.play(`${monsterSpriteKey}`); // Playing idle animation
+    
 
     const levelText = scene.add.text(
       monsterX + (tileWidth / 2),
@@ -160,7 +168,7 @@ const modifiedLevel = chosenMonster.level + levelVariation; // You can also subt
       currentHealth: modifiedLevel * 10
     };
 
-    console.log(monsters)
+    console.log(`Monster added: ${monsterKey}`, monsters[monsterKey]);
 
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);

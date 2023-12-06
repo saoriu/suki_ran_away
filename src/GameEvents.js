@@ -244,22 +244,20 @@ monsterAttack(monsters, targetMonsterKey) {
         });
     }
     
-calculateDistance(player, monster) {
-    const playerCenterX = player.x + player.body.offset.x;
-    const playerCenterY = player.y + player.body.offset.y;
-    const monsterCenterX = monster.sprite.x + monster.sprite.body.offset.x;
-    const monsterCenterY = monster.sprite.y + monster.sprite.body.offset.y;
-
-    const distanceX = playerCenterX - monsterCenterX;
-    const distanceY = playerCenterY - monsterCenterY;
-    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-    // Subtracting the radii to calculate distance between the edges of the bodies
-    const playerRadius = player.body.width / 2;
-    const monsterRadius = monster.sprite.body.width / 2;
-    return Math.max(0, distance - (playerRadius + monsterRadius));
-}
-
+    calculateDistance(player, monster) {
+        const playerPosition = player.body.position;
+        const monsterPosition = monster.sprite.body.position;
+    
+        const distanceX = playerPosition.x - monsterPosition.x;
+        const distanceY = playerPosition.y - monsterPosition.y;
+        const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    
+        // Assuming circular bodies, subtract radii to get distance between edges
+        const playerRadius = player.body.circleRadius;
+        const monsterRadius = monster.sprite.body.circleRadius;
+        return Math.max(0, distance - (playerRadius + monsterRadius));
+    }
+    
     
     handleMonsterEngagement(monsters, monster) {
         if (monster.isColliding) {
@@ -273,12 +271,15 @@ calculateDistance(player, monster) {
     
     updateMonsterMovement(player, monster, distance) {
         if (monster.isFollowing && !monster.isColliding) {
-            const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
-            const monsterSpeed = monster.speed; // Adjust as needed
-            monster.sprite.x += normalizedDirectionX * monsterSpeed;
-            monster.sprite.y += normalizedDirectionY * monsterSpeed;
+          const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
+          const velocity = {
+            x: normalizedDirectionX * monster.speed,
+            y: normalizedDirectionY * monster.speed
+          };
+      
+          Phaser.Physics.Matter.Matter.Body.setVelocity(monster.sprite.body, velocity);
         }
-    }
+      }
     
     getDirectionTowardsPlayer(player, monster) {
         const directionX = player.x - monster.sprite.x;

@@ -4,22 +4,12 @@ import { GAME_CONFIG } from './gameConstants';
 export const gameStyles = {
   game: {
     width: 720  + 'px', 
-    height: GAME_CONFIG.CAMERA_HEIGHT + 'px',
+    height: (GAME_CONFIG.CAMERA_HEIGHT + GAME_CONFIG.UI_HEIGHT) + 'px', // Include UI height in total
     position: 'relative',
-    left: '40px',
     fontFamily: 'bitcount-mono-single-square',
   },
   frameContainer: {
-    width: '800px',
-    height: '560px',
-    padding: '2px 0 0 0px', // Top Right Bottom Left
-    backgroundImage: 'url("/frame-mini3.png")', // Correct path
-    backgroundSize: '800px 560px',
-    backgroundColor: 'white',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'left',
-    position: 'relative',
+position: 'relative',
   }
 };
 

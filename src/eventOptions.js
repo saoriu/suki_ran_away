@@ -6,6 +6,7 @@ export const eventOptions = [
     level: 1,
     damage: 1,
     speed: 2,
+    monsterMass: 0.1,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
       rare: ['Apple', 'Gold'],
@@ -19,6 +20,7 @@ export const eventOptions = [
     description: 'A little rascal.',
     monster: 'raccoon',
     level: 2,
+    monsterMass: 0.2,
     damage: 2,
     speed: 1,
     possibleOutcomes: {
@@ -36,6 +38,7 @@ export const eventOptions = [
     level: 5,
     speed: 1,
     damage: 5,
+    monsterMass: 0.5,
     possibleOutcomes: {
       common: ['Gold', 'Ruby'],
       rare: ['Diamond', 'Emerald'],
@@ -50,7 +53,8 @@ export const eventOptions = [
     monster: 'dragonfly',
     level: 10,
     damage: 10,
-    speed: 2.5,
+    monsterMass: 0.1,
+    speed: 2.45,
     possibleOutcomes: {
       common: ['Diamond', 'Thread'],
       rare: ['Gold', 'Silk'],
@@ -64,6 +68,7 @@ export const eventOptions = [
     monster: 'chicken',
     description: 'She may have something useful.',
     level: 1,
+    monsterMass: 0.1,
     damage: 1,
     speed: 1,
     possibleOutcomes: {
@@ -81,13 +86,14 @@ export const eventOptions = [
     damage: 0,
     level: 15,
     speed: 0.5,
+    monsterMass: 1,
     possibleOutcomes: {
       common: ['Milk', 'Egg', 'Flour'],
       rare: ['Ruby', 'Gold'],
       ultrarare: ['Silk']
     },
     skill: 'dancing',
-    monsterChance: 'common'
+    monsterChance: 'rare'
   }
 ].map(option => {
   const variation = 2; // Define the maximum increase in level

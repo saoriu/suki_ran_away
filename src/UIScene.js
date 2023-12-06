@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { textStyles } from './styles.js';
+import chroma from 'chroma-js';
 import { getSkillXP, getSkillLevel, getTotalSkillXP, xpRequiredForLevel, PlayerState } from './playerState';
 
 export class UIScene extends Phaser.Scene {
@@ -9,18 +10,33 @@ export class UIScene extends Phaser.Scene {
 
     preload() {
         this.load.image('dancingFrame', '/skill-bars.png');
-      }
-    
+    }
+
 
     create() {
+        this.timeCircle = this.add.graphics();
+        this.timeCircle.fillCircle(65, 65, 51); // Draw a circle at (100,100) with radius 50
         this.energyText = null;
         this.isLevelingUp = false;
         this.game.events.on('updatePlayerPosition', this.handlePlayerPositionUpdate, this);
+        this.game.events.on('gameTime', (gameTime) => {
+            this.updateTimeCircle(gameTime);
+        });
+        let dayText = null;
 
+        this.game.events.on('daysPassed', (daysPassed) => {
+            this.time.delayedCall(1000, () => {
+                if (dayText) {
+                    dayText.destroy();
+                }
+                dayText = this.add.text(40, 60, `Day ${daysPassed}`, textStyles.daysPassed).setDepth(2);
+            }, [], this);
+        });
+        
         this.inventoryContainer = this.add.container(10, 10);
-        this.skillsContainer = this.add.container(580, 10);
+        this.skillsContainer = this.add.container(580, 5);
 
-        this.dancingBar = this.createProgressBar(-530, 45);
+        this.dancingBar = this.createProgressBar(-565, 11);
         this.skillsContainer.add([this.dancingBar.outer, this.dancingBar.fill]);
 
         this.updateInventoryDisplay();
@@ -37,14 +53,27 @@ export class UIScene extends Phaser.Scene {
         this.game.events.on('startMonster', this.initMonsterAttack, this);
         this.game.events.on('runAway', this.endBattleUI, this);
 
+        let uiBackground = this.add.graphics();
+        uiBackground.fillStyle(0x00000, 1); // Fill color (white) and alpha (fully opaque)
+        // Draw the rectangle at position 0,0 with the width of the game and the height of the UI
+        uiBackground.fillRect(0, this.game.config.height - 100, this.game.config.width, 100);
 
-        this.energyBar = this.createEnergyBar(310, 318);
+        // Set the depth to be lower than other UI elements
+        uiBackground.setDepth(-1); 
+        
+        this.energyBar = this.createEnergyBar(15, 15);
         this.add.existing(this.energyBar.outer);
         this.add.existing(this.energyBar.fill);
-        this.energyText = this.add.text(310, 330, ``, textStyles.energyText); //dont display energy count until i wanna move it to a UI
+        this.energyText = this.add.text(120, 130, ``, textStyles.energyText); //dont display energy count until i wanna move it to a UI
         this.updateEnergyBar();
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
+        let progressBarBg = this.add.graphics();
+        progressBarBg.fillStyle(0x000000, 1); // Black color for the empty area
+        progressBarBg.slice(65, 65, 57, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(62), false); // Full circle with a radius of 50
+        progressBarBg.fillPath();
+        progressBarBg.setDepth(-1); // Set the depth to -1 so it appears behind the progress bar
     }
+
 
     initPlayerAttack() {
         if (this.playerRollText) {
@@ -69,48 +98,12 @@ export class UIScene extends Phaser.Scene {
                 this.monsterRollText.destroy();
             }
         }, [], this);
-            }
+    }
 
     handlePlayerPositionUpdate(position) {
         this.petEnergyText.setPosition(position.x, position.y - 50);
     }
 
-    updateEnergyBar() {
-        const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
-        const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
-        const energyProgress = displayedEnergy / 100;
-        const targetWidth = 80 * energyProgress;
-        const hue = (displayedEnergy / 100) * 120; // Use displayedEnergy for hue calculation
-        const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
-      
-        this.energyBar.fill.setFillStyle(color);
-        this.tweens.add({
-          targets: this.energyBar.fill,
-          displayWidth: targetWidth,
-          duration: 100,
-          ease: 'Sine.easeInOut'
-        });
-    
-        // Update the text with the capped energy value
-       // this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
-      
-        const energyChange = displayedEnergy - previousEnergy;
-        if (energyChange < 0) {
-          const changeText = this.add.text(this.energyText.x + 25, this.energyText.y, `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square',fontSize: '20px' ,fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' });
-          this.tweens.add({
-            targets: changeText,
-            y: changeText.y - 20,
-            alpha: 0,
-            duration: 1200,
-            onComplete: () => {
-              changeText.destroy();
-            }
-          });
-        }
-    
-        PlayerState.previousEnergy = displayedEnergy; // Store the capped energy as previous for next update
-    }
-    
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 80;
         const progressBarHeight = 6;
@@ -125,48 +118,165 @@ export class UIScene extends Phaser.Scene {
         return { outer: outerRect, fill: progressFill };
     }
 
+    
     handleDancingLevelUp() {
         this.isLevelingUp = true;
 
         this.tweens.add({
-            targets: this.dancingBar.fill,
-            displayHeight: 184,
+            targets: this.dancingBar,
+            endAngle: 60,
             duration: 500,
             ease: 'Sine.easeInOut',
+            onUpdate: () => {
+                this.dancingBar.fill.clear();
+                this.dancingBar.fill.fillStyle(0x9AA3D9, 1); // Set fill color before drawing the slice
+                this.dancingBar.fill.slice(this.dancingBar.x, this.dancingBar.y, this.dancingBar.radius, Phaser.Math.DegToRad(this.dancingBar.startAngle), Phaser.Math.DegToRad(this.dancingBar.endAngle), false);
+                this.dancingBar.fill.fillPath();
+            },
             onComplete: () => {
-                this.dancingBar.fill.displayHeight = 0;
+                this.dancingBar.endAngle = 0;
                 this.isLevelingUp = false;
                 this.updateSkillsDisplay();
             }
         });
     }
 
-    createProgressBar(x, y) {
-        const progressBarWidth = 10;
-        const progressBarHeight = 184;
-        const borderOffset = 2;
-        const outerRect = this.add.rectangle(-560, 200 + progressBarHeight / 2, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
-        outerRect.setOrigin(0, 1); // Set the origin to the bottom left corner
-      
-        const progressFill = this.add.rectangle(-560 + borderOffset, 200 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x00ff00);
-        progressFill.setOrigin(0, 1); // Set the origin to the bottom left corner
-        progressFill.displayHeight = 0;
-      
-        return { outer: outerRect, fill: progressFill };
-      }
-
     createEnergyBar(x, y) {
-        const progressBarWidth = 80;
-        const progressBarHeight = 6;
-        const borderOffset = 2;
-        const outerRect = this.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
-        outerRect.setOrigin(0, 0.5);
+        const outerRadius = 80 * 0.7 * 0.75; // Reduced by 25%
+        const borderThickness = 18; // Reduced by 25%
+    
+    
+        // Create the outer circle of the energy ring (background)
+        const outerCircle = this.add.graphics();
+        outerCircle.lineStyle(borderThickness, 0x000000, 1);
+        outerCircle.strokeCircle(x + 50, y + 50, outerRadius); // Moved more to the right and down
+    
+        // Create the fill arc of the energy ring (progress bar)
+        const energyFill = this.add.graphics();
+        energyFill.fillStyle(0x00ff00, 1); // Green color for energy fill
+        energyFill.slice(x + 50, y + 50, outerRadius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * 0.75), false); // Moved more to the right and down
+        energyFill.fillPath();
+    
+        // Create the inner circle of the energy ring (hollow part)
+        const innerCircle = this.add.graphics();
+        innerCircle.fillStyle(0x000000, 1); // Black color to make it hollow
+    
+        return { outer: outerCircle, inner: innerCircle, fill: energyFill };
+    }
 
-        const progressFill = this.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0x00ff00);
-        progressFill.setOrigin(0, 0.5);
-        progressFill.displayWidth = 0;
+    createProgressBar(x, y) {
+        const outerRadius = 55 // Reduced by 25%
+        const borderThickness = 0 * 0.75; // Reduced by 25%
+    
+        const outerCircle = this.add.graphics();
+        outerCircle.lineStyle(borderThickness, 0x9AA3D9, 1);
+        outerCircle.strokeCircle(x + 50, y + 50, outerRadius);
+    
+        const progressFill = this.add.graphics();
+        progressFill.fillStyle(0x9AA3D9, 1);
+        progressFill.slice(x + 50, y + 50, outerRadius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(0), false);
+        progressFill.fillPath();
+    
+        const innerCircle = this.add.graphics();
+        innerCircle.fillStyle(0x9AA3D9, 1);
+    
+        return { outer: outerCircle, inner: innerCircle, fill: progressFill, startAngle: 0, endAngle: 0, x: x + 50, y: y + 50, radius: outerRadius };
+    }
 
-        return { outer: outerRect, fill: progressFill };
+    updateSkillsDisplay() {
+        if (this.isLevelingUp) {
+            this.time.delayedCall(600, this.updateSkillsDisplay, [], this);
+            return;
+        }
+
+        if (this.dancingText && this.dancingXPText) {
+            this.skillsContainer.remove([this.dancingText, this.dancingXPText, this.dancingFrame], true);
+        }
+
+        const currentXP = getSkillXP('dancing');
+        const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
+        const dancingXPProgress = currentXP / requiredXP;
+        const targetAngle = 60 * dancingXPProgress;
+    
+        this.tweens.add({
+            targets: this.dancingBar,
+            endAngle: targetAngle,
+            duration: 500,
+            ease: 'Sine.easeInOut',
+            onUpdate: () => {
+                this.dancingBar.fill.clear();
+                this.dancingBar.fill.fillStyle(0x9AA3D9, 1); // Set fill color before drawing the slice
+                this.dancingBar.fill.slice(this.dancingBar.x, this.dancingBar.y, this.dancingBar.radius, Phaser.Math.DegToRad(this.dancingBar.startAngle), Phaser.Math.DegToRad(this.dancingBar.endAngle), false);
+                this.dancingBar.fill.fillPath();
+            }
+        });
+
+        this.dancingText = this.add.text(-462, 40, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText);
+        this.dancingXPText = this.add.text(-545, 120, `${getTotalSkillXP('dancing')} XP`, textStyles.playerLevelText);
+        this.skillsContainer.add([this.dancingText, this.dancingXPText]);
+    }
+    
+    updateEnergyBar() {
+        const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
+        const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
+        const energyProgress = displayedEnergy / 100;
+        const targetAngle = 360 * energyProgress;
+        const hue = (displayedEnergy / 100) * 120; // Use displayedEnergy for hue calculation
+        const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
+    
+        this.energyBar.fill.clear();
+        this.energyBar.fill.fillStyle(color);
+        this.energyBar.fill.slice(65, 65, 92 * 0.7 * 0.75, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(targetAngle), false); // Reduced radius by 25%
+        this.energyBar.fill.fillPath();
+    
+        // Update the text with the capped energy value
+        // this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
+    
+        const energyChange = displayedEnergy - previousEnergy;
+        if (energyChange < 0) {
+            const changeText = this.add.text(this.energyText.x + 75, this.energyText.y + 50, `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fontSize: '20px', fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' }); // Moved more to the right and down
+            this.tweens.add({
+                targets: changeText,
+                y: changeText.y - 20,
+                alpha: 0,
+                duration: 1200,
+                onComplete: () => {
+                    changeText.destroy();
+                }
+            });
+        }
+    
+        PlayerState.previousEnergy = displayedEnergy; // Store the capped energy as previous for next update
+    }
+
+    updateTimeCircle(gameTime) {
+        console.log(gameTime);
+
+        // Define a color scale
+        const colorScale = chroma.scale([
+            'midnightblue', // Midnight (0)
+            'darkblue', // Early morning (3)
+            'skyblue', // Morning (6)
+            'lightcyan', // Midday (12)
+            'skyblue', // Afternoon (18)
+            'darkblue', // Evening (21)
+            'midnightblue' // Night (24)
+        ]).mode('lch').domain([0, 3, 6, 12, 18, 21, 24]);
+    
+
+        // Get the color for the current game time
+        const color = colorScale(gameTime).rgb();
+
+        // Convert the RGB color to a Phaser color
+        const phaserColor = Phaser.Display.Color.RGBStringToColor(`rgb(${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])})`);
+
+        // Clear the previous circle and redraw it with the new color
+        this.timeCircle.clear();
+        this.timeCircle.lineStyle(2, 0x000000); // Add a black border
+        this.timeCircle.fillStyle(phaserColor.color);
+        this.timeCircle.fillCircle(65, 65, 49 * 0.75); // Reduced radius by 25%
+        this.timeCircle.strokeCircle(65, 65, 49 * 0.75); // Reduced radius by 25%
+      this.timeCircle.setDepth(1);
     }
 
     updateInventoryDisplay() {
@@ -183,32 +293,4 @@ export class UIScene extends Phaser.Scene {
             }
         });
     }
-
-    updateSkillsDisplay() {
-        if (this.isLevelingUp) {
-            this.time.delayedCall(600, this.updateSkillsDisplay, [], this);
-            return;
-        }
-
-        if (this.dancingText && this.dancingXPText) {
-            this.skillsContainer.remove([this.dancingText, this.dancingXPText, this.dancingFrame], true);
-        }
-
-        const currentXP = getSkillXP('dancing');
-        const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
-        const dancingXPProgress = currentXP / requiredXP;
-        const targetWidth = 184 * dancingXPProgress;
-
-        this.tweens.add({
-            targets: this.dancingBar.fill,
-            displayHeight: targetWidth,
-            duration: 500,
-            ease: 'Sine.easeInOut'
-        });
-
-        this.dancingFrame = this.add.image(-550, 200, 'dancingFrame').setScale(0.4).setAngle(90);
-        this.dancingText = this.add.text(-560, 70, `Lvl ${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-        this.dancingXPText = this.add.text(-280, 20, `${getTotalSkillXP('dancing')} XP`, textStyles.playerLevelText);
-        this.skillsContainer.add([this.dancingText, this.dancingFrame]);
-      }
 }
