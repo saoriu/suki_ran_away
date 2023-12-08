@@ -971,8 +971,6 @@ function update(time, delta) {
                     monsterObj.previousHealth = monsterObj.currentHealth;
                 }
 
-                const healthChange = monsterObj.previousHealth - monsterObj.currentHealth;
-
                 updateHealthBar(this, monsterObj.healthBar, monsterObj.currentHealth, monsterObj.maxHealth);
 
                 // Check if healthText is valid and update it
