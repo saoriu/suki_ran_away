@@ -2,12 +2,37 @@
   text-align: center;
   display: flex;
   justify-content: center;
-  font-family: "bitcount-mono-single-square", sans-serif !important;
+  align-items: center;
+}
 
+h1,p,strong,h2 {
+  color: white;
 }
 
 h1 {
-  color: white;
+  font-family: 'Gabriella', sans-serif;
+  font-size: 40px;
+  margin-bottom: 0;
+}
+
+h2 {
+  font-size: 20px;
+  margin-top: 0;
+  font-weight: 300;
+}
+
+p {
+  font-family: 'redonda-condensed', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+#copyright {
+  font-size: 10px;
+}
+
+#version {
+  margin:0;
 }
 
 .App-logo {
@@ -15,10 +40,9 @@ h1 {
   pointer-events: none;
 }
 
-#phaser-game {
-  font-family: "bitcount-mono-single-square", sans-serif;
+.title {
+  margin: 10px;
 }
-
 
 .quantity {
   color: black;
@@ -30,34 +54,4 @@ h1 {
   height: 20px;
   background-color: burlywood;
   padding: 15px;
-}
-
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

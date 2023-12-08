@@ -22,6 +22,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       delete monsters[key];
     }
   }
+
   const camera = scene.cameras.main;
   const visibleStartI = Math.floor((centerX - camera.width / 2) / tileWidth);
   const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);

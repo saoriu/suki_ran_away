@@ -564,8 +564,6 @@ export const usePhaserGame = (gameRef) => {
         }
 
 
-
-
         let lastUpdateTime = 0;
         let lastDirection = null; // Variable to store the last direction the cat moved
         const updateInterval = 1000 / 10; // For 10 FPS
@@ -974,18 +972,6 @@ function update(time, delta) {
                 }
 
                 const healthChange = monsterObj.previousHealth - monsterObj.currentHealth;
-                if (healthChange !== 0 && monsterObj.sprite) {
-                    const changeText = this.add.text(monsterObj.sprite.x, monsterObj.sprite.y - 20, `-${healthChange}`, { font: '16px Arial', fill: '#ff0000' });
-                    this.tweens.add({
-                        targets: changeText,
-                        y: changeText.y - 20,
-                        alpha: 0,
-                        duration: 1000,
-                        onComplete: () => {
-                            changeText.destroy();
-                        }
-                    });
-                }
 
                 updateHealthBar(this, monsterObj.healthBar, monsterObj.currentHealth, monsterObj.maxHealth);
 

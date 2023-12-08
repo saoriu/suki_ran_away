@@ -9,6 +9,7 @@ export class GameEvents {
 
     constructor(scene, cat) {
         this.scene = scene;
+        this.activeChangeTexts = 0;
         this.delayedEndCall = null;
         this.currentBattleMonsterKey = null; // Key of monster currently in battle with
         this.monsterHasAttacked = false; // flag to check if monster has retaliated
@@ -78,12 +79,12 @@ export class GameEvents {
 
         // Emit player battle update event
         const playerRoll = Phaser.Math.Between(0, PlayerState.level * 7);
-        this._emitPlayerBattleUpdate(monsterLevel, monsterHealth, playerRoll);
 
         // Apply damage to the monster
         targetMonster.currentHealth -= playerRoll;
         if (playerRoll > 0) {
         targetMonster.isHurt = true;  // Assuming each monster object has an isHurt property
+        this.displayHealthChangeText(targetMonster, playerRoll);
         }
 
         // Check if the monster is defeated
@@ -99,6 +100,45 @@ export class GameEvents {
         }
     }
 }
+
+displayHealthChangeText(monster, damage) {
+    const delayBeforeDisplay = 120; // Delay in milliseconds, adjust as needed
+
+    this.scene.time.delayedCall(delayBeforeDisplay, () => {
+        // Check if the monster still exists and its sprite is not destroyed
+        if (monster && monster.sprite && monster.sprite.active) {
+            const textX = monster.sprite.x;
+            const textY = monster.sprite.y - 20 - (this.activeChangeTexts % 2 === 0 ? 20 : -20) * Math.floor(this.activeChangeTexts / 2); // Adjust y-position based on activeChangeTexts
+            const changeText = this.scene.add.text(
+                textX,
+                textY,
+                `${Math.abs(damage).toFixed(0)}`, // Use Math.abs to remove the negative sign
+                {
+                    fontFamily: '"redonda-condensed", sans-serif',
+                    fontSize: '25px',
+                    fill: '#ff0000', // Only negative changes, so color is always red
+                    fontWeight: '100',
+                    stroke: '#ffffff',
+                    strokeThickness: 6,
+                    fontStyle: 'italic'
+                }
+            ).setDepth(5);
+            this.activeChangeTexts++; // Increment the counter when a new text is added
+
+            this.scene.tweens.add({
+                targets: changeText,
+                y: changeText.y - 20,
+                alpha: 0,
+                duration: 1200,
+                onComplete: () => {
+                    changeText.destroy();
+                    this.activeChangeTexts--; // Decrement the counter when a text is removed
+                }
+            });
+        }
+    });
+}
+
 
 monsterAttack(monsters, targetMonsterKey) {
     if (this.scene.isFainting) return; // Skip if player is dead

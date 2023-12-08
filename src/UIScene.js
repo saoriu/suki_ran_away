@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { textStyles } from './styles.js';
 import chroma from 'chroma-js';
-import { getSkillXP, getSkillLevel, getTotalSkillXP, xpRequiredForLevel, PlayerState } from './playerState';
+import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState } from './playerState';
 
 export class UIScene extends Phaser.Scene {
     constructor() {
@@ -30,7 +30,7 @@ export class UIScene extends Phaser.Scene {
                 if (dayText) {
                     dayText.destroy();
                 }
-                dayText = this.add.text(40, 60, `Day ${daysPassed}`, textStyles.daysPassed).setDepth(2);
+                dayText = this.add.text(43, 57, `DAY ${daysPassed}`, textStyles.daysPassed).setDepth(2);
             }, [], this);
         });
         
@@ -50,10 +50,6 @@ export class UIScene extends Phaser.Scene {
             }
         });
 
-        this.game.events.on('startBattle', this.initPlayerAttack, this);
-        this.game.events.on('startMonster', this.initMonsterAttack, this);
-        this.game.events.on('runAway', this.endBattleUI, this);
-
         let uiBackground = this.add.graphics();
         uiBackground.fillStyle(0x00000, 1); // Fill color (white) and alpha (fully opaque)
         // Draw the rectangle at position 0,0 with the width of the game and the height of the UI
@@ -61,11 +57,12 @@ export class UIScene extends Phaser.Scene {
 
         // Set the depth to be lower than other UI elements
         uiBackground.setDepth(-1); 
-        
+//add text on the screen that reads 'Suki Ran Away (Alpha Version) by Saori Uchida':
+
         this.energyBar = this.createEnergyBar(15, 15);
         this.add.existing(this.energyBar.outer);
         this.add.existing(this.energyBar.fill);
-        this.energyText = this.add.text(120, 130, ``, textStyles.energyText); //dont display energy count until i wanna move it to a UI
+        this.energyText = this.add.text(118, 38, `Energy: `, textStyles.energyText); 
         this.updateEnergyBar();
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
         let progressBarBg = this.add.graphics();
@@ -75,31 +72,6 @@ export class UIScene extends Phaser.Scene {
         progressBarBg.setDepth(-1); // Set the depth to -1 so it appears behind the progress bar
     }
 
-
-    initPlayerAttack() {
-        if (this.playerRollText) {
-            this.playerRollText.destroy();
-        }
-        this.playerRollText = this.add.text(10, 370, '', textStyles.battleUI);
-    }
-
-    initMonsterAttack() {
-        if (this.monsterRollText) {
-            this.monsterRollText.destroy();
-        }
-        this.monsterRollText = this.add.text(250, 370, '', textStyles.battleUI);
-    }
-
-    endBattleUI() {
-        this.time.delayedCall(1000, () => {
-            if (this.playerRollText) {
-                this.playerRollText.destroy();
-            }
-            if (this.monsterRollText) {
-                this.monsterRollText.destroy();
-            }
-        }, [], this);
-    }
 
     handlePlayerPositionUpdate(position) {
         this.petEnergyText.setPosition(position.x, position.y - 50);
@@ -189,11 +161,11 @@ export class UIScene extends Phaser.Scene {
             this.time.delayedCall(600, this.updateSkillsDisplay, [], this);
             return;
         }
-
-        if (this.dancingText && this.dancingXPText) {
-            this.skillsContainer.remove([this.dancingText, this.dancingXPText, this.dancingFrame], true);
+    
+        if (this.dancingText) {
+            this.dancingText.destroy();
         }
-
+    
         const currentXP = getSkillXP('dancing');
         const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
         const dancingXPProgress = currentXP / requiredXP;
@@ -211,10 +183,9 @@ export class UIScene extends Phaser.Scene {
                 this.dancingBar.fill.fillPath();
             }
         });
-
-        this.dancingText = this.add.text(-462, 40, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-        this.dancingXPText = this.add.text(-545, 120, `${getTotalSkillXP('dancing')} XP`, textStyles.playerLevelText);
-        this.skillsContainer.add([this.dancingText, this.dancingXPText]);
+    
+        this.dancingText = this.add.text(-535, 120, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText);
+        this.skillsContainer.add([this.dancingText]);
     }
 
     updateEnergyBar() {
@@ -231,14 +202,27 @@ export class UIScene extends Phaser.Scene {
         this.energyBar.fill.fillPath();
     
         // Update the text with the capped energy value
-        // this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
+        this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
 
         const energyChange = displayedEnergy - previousEnergy;
         if (energyChange < 0) {
             // Adjust the y-position based on the number of active texts
-            const changeText = this.add.text(this.energyText.x + 75, this.energyText.y + 50 + (this.activeChangeTexts * 20), `${previousEnergy > displayedEnergy ? '' : '+'}${energyChange.toFixed(0)}`, { fontFamily: 'bitcount-mono-single-square', fontSize: '20px', fill: previousEnergy > displayedEnergy ? '#ff0000' : '#00ff00' });
+            const changeText = this.add.text(
+                 345,
+                 215 + (this.activeChangeTexts * 20),
+                `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
+                {
+                    fontFamily: '"redonda-condensed", sans-serif',
+                    fontSize: '25px',
+                    fill: '#ff0000', // Only negative changes, so color is always red
+                    fontWeight: '100',
+                    stroke: '#000000',
+                    strokeThickness: 6,
+                    fontStyle: 'italic'
+                }
+            );
             this.activeChangeTexts++;
-    
+
             this.tweens.add({
                 targets: changeText,
                 y: changeText.y - 20,

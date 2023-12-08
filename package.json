@@ -17,12 +17,11 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && terser 'build/static/js/*.js' --output 'build/static/js/main.min.js' && javascript-obfuscator build/static/js/main.min.js --output build/static/js/main.min.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "minify": "terser 'build/static/js/*.js' --output 'build/static/js/main.min.js'"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -43,6 +42,7 @@
     ]
   },
   "devDependencies": {
+    "javascript-obfuscator": "^4.1.0",
     "terser": "^5.25.0"
   }
 }
