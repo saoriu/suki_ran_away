@@ -16,7 +16,7 @@ function calculateSpawnProbability(baseProbability, eventsBonus) {
   return probability;
 }
 
-export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters) {
+export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, daysPassed) {
   for (const key in monsters) {
     if (!monsters[key].sprite || !monsters[key].sprite.active) {
       delete monsters[key];
@@ -30,6 +30,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
   const baseProbability = GAME_CONFIG.baseProbability; // Example: 10% base spawn chance
   const eventsBonus = PlayerState.eventsBonus;
+  const weakenBonus = PlayerState.weakenBonus;
   const spawnProbability = calculateSpawnProbability(baseProbability, eventsBonus);
 
   if (Phaser.Math.FloatBetween(0, 1) < spawnProbability) {
@@ -72,7 +73,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     if (!chosenMonster) return;
 
     // ... after choosing the monster
-    const levelVariation = Phaser.Math.Between(0, 3);
+    const levelVariation = Phaser.Math.Between(0, Math.ceil((daysPassed + 1) / 2) * (2.5 * (1 - weakenBonus)));
     let damage = chosenMonster.damage;
     const monsterMass = chosenMonster.monsterMass;
 
@@ -98,27 +99,24 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       spawnTileJ = Phaser.Math.Between(bufferStartJ + 1, bufferEndJ - 1);
       spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI + 1 : bufferEndI - 1;
     }
-
-    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
-    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * 25)) / 2;
     const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
 
-    const monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
+    let monsterImage = scene.textures.get(monsterSpriteKey).getSourceImage();
+    let monsterRadius = monsterImage.width * GAME_CONFIG.SCALE / 3;
+
+    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * monsterImage.width)) / 2;
+    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * monsterImage.height)) / 2;
+
+    let monster
+
+    monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
       isStatic: false // Set to true if you want the monster to be immovable
-    }).setScale(GAME_CONFIG.SCALE);
+    }).setScale(GAME_CONFIG.SCALE).setCircle(monsterRadius);
 
-    const monsterBody = Phaser.Physics.Matter.Matter.Bodies.circle(monsterX, monsterY, monster.width * 0.6, {
-      inertia: Infinity, // Prevent rotation
-      inverseInertia: 0,
-      mass: monsterMass
-    });
-    monster.setExistingBody(monsterBody).setPosition(monsterX, monsterY);
-
-//console log the monster and its mass:
-    console.log(monster);
-        
-    monster.play(`${monsterSpriteKey}`); // Playing idle animation
-    
+    const monsterBody = monster.body;
+    monsterBody.inertia = Infinity; // Prevent rotation
+    monsterBody.inverseInertia = 0;
+    monsterBody.mass = monsterMass;
 
     const levelText = scene.add.text(
       monsterX + (tileWidth / 2),
@@ -168,9 +166,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       maxHealth: modifiedLevel * 10,
       currentHealth: modifiedLevel * 10
     };
-
-    console.log(`Monster added: ${monsterKey}`, monsters[monsterKey]);
-
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
     monster.setDepth(3);

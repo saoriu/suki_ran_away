@@ -33,7 +33,7 @@ export const usePhaserGame = (gameRef) => {
                 default: 'matter',
                 matter: {
                     gravity: { y: 0 },
-                    debug: false // Set to false in production
+                    debug: true // Set to false in production
                 }
             },
             autoRound: false,
@@ -55,7 +55,7 @@ export const usePhaserGame = (gameRef) => {
         let monsters = {};
         const tilesBuffer = GAME_CONFIG.TILES_BUFFER;
         const moveSpeed = PlayerState.speed;
-        const diagonalVelocity = (moveSpeed / Math.sqrt(2))
+        const diagonalVelocity = (moveSpeed / Math.sqrt(2)) // Multiply by 0.7 to adjust diagonal speed
 
 
         function preload() {
@@ -64,8 +64,6 @@ export const usePhaserGame = (gameRef) => {
         }
 
         let isAttacking = false; // flag to check if scratch animation is already playing
-        let canAttack = true;
-
 
         function create() {
             const camera = this.cameras.main;
@@ -101,6 +99,7 @@ export const usePhaserGame = (gameRef) => {
             this.handleItemPickup = Inventory.handleItemPickup.bind(this);
             this.addToInventory = Inventory.addToInventory.bind(this);
             this.clearInventory = Inventory.clearInventory.bind(this);
+            let canAttack = true;
             let spaceInterval;
 
             this.input.keyboard.on('keydown', (event) => {
@@ -108,6 +107,7 @@ export const usePhaserGame = (gameRef) => {
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
                         isAttacking = true;
+
                         if (canAttack && this.collidingMonsterKey) {
                             this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
                             canAttack = false;
@@ -185,11 +185,6 @@ export const usePhaserGame = (gameRef) => {
         const positionChangeThreshold = 20; // Adjust this value as needed
         let gameTime = 0; // In-game hours
         function handlePlayerMovement() {
-            //if player is attacking or fainting velocity is 0
-            if (isAttacking || PlayerState.isDead) {
-                cat.setVelocity(0, 0);
-                return;
-            }
 
 
             let velocityX = 0, velocityY = 0;
@@ -394,7 +389,7 @@ export const usePhaserGame = (gameRef) => {
                     }
                 }, this);
                 updateTargetMonsterKey.call(this);
-            } else if (isAttacking && !PlayerState.isDead) {
+            } else if (isAttacking && !this.isDead) {
                 let attackAnimationKey;
                 switch (lastDirection) {
                     case 'up':
@@ -499,6 +494,7 @@ export const usePhaserGame = (gameRef) => {
             function handlePlayerDeath() {
                 if (this.isFainting) return; // Prevent multiple calls if already processing death
 
+                this.isDead = true;
                 PlayerState.isDead = true;
 
                 this.isFainting = true;
@@ -519,10 +515,10 @@ export const usePhaserGame = (gameRef) => {
                 cat.on('animationcomplete', (animation) => {
                     // Check if the completed animation is 'dead'
                     if (animation.key === 'dead') {
-                        canAttack = true;
                         PlayerState.isDead = false;
-                        this.isFainting = false;
-                        PlayerState.energy = 100;
+                        // Reset relevant player states
+                        PlayerState.energy = 100; // Or any other logic for resetting player state
+                        // ... other state resets as needed
                     }
                 }, this);
             }

@@ -19,7 +19,6 @@ export class UIScene extends Phaser.Scene {
         this.energyText = null;
         this.activeChangeTexts = 0;
         this.isLevelingUp = false;
-        this.game.events.on('updatePlayerPosition', this.handlePlayerPositionUpdate, this);
         this.game.events.on('gameTime', (gameTime) => {
             this.updateTimeCircle(gameTime);
         });
@@ -70,11 +69,6 @@ export class UIScene extends Phaser.Scene {
         progressBarBg.slice(65, 65, 57, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(62), false); // Full circle with a radius of 50
         progressBarBg.fillPath();
         progressBarBg.setDepth(-1); // Set the depth to -1 so it appears behind the progress bar
-    }
-
-
-    handlePlayerPositionUpdate(position) {
-        this.petEnergyText.setPosition(position.x, position.y - 50);
     }
 
     createMonsterHealthBar(x, y) {
@@ -142,16 +136,16 @@ export class UIScene extends Phaser.Scene {
         const borderThickness = 0 * 0.75; // Reduced by 25%
     
         const outerCircle = this.add.graphics();
-        outerCircle.lineStyle(borderThickness, 0x9AA3D9, 1);
+        outerCircle.lineStyle(borderThickness, 0x54C1EF, 1);
         outerCircle.strokeCircle(x + 50, y + 50, outerRadius);
     
         const progressFill = this.add.graphics();
-        progressFill.fillStyle(0x9AA3D9, 1);
+        progressFill.fillStyle(0x54C1EF, 1);
         progressFill.slice(x + 50, y + 50, outerRadius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(0), false);
         progressFill.fillPath();
     
         const innerCircle = this.add.graphics();
-        innerCircle.fillStyle(0x9AA3D9, 1);
+        innerCircle.fillStyle(0x54C1EF, 1);
     
         return { outer: outerCircle, inner: innerCircle, fill: progressFill, startAngle: 0, endAngle: 0, x: x + 50, y: y + 50, radius: outerRadius };
     }
@@ -178,7 +172,7 @@ export class UIScene extends Phaser.Scene {
             ease: 'Sine.easeInOut',
             onUpdate: () => {
                 this.dancingBar.fill.clear();
-                this.dancingBar.fill.fillStyle(0x9AA3D9, 1); // Set fill color before drawing the slice
+                this.dancingBar.fill.fillStyle(0x54C1EF, 1); // Set fill color before drawing the slice
                 this.dancingBar.fill.slice(this.dancingBar.x, this.dancingBar.y, this.dancingBar.radius, Phaser.Math.DegToRad(this.dancingBar.startAngle), Phaser.Math.DegToRad(this.dancingBar.endAngle), false);
                 this.dancingBar.fill.fillPath();
             }
@@ -239,8 +233,6 @@ export class UIScene extends Phaser.Scene {
     }
 
     updateTimeCircle(gameTime) {
-        console.log(gameTime);
-
         // Define a color scale
         const colorScale = chroma.scale([
             'midnightblue', // Midnight (0)

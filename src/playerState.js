@@ -6,6 +6,7 @@ export const skills = {
 export const PlayerState = {
     level: skills.dancing.level + skills.gathering.level,
     energy: 100,
+    speed: 2,
     skills: skills,
     lastDamageTime: Date.now(),
     isDead: false,
@@ -14,7 +15,7 @@ export const PlayerState = {
     createBonus: 0, //save an item from being destroyed during creation
     luckBonus: 0, //chance to get a rare item from a monster
     eventsBonus: 0, //chance to get an event
-    speedBonus: 0, //chance to perform dance move first
+    weakenBonus: 0, //chance to lower monster level
     lastEnergyUpdate: Date.now(),
 };
 

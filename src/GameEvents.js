@@ -47,7 +47,6 @@ export class GameEvents {
 
             // Check if the target monster exists
             if (!targetMonster) {
-                console.log(`No target monster found with key: ${targetMonsterKey}`);
                 return;
             }
 
@@ -134,7 +133,6 @@ export class GameEvents {
 
         const targetMonster = monsters[targetMonsterKey];
         if (!targetMonster) {
-            console.log(`No target monster found with key: ${targetMonsterKey}`);
             return;
         }
 
@@ -224,8 +222,6 @@ export class GameEvents {
         if (this.scene.collidingMonsters[targetMonster.key]) {
             delete this.scene.collidingMonsters[targetMonster.key];
             delete this.scene.monsters[targetMonster.key];
-            console.log(this.scene.monsters)
-            console.log(this.scene.collidingMonsters)
         }
 
         // Reset battle flags
@@ -248,7 +244,7 @@ export class GameEvents {
         const player = this.scene.cat;
         const tileWidth = GAME_CONFIG.TILE_WIDTH;
         const maxDistance = 30 * tileWidth;
-        const runningDistance = 0.7 * tileWidth;
+        const runningDistance = 0.5 * tileWidth;
 
         Object.values(monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return; // Check if monster and its sprite are valid
@@ -263,10 +259,8 @@ export class GameEvents {
             if (distance > runningDistance) {
                 monster.isColliding = false; // Reset colliding status
                 monster.isFollowing = true; // Monster starts following the player
-                monster.isMoving = true;
             } else {
                 this.handleMonsterEngagement(monsters, monster); // Handle close-range engagement
-                monster.isMoving = false;
             }
 
             this.updateMonsterMovement(player, monster, distance); // Update monster movement based on current state
@@ -297,7 +291,6 @@ export class GameEvents {
         }
     }
 
-
     updateMonsterMovement(player, monster, distance) {
         if (monster.isFollowing && !monster.isColliding) {
             const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
@@ -306,9 +299,13 @@ export class GameEvents {
                 y: normalizedDirectionY * monster.speed
             };
 
-            Phaser.Physics.Matter.Matter.Body.setVelocity(monster.sprite.body, velocity);
+            
+            // Apply velocity to the monster
+            monster.sprite.setVelocity(velocity.x, velocity.y);
         }
     }
+    
+    
 
     getDirectionTowardsPlayer(player, monster) {
         const directionX = player.x - monster.sprite.x;
