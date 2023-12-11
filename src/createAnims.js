@@ -157,8 +157,8 @@ scene.anims.create({
 
 scene.anims.create({
     key: 'panda_attack',
-    frames: Array.from({ length: 5 }, (_, i) => ({ key: `panda_attack-${i + 1}` })),
-    frameRate: 10,
+    frames: Array.from({ length: 8 }, (_, i) => ({ key: `panda_attack-${i + 1}` })),
+    frameRate: 16,
     repeat: 0
 });
 

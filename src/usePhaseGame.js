@@ -436,7 +436,9 @@ export const usePhaserGame = (gameRef) => {
                     monster.sprite.setFlipX(false);
                 }
 
-                if (monster.isHurt) {
+                if (monster.currentHealth <= 0) {
+                    monster.sprite.play(`${monster.event.monster}_die`, true);
+                 } else if (monster.isHurt) {
                     monster.sprite.play(`${monster.event.monster}_hurt`, true);
                     monster.sprite.once('animationcomplete', () => {
                         if (monster.sprite && monster.sprite.active) {
@@ -452,8 +454,6 @@ export const usePhaserGame = (gameRef) => {
                             monster.isAttacking = false;
                         }
                     }, this);
-                } else if (monster.currentHealth <= 0) {
-                    monster.sprite.play(`${monster.event.monster}_die`, true);
                 } else if (monster.isMoving) {
                     monster.sprite.play(`${monster.event.monster}_run`, true);
                 } else {

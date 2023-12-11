@@ -87,7 +87,7 @@ export class GameEvents {
             // Emit player battle update event
             const availableAttacks = unlockedAttacksForLevel(PlayerState.level);
             const selectedAttack = availableAttacks[Phaser.Math.Between(0, availableAttacks.length - 1)];
-            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 5));
+            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 50));
         
             // Store selected attack in the scene for animation
             console.log("Selected Attack:", selectedAttack.name, "Number:", selectedAttack.attack); // Add for debugging
@@ -221,41 +221,51 @@ export class GameEvents {
 
 
     endBattleForMonster(targetMonster) {
-        if (!targetMonster) return;
-
-        // Clean up monster assets
+        if (!targetMonster || targetMonster.isDead) return;
         targetMonster.isAggressive = false;
-
+        targetMonster.isDead = true;
+    
+        // Play the death animation first
+        if (targetMonster.currentHealth <= 0) {
+            targetMonster.sprite.play(`${targetMonster.event.monster}_die`, true);
+    
+            // Listen for the animation completion
+            targetMonster.sprite.once('animationcomplete', () => {
+                // Proceed to clean up after the animation is complete
+                this.cleanUpMonster(targetMonster);
+            }, this);
+        } else {
+            // If the monster is not dead, proceed to clean up directly
+            this.cleanUpMonster(targetMonster);
+        }
+    }
+    
+    cleanUpMonster(targetMonster) {    
         // Destroy the monster health bar (if it exists)
         if (targetMonster.healthBar && targetMonster.healthBar.fill && targetMonster.healthBar.outer) {
             targetMonster.healthBar.fill.destroy();
             targetMonster.healthBar.outer.destroy();
             targetMonster.levelText.destroy();
-            targetMonster.sprite.destroy();
             targetMonster.healthText.destroy();
-
         }
+    
         // Remove the monster from the active monsters collection
         if (this.scene.collidingMonsters[targetMonster.key]) {
             delete this.scene.collidingMonsters[targetMonster.key];
             delete this.scene.monsters[targetMonster.key];
         }
-
+    
         // Reset battle flags
         this.monsterHasAttacked = false;
-        targetMonster.isDead = true
         targetMonster.isColliding = false;
         PlayerState.lastEnergyUpdate = Date.now();
         this.currentBattleMonsterKey = null;
         this.scene.game.events.emit('endBattle');
-
-        if (Object.keys(this.scene.collidingMonsters).length > 0) {
-            this.scene.collidingMonsterKey = Object.keys(this.scene.collidingMonsters)[0];
-        }
-
-
+    
+        // Finally, destroy the monster sprite
+        targetMonster.sprite.destroy();
     }
-
+    
 
     update(monsters) {
 

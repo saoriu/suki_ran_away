@@ -2,7 +2,7 @@ export const eventOptions = [
   {
     event: 'monster1',
     description: 'A cute lil creature.',
-    monster: 'bunny',
+    monster: 'panda',
     level: 1,
     damage: 1,
     speed: 2,
@@ -18,7 +18,7 @@ export const eventOptions = [
   {
     event: 'monster2',
     description: 'A little rascal.',
-    monster: 'raccoon',
+    monster: 'panda',
     level: 2,
     monsterMass: 1,
     damage: 2,
@@ -50,7 +50,7 @@ export const eventOptions = [
   {
     event: 'monster4',
     description: 'A very interestinig creature, wonder what it drops.',
-    monster: 'dragonfly',
+    monster: 'panda',
     level: 10,
     damage: 10,
     monsterMass: 0.2,
@@ -65,7 +65,7 @@ export const eventOptions = [
   },
   {
     event: 'monster5',
-    monster: 'chicken',
+    monster: 'panda',
     description: 'She may have something useful.',
     level: 1,
     monsterMass: 0.8,
@@ -81,7 +81,7 @@ export const eventOptions = [
   },
   {
     event: 'monster6',
-    monster: 'turtle',
+    monster: 'panda',
     description: 'Its a hard life.',
     damage: 0,
     level: 15,

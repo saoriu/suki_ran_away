@@ -31,7 +31,7 @@ export function preloadFrames(gameInstance) {
     for (let i = 1; i <= 7; i++) this.load.image(`raccoon_attack-${i}`, `/raccoon_attack-${i}.png`);
     for (let i = 1; i <= 8; i++) this.load.image(`panda_run-${i}`, `/panda_run-${i}.png`);
     for (let i = 1; i <= 4; i++) this.load.image(`panda-${i}`, `/panda_idle-${i}.png`);
-    for (let i = 1; i <= 5; i++) this.load.image(`panda_attack-${i}`, `/panda_attack-${i}.png`);
+    for (let i = 1; i <= 8; i++) this.load.image(`panda_attack-${i}`, `/panda_attack-${i}.png`);
     for (let i = 1; i <= 6; i++) this.load.image(`dragonfly_run-${i}`, `/dragonfly_run-${i}.png`);
     for (let i = 1; i <= 6; i++) this.load.image(`dragonfly-${i}`, `/dragonfly_idle-${i}.png`);
     for (let i = 1; i <= 7; i++) this.load.image(`dragonfly_attack-${i}`, `/dragonfly_attack-${i}.png`);
