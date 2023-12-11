@@ -11,8 +11,6 @@ import { UIScene } from './UIScene';
 import { preloadFrames } from './preloadFrames';
 import { createAnims } from './createAnims';
 
-
-
 export const usePhaserGame = (gameRef) => {
     useEffect(() => {
         const mainScene = {
@@ -46,7 +44,6 @@ export const usePhaserGame = (gameRef) => {
         console.log("gameInstance created: ", gameRef.current);
         window.game = gameRef.current;
 
-
         // Initialize Phaser Game
         let tiles = {};
         const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
@@ -65,22 +62,24 @@ export const usePhaserGame = (gameRef) => {
 
         let isAttacking = false; // flag to check if scratch animation is already playing
         let canAttack = true;
-
+        const monsterBodyIdToKey = {};
+        const POSITION_CHANGE_THRESHOLD = 0.1;
 
         function create() {
             const camera = this.cameras.main;
             this.scene.launch('UIScene');
+            console.log("Scene name:", this.scene.key);
             this.collidingMonsters = {};
             this.monsters = {};
+            console.log("usePhaseGame scene:", this);
             camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
 
             cat = this.matter.add.sprite(0, 0, 'sit', null, {
                 isStatic: false,
                 friction: 0,
-            }).setScale(0.35).setCircle(25);
+            }).setScale(0.35).setCircle(25).setDepth(5);
 
             this.cat = cat; // Attach the cat sprite to the scene
-
 
             // Adjust the physics properties of the cat
             const catBody = this.cat.body;
@@ -88,7 +87,8 @@ export const usePhaserGame = (gameRef) => {
             catBody.inverseInertia = 0;
             catBody.mass = 1;
             cat.body.friction = 0;
-            cat.body.frictionAir = 0; 
+            cat.body.frictionAir = 0;
+            cat.setDepth(5)
 
 
             this.collidingMonsterKey = null;
@@ -107,18 +107,18 @@ export const usePhaserGame = (gameRef) => {
                 if (event.code === 'Space' && !spaceInterval && !this.isFainting) {
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
-                        isAttacking = true;
                         if (canAttack && this.collidingMonsterKey) {
                             this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
+                            isAttacking = true;
                             canAttack = false;
                             setTimeout(() => {
                                 if (!this.isFainting) {
                                     canAttack = true;
                                     isAttacking = false;
                                 }
-                            }, 500);
+                            }, 1000);
                         }
-                    }, 100);
+                    }, 0);
                 }
             });
 
@@ -136,7 +136,6 @@ export const usePhaserGame = (gameRef) => {
         }
 
         let daysPassed = 0; // In-game days
-
 
         function createTilesAround(centerX, centerY, scene) {
             const camera = scene.cameras.main;
@@ -242,7 +241,7 @@ export const usePhaserGame = (gameRef) => {
                 cat.play('dead', true);
                 return;
             }
-        
+
             if (isAttacking) {
                 return;
             }
@@ -291,7 +290,6 @@ export const usePhaserGame = (gameRef) => {
                 }
         }
 
-
         function update(time, delta) {
             if (time - lastUpdateTime < updateInterval) {
                 return; // Exit early if not enough time has passed since the last update
@@ -310,15 +308,12 @@ export const usePhaserGame = (gameRef) => {
 
             handlePlayerMovement();
 
-                    //call spawnMonsters by pressing the 'm' key:
-        this.input.keyboard.on('keydown', (event) => {
-            if (event.code === 'KeyM') {
-                spawnMonsters(cat.x, cat.y, this, tileWidth, tilesBuffer, monsters, daysPassed);
-            }
-        });
-
-
-
+            //call spawnMonsters by pressing the 'm' key:
+            this.input.keyboard.on('keydown', (event) => {
+                if (event.code === 'KeyM') {
+                    spawnMonsters(cat.x, cat.y, this, tileWidth, tilesBuffer, monsters, daysPassed);
+                }
+            });
 
             if (PlayerState.energy <= 0 && !this.isFainting) {
                 handlePlayerDeath.call(this);
@@ -343,7 +338,6 @@ export const usePhaserGame = (gameRef) => {
             });
 
             // Create a map of monster body IDs to monster keys
-            const monsterBodyIdToKey = {};
             for (const [key, monster] of Object.entries(monsters)) {
                 if (monster.sprite && monster.sprite.body) {
                     monsterBodyIdToKey[monster.sprite.body.id] = key;
@@ -368,47 +362,50 @@ export const usePhaserGame = (gameRef) => {
                     }
                 });
             });
-
             if (isAttacking && this.collidingMonsterKey) {
                 let attackAnimationKey;
+                const attackNumber = this.registry.get('selectedAttackNumber') || 1;
+                console.log("attackNumber: ", attackNumber);
+
                 switch (lastDirection) {
                     case 'up':
-                        attackAnimationKey = 'attack1-back'; // Replace with your defined animation key for up/back attack
+                        attackAnimationKey = `attack${attackNumber}-back`;
                         break;
                     case 'down':
-                        attackAnimationKey = 'attack1-front'; // Replace with your defined animation key for down/front attack
+                        attackAnimationKey = `attack${attackNumber}-front`;
                         break;
                     case 'left':
                     case 'right':
-                        attackAnimationKey = 'attack1'; // Use existing attack animation for left/right
+                        attackAnimationKey = `attack${attackNumber}`;
                         break;
                     default:
-                        attackAnimationKey = 'attack1'; // Default attack animation
+                        attackAnimationKey = `attack${attackNumber}`;
                         break;
                 }
                 cat.play(attackAnimationKey, true);
                 cat.on('animationcomplete', (animation, frame) => {
                     if (isAttacking) {
                         cat.play('sit');
-                        isAttacking = false; // set flag to false to indicate attack animation is finished
+                        isAttacking = false; // Reset flag
                     }
                 }, this);
                 updateTargetMonsterKey.call(this);
             } else if (isAttacking && !PlayerState.isDead) {
                 let attackAnimationKey;
+                const attackNumber = this.registry.get('selectedAttackNumber') || 1;
                 switch (lastDirection) {
                     case 'up':
-                        attackAnimationKey = 'attack1-back'; // Replace with your defined animation key for up/back attack
+                        attackAnimationKey = `attack${attackNumber}-back`;
                         break;
                     case 'down':
-                        attackAnimationKey = 'attack1-front'; // Replace with your defined animation key for down/front attack
+                        attackAnimationKey = `attack${attackNumber}-front`;
                         break;
                     case 'left':
                     case 'right':
-                        attackAnimationKey = 'attack1'; // Use existing attack animation for left/right
+                        attackAnimationKey = `attack${attackNumber}`;
                         break;
                     default:
-                        attackAnimationKey = 'attack1'; // Default attack animation
+                        attackAnimationKey = `attack${attackNumber}`;
                         break;
                 }
                 cat.play(attackAnimationKey, true);
@@ -419,9 +416,6 @@ export const usePhaserGame = (gameRef) => {
                     }
                 }, this);
             }
-
-            const POSITION_CHANGE_THRESHOLD = 0.1; // Adjust this value as needed
-
 
             Object.values(monsters).forEach(monster => {
                 if (!monster || !monster.sprite || !monster.sprite.active) return;
@@ -468,95 +462,11 @@ export const usePhaserGame = (gameRef) => {
                 }
             });
 
-
-            const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
-
-
-
             this.gameEvents.update(monsters);
             regenerateEnergy(this); // Assuming 'this' is the scene
             removeFarTiles(cat.x, cat.y, this); // <--- Passing gameEvents here
 
-            function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
-                const hue = Phaser.Math.Clamp((currentHealth / maxHealth) * 120, 0, 120);
-                const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
-                const healthProgress = Math.max(0, currentHealth / maxHealth);
-                const targetWidth = 80 * healthProgress;
-
-                if (healthBar.fill) {
-                    healthBar.fill.setFillStyle(color);
-                    scene.tweens.add({
-                        targets: healthBar.fill,
-                        displayWidth: targetWidth,
-                        duration: 100,
-                        ease: 'Sine.easeInOut'
-                    });
-                } else {
-                    console.error("The healthBar object does not have a fill property.");
-                }
-            }
-
-            function handlePlayerDeath() {
-                if (this.isFainting) return; // Prevent multiple calls if already processing death
-
-                PlayerState.isDead = true;
-
-                this.isFainting = true;
-                isAttacking = false; // Ensure no attack is in progress
-                cat.anims.stop(); // Stop current animations
-                cat.play('dead'); // Play death animation
-
-                //reset the colliding monsters and colliding monster key:
-                this.collidingMonsters = {};
-                this.collidingMonsterKey = null;
-
-                // Clear monsters and inventory
-                Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
-                monsters = {};
-                this.clearInventory();
-
-                // Listen for the 'animationcomplete' event
-                cat.on('animationcomplete', (animation) => {
-                    // Check if the completed animation is 'dead'
-                    if (animation.key === 'dead') {
-                        canAttack = true;
-                        PlayerState.isDead = false;
-                        this.isFainting = false;
-                        PlayerState.energy = 100;
-                    }
-                }, this);
-            }
-
-            function updateTargetMonsterKey() {
-                this.collidingMonsterKey = null; // Reset the target monster key
-
-                // Determine the colliding monster that the player is facing
-                for (const [key, monster] of Object.entries(this.collidingMonsters)) {
-                    if (isMonsterInFront(cat, monster, lastDirection)) {
-                        this.collidingMonsterKey = key;
-                        break; // Break the loop once the first facing monster is found
-                    }
-                }
-            }
-
-
-            function isMonsterInFront(player, monster, lastDirection) {
-                switch (lastDirection) {
-                    case 'left':
-                        return monster.sprite.x < player.x;
-                    case 'right':
-                        return monster.sprite.x > player.x;
-                    case 'up':
-                        return monster.sprite.y < player.y;
-                    case 'down':
-                        return monster.sprite.y > player.y;
-                    default:
-                        return false;
-                }
-            }
-
-
-
+       
             Object.values(monsters).forEach(monsterObj => {
                 // Check if monster object and its essential properties still exist
                 if (!monsterObj || !monsterObj.sprite || !monsterObj.sprite.active || !monsterObj.healthBar || !monsterObj.sprite.body) return;
@@ -589,10 +499,84 @@ export const usePhaserGame = (gameRef) => {
                     monsterObj.levelText.y = monsterObj.sprite.y - 30;
                 }
             });
-
-
         }
 
+        function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
+            const hue = Phaser.Math.Clamp((currentHealth / maxHealth) * 120, 0, 120);
+            const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
+            const healthProgress = Math.max(0, currentHealth / maxHealth);
+            const targetWidth = 80 * healthProgress;
+
+            if (healthBar.fill) {
+                healthBar.fill.setFillStyle(color);
+                scene.tweens.add({
+                    targets: healthBar.fill,
+                    displayWidth: targetWidth,
+                    duration: 100,
+                    ease: 'Sine.easeInOut'
+                });
+            } else {
+                console.error("The healthBar object does not have a fill property.");
+            }
+        }
+
+        function handlePlayerDeath() {
+            if (this.isFainting) return; // Prevent multiple calls if already processing death
+
+            PlayerState.isDead = true;
+
+            this.isFainting = true;
+            isAttacking = false; // Ensure no attack is in progress
+            cat.anims.stop(); // Stop current animations
+            cat.play('dead'); // Play death animation
+
+            //reset the colliding monsters and colliding monster key:
+            this.collidingMonsters = {};
+            this.collidingMonsterKey = null;
+
+            // Clear monsters and inventory
+            Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
+            monsters = {};
+            this.clearInventory();
+
+            // Listen for the 'animationcomplete' event
+            cat.on('animationcomplete', (animation) => {
+                // Check if the completed animation is 'dead'
+                if (animation.key === 'dead') {
+                    canAttack = true;
+                    PlayerState.isDead = false;
+                    this.isFainting = false;
+                    PlayerState.energy = 100;
+                }
+            }, this);
+        }
+
+        function updateTargetMonsterKey() {
+            this.collidingMonsterKey = null; // Reset the target monster key
+
+            // Determine the colliding monster that the player is facing
+            for (const [key, monster] of Object.entries(this.collidingMonsters)) {
+                if (isMonsterInFront(cat, monster, lastDirection)) {
+                    this.collidingMonsterKey = key;
+                    break; // Break the loop once the first facing monster is found
+                }
+            }
+        }
+
+        function isMonsterInFront(player, monster, lastDirection) {
+            switch (lastDirection) {
+                case 'left':
+                    return monster.sprite.x < player.x;
+                case 'right':
+                    return monster.sprite.x > player.x;
+                case 'up':
+                    return monster.sprite.y < player.y;
+                case 'down':
+                    return monster.sprite.y > player.y;
+                default:
+                    return false;
+            }
+        }
 
         function removeFarTiles(centerX, centerY, scene) {
             const camera = scene.cameras.main;
@@ -619,5 +603,4 @@ export const usePhaserGame = (gameRef) => {
         };
     }, [gameRef]);
     return gameRef.current;
-
 }

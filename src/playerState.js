@@ -4,7 +4,7 @@ export const skills = {
 };
 
 export const PlayerState = {
-    level: skills.dancing.level + skills.gathering.level,
+    level: skills.dancing.level,
     energy: 100,
     speed: 2,
     skills: skills,

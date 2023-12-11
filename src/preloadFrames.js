@@ -3,6 +3,18 @@ export function preloadFrames(gameInstance) {
     for (let i = 1; i <= 8; i++) this.load.image(`run${i}`, `/run${i}.png`);
     for (let i = 1; i <= 11; i++) this.load.image(`dead${i}`, `/dead${i}.png`);
     for (let i = 1; i <= 4; i++) this.load.image(`attack1-${i}`, `/attack1-${i}.png`);
+    for (let i = 1; i <= 4; i++) this.load.image(`attack2-${i}`, `/attack2-${i}.png`);
+    for (let i = 1; i <= 5; i++) this.load.image(`attack2-back-${i}`, `/attack2-back-${i}.png`);
+    for (let i = 1; i <= 5; i++) this.load.image(`attack2-front-${i}`, `/attack2-front-${i}.png`);
+    for (let i = 1; i <= 9; i++) this.load.image(`attack3-back-${i}`, `/attack3-back-${i}.png`);
+    for (let i = 1; i <= 9; i++) this.load.image(`attack3-front-${i}`, `/attack3-front-${i}.png`);
+    for (let i = 1; i <= 9; i++) this.load.image(`attack3-${i}`, `/attack3-${i}.png`);
+    for (let i = 1; i <= 5; i++) this.load.image(`attack4-front-${i}`, `/attack4-front-${i}.png`);
+    for (let i = 1; i <= 9; i++) this.load.image(`attack4-back-${i}`, `/attack4-back-${i}.png`);
+    for (let i = 1; i <= 5; i++) this.load.image(`attack4-${i}`, `/attack4-${i}.png`);
+    for (let i = 1; i <= 14; i++) this.load.image(`attack5-${i}`, `/attack5-${i}.png`);
+    for (let i = 1; i <= 10; i++) this.load.image(`attack5-back-${i}`, `/attack5-back-${i}.png`);
+    for (let i = 1; i <= 10; i++) this.load.image(`attack5-front-${i}`, `/attack5-front-${i}.png`);
     for (let i = 1; i <= 4; i++) this.load.image(`attack1-back-${i}`, `/attack1-back-${i}.png`);
     for (let i = 1; i <= 4; i++) this.load.image(`attack1-front-${i}`, `/attack1-front-${i}.png`);
     for (let i = 1; i <= 13; i++) this.load.image(`tile${i}`, `/tile${i}.png`);

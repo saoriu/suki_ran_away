@@ -3,16 +3,23 @@ import { PlayerState, addXpToSkill } from './playerState.js';
 import { itemInfo } from './itemInfo.js';
 import { Item } from './Item';
 import { GAME_CONFIG } from './gameConstants.js';
+import { unlockedAttacksForLevel } from './attacks'; // Import the new utility function
+
 
 export class GameEvents {
     static currentInstance = null; // This static property holds the current instance
 
     constructor(scene, cat) {
         this.scene = scene;
+        this.cat = cat;
         this.activeChangeTexts = 0;
         this.delayedEndCall = null;
         this.currentBattleMonsterKey = null; // Key of monster currently in battle with
         this.monsterHasAttacked = false; // flag to check if monster has retaliated
+        this.player = this.scene.cat;
+        this.tileWidth = GAME_CONFIG.TILE_WIDTH;
+        this.maxDistance = 30 * this.tileWidth;
+        this.runningDistance = 0.5 * this.tileWidth;
 
 
         GameEvents.currentInstance = this; // Assign the current instance to the static property
@@ -40,6 +47,10 @@ export class GameEvents {
 
     playerAttack(monsters, targetMonsterKey) {
         if (this.scene.isFainting) return; // Skip if player is dead
+        console.log("GameEvents scene:", this.scene);
+        console.log("Scene name:", this.scene.key);
+
+
 
         if (PlayerState.energy > 0) {
             // Retrieve the target monster using its key
@@ -63,22 +74,29 @@ export class GameEvents {
 
             targetMonster.healthBar.outer.setVisible(true);
             targetMonster.healthBar.fill.setVisible(true);
-            targetMonster.healthText.setVisible(true);
-            targetMonster.levelText.setVisible(true);
+            targetMonster.healthText.setVisible(false);
+            targetMonster.levelText.setVisible(false);
 
             // Update the last energy update time
             PlayerState.lastEnergyUpdate = Date.now();
-
-            // Emit start battle event
-            this.scene.game.events.emit('startBattle');
 
             // Calculate the monster's health and level
             let monsterHealth = targetMonster.level * 1;
             let monsterLevel = targetMonster.level;
 
             // Emit player battle update event
-            const playerRoll = Phaser.Math.Between(0, PlayerState.level * 7);
+            const availableAttacks = unlockedAttacksForLevel(PlayerState.level);
+            const selectedAttack = availableAttacks[Phaser.Math.Between(0, availableAttacks.length - 1)];
+            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 5));
+        
+            // Store selected attack in the scene for animation
+            console.log("Selected Attack:", selectedAttack.name, "Number:", selectedAttack.attack); // Add for debugging
 
+            this.scene.selectedAttackNumber = selectedAttack.attack;
+            this.scene.registry.set('selectedAttackNumber', selectedAttack.attack);
+        
+            console.log(`Player rolled ${playerRoll} for ${selectedAttack.name}!`);
+        
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
             if (playerRoll > 0) {
@@ -116,7 +134,7 @@ export class GameEvents {
             // Check if the monster is defeated
             if (targetMonster.currentHealth <= 0) {
                 this._emitPlayerBattleUpdate(monsterLevel, monsterHealth, playerRoll);
-                addXpToSkill('dancing', targetMonster.level * 50);
+                addXpToSkill('dancing', targetMonster.level * 500);
                 this.handleItemDrop(targetMonster); // Call handleItemDrop for the defeated monster
                 this.endBattleForMonster(targetMonster); // Call endBattleForMonster for the defeated monster
             } else if (!this.monsterHasAttacked) {
@@ -149,7 +167,6 @@ export class GameEvents {
         };
 
         PlayerState.lastEnergyUpdate = Date.now();
-        this.scene.game.events.emit('startBattle');
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
@@ -158,7 +175,7 @@ export class GameEvents {
         this.monsterHasAttacked = true;
 
         // Time to impact (in milliseconds)
-        const timeToImpact = 300; // Adjust based on your animation, e.g., 0.3 seconds = 300 ms
+        const timeToImpact = 500; // Adjust based on your animation, e.g., 0.3 seconds = 300 ms
 
         // Delay damage application to synchronize with the attack animation's impact frame
         setTimeout(() => {
@@ -241,29 +258,26 @@ export class GameEvents {
 
 
     update(monsters) {
-        const player = this.scene.cat;
-        const tileWidth = GAME_CONFIG.TILE_WIDTH;
-        const maxDistance = 30 * tileWidth;
-        const runningDistance = 0.5 * tileWidth;
+
 
         Object.values(monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return; // Check if monster and its sprite are valid
 
-            const distance = this.calculateDistance(player, monster); // Calculate distance between player and monster
+            const distance = this.calculateDistance(this.player, monster); // Calculate distance between player and monster
 
-            if (distance > maxDistance) {
+            if (distance > this.maxDistance) {
                 this.endBattleForMonster(monster); // End battle if the monster is too far
                 return; // Skip further processing for this monster
             }
 
-            if (distance > runningDistance) {
+            if (distance > this.runningDistance) {
                 monster.isColliding = false; // Reset colliding status
                 monster.isFollowing = true; // Monster starts following the player
             } else {
                 this.handleMonsterEngagement(monsters, monster); // Handle close-range engagement
             }
 
-            this.updateMonsterMovement(player, monster, distance); // Update monster movement based on current state
+            this.updateMonsterMovement(this.player, monster, distance); // Update monster movement based on current state
         });
     }
 

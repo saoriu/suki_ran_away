@@ -1,6 +1,4 @@
 export function handleItemPickup() {
-    console.log('Current Inventory:', this.registry.get('inventory'));
-
     const cameraView = this.cameras.main.worldView;
 
     this.items = this.items.filter(item => {
@@ -29,7 +27,6 @@ export function addToInventory(itemConfig) {
         inventory.push(itemConfig);
     } else {
         // If inventory is full, return false.
-        console.log('Inventory is full.');
         return false;
     }
 
@@ -44,13 +41,10 @@ export function clearInventory() {
 }
 
 
-export function updateInventoryDisplay() {
-    console.log('Updating Inventory Display'); // Check if this method is being called
-    
+export function updateInventoryDisplay() {    
     this.inventoryContainer.removeAll(true);
     
     const inventory = this.registry.get('inventory') || [];
-    console.log('Inventory At Update:', inventory); // Log the current state of inventory
 
     inventory.forEach((item, index) => {
         const x = (index % 4) * 50;
@@ -59,7 +53,6 @@ export function updateInventoryDisplay() {
         this.inventoryContainer.add(sprite);
         
         if (item.quantity > 1) {
-            console.log('Rendering Quantity Text For:', item.name, 'Quantity:', item.quantity); // Check if rendering quantity text
             const quantityText = this.add.text(x, y, item.quantity, { 
                 fontSize: '16px', 
                 fill: '#000', 
