@@ -47,10 +47,12 @@ export class GameEvents {
 
     playerAttack(monsters, targetMonsterKey) {
         if (this.scene.isFainting) return; // Skip if player is dead
-        console.log("GameEvents scene:", this.scene);
-        console.log("Scene name:", this.scene.key);
 
-
+        const targetMonster = monsters[targetMonsterKey];
+        if (!targetMonster || targetMonster.isDead || targetMonster.currentHealth <= 0) {
+            console.log("Monster is dead or dying from PA");
+            return; // Skip if monster is dead, dying, or doesn't exist
+        }
 
         if (PlayerState.energy > 0) {
             // Retrieve the target monster using its key
@@ -133,6 +135,7 @@ export class GameEvents {
 
             // Check if the monster is defeated
             if (targetMonster.currentHealth <= 0) {
+                targetMonster.currentHealth = 0;
                 this._emitPlayerBattleUpdate(monsterLevel, monsterHealth, playerRoll);
                 addXpToSkill('dancing', targetMonster.level * 500);
                 this.handleItemDrop(targetMonster); // Call handleItemDrop for the defeated monster
@@ -148,12 +151,12 @@ export class GameEvents {
 
     monsterAttack(monsters, targetMonsterKey) {
         if (this.scene.isFainting) return; // Skip if player is dead
-
+    
         const targetMonster = monsters[targetMonsterKey];
-        if (!targetMonster) {
-            return;
+        if (!targetMonster || targetMonster.isDead) {
+            console.log("Monster is dead");
+            return; // Skip if monster is dead or doesn't exist
         }
-
         const attackCooldown = 1000; // 1 second in milliseconds
         const currentTime = Date.now();
         if (currentTime - targetMonster.lastAttackTime < attackCooldown) {
@@ -222,11 +225,11 @@ export class GameEvents {
 
     endBattleForMonster(targetMonster) {
         if (!targetMonster || targetMonster.isDead) return;
-        targetMonster.isAggressive = false;
-        targetMonster.isDead = true;
-    
+
         // Play the death animation first
         if (targetMonster.currentHealth <= 0) {
+            targetMonster.isAggressive = false;
+            targetMonster.isDead = true;    
             targetMonster.sprite.play(`${targetMonster.event.monster}_die`, true);
     
             // Listen for the animation completion
@@ -247,12 +250,14 @@ export class GameEvents {
             targetMonster.healthBar.outer.destroy();
             targetMonster.levelText.destroy();
             targetMonster.healthText.destroy();
+            console.log("Monster health bar destroyed");
         }
     
         // Remove the monster from the active monsters collection
         if (this.scene.collidingMonsters[targetMonster.key]) {
             delete this.scene.collidingMonsters[targetMonster.key];
             delete this.scene.monsters[targetMonster.key];
+            console.log("Monster removed from active monsters");
         }
     
         // Reset battle flags
@@ -264,6 +269,7 @@ export class GameEvents {
     
         // Finally, destroy the monster sprite
         targetMonster.sprite.destroy();
+        console.log("Monster sprite destroyed");
     }
     
 
@@ -276,7 +282,7 @@ export class GameEvents {
             const distance = this.calculateDistance(this.player, monster); // Calculate distance between player and monster
 
             if (distance > this.maxDistance) {
-                this.endBattleForMonster(monster); // End battle if the monster is too far
+                this.cleanUpMonster(monster); // End battle if the monster is too far
                 return; // Skip further processing for this monster
             }
 

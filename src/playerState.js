@@ -6,7 +6,7 @@ export const skills = {
 export const PlayerState = {
     level: skills.dancing.level,
     energy: 100,
-    speed: 2,
+    speed: 3,
     skills: skills,
     lastDamageTime: Date.now(),
     isDead: false,
