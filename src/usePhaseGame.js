@@ -172,7 +172,6 @@ export const usePhaserGame = (gameRef) => {
 
         let lastUpdateTime = 0;
         let lastDirection = null; // Variable to store the last direction the cat moved
-        const updateInterval = 1000 / 10; // For 10 FPS
 
         let lastPlayerX = 0;
         let lastPlayerY = 0;
@@ -288,20 +287,17 @@ export const usePhaserGame = (gameRef) => {
         }
 
         function update(time, delta) {
-            if (time - lastUpdateTime < updateInterval) {
-                return; // Exit early if not enough time has passed since the last update
-            }
-
-            // Increment gameTime every second
             gameTime += delta / 6000;
             if (gameTime >= 24) {
-                // A new day has passed
                 gameTime = 0;
                 daysPassed++;
             }
-
-            this.game.events.emit('gameTime', gameTime);
-            this.game.events.emit('daysPassed', daysPassed)
+        
+            if (time - lastUpdateTime > 1000) {
+                this.game.events.emit('gameTime', gameTime);
+                this.game.events.emit('daysPassed', daysPassed);
+                lastUpdateTime = time; // Update lastUpdateTime only when the events are emitted
+            }
 
             handlePlayerMovement();
 
@@ -501,7 +497,7 @@ export const usePhaserGame = (gameRef) => {
                     monsterObj.levelText.y = monsterObj.sprite.y - 30;
                 }
             });
-        }
+    }
 
         function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
             const hue = Phaser.Math.Clamp((currentHealth / maxHealth) * 120, 0, 120);

@@ -31,13 +31,11 @@ export function addXpToSkill(skillName, xpToAdd) {
     const skill = PlayerState.skills[skillName];
     if (!skill) return;
 
-    console.log(`Adding ${xpToAdd} XP to ${skillName}`);
 
     skill.xp += xpToAdd; 
     skill.totalXP += xpToAdd; 
 
     while (skill.xp >= xpRequiredForLevel(skill.level)) {
-        console.log(`Leveling up ${skillName} to level ${skill.level + 1}`);
         skill.xp -= xpRequiredForLevel(skill.level); 
         skill.level++; 
     

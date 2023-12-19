@@ -4,7 +4,6 @@ import { usePhaserGame } from './usePhaseGame.js';
 import { gameStyles } from './styles.js';
 
 export default function PhaserRunner() {
-  console.log('PhaserRunner Rendering');
   const gameRef = useRef(null);
 
   usePhaserGame(gameRef);

@@ -50,7 +50,6 @@ export class GameEvents {
 
         const targetMonster = monsters[targetMonsterKey];
         if (!targetMonster || targetMonster.isDead || targetMonster.currentHealth <= 0) {
-            console.log("Monster is dead or dying from PA");
             return; // Skip if monster is dead, dying, or doesn't exist
         }
 
@@ -85,24 +84,24 @@ export class GameEvents {
             // Calculate the monster's health and level
             let monsterHealth = targetMonster.level * 1;
             let monsterLevel = targetMonster.level;
+            const timeToImpact = 200;
 
             // Emit player battle update event
             const availableAttacks = unlockedAttacksForLevel(PlayerState.level);
             const selectedAttack = availableAttacks[Phaser.Math.Between(0, availableAttacks.length - 1)];
-            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 0));
+            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 50));
         
             // Store selected attack in the scene for animation
-            console.log("Selected Attack:", selectedAttack.name, "Number:", selectedAttack.attack); // Add for debugging
 
             this.scene.selectedAttackNumber = selectedAttack.attack;
             this.scene.registry.set('selectedAttackNumber', selectedAttack.attack);
         
-            console.log(`Player rolled ${playerRoll} for ${selectedAttack.name}!`);
         
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
             if (playerRoll > 0) {
                 targetMonster.isHurt = true;  // Assuming each monster object has an isHurt property
+                setTimeout(() => {
                 const textX = targetMonster.sprite.x;
                 const textY = targetMonster.sprite.y - 20 - (this.activeChangeTexts * 20); // Adjust y-position based on activeChangeTexts
                 const changeText = this.scene.add.text(
@@ -131,6 +130,7 @@ export class GameEvents {
                         this.activeChangeTexts--; // Decrement the counter when a text is removed
                     }
                 });
+            }, timeToImpact);
             }
 
             // Check if the monster is defeated
@@ -154,7 +154,6 @@ export class GameEvents {
     
         const targetMonster = monsters[targetMonsterKey];
         if (!targetMonster || targetMonster.isDead) {
-            console.log("Monster is dead");
             return; // Skip if monster is dead or doesn't exist
         }
         const attackCooldown = 1000; // 1 second in milliseconds
@@ -250,14 +249,12 @@ export class GameEvents {
             targetMonster.healthBar.outer.destroy();
             targetMonster.levelText.destroy();
             targetMonster.healthText.destroy();
-            console.log("Monster health bar destroyed");
         }
     
         // Remove the monster from the active monsters collection
         if (this.scene.collidingMonsters[targetMonster.key]) {
             delete this.scene.collidingMonsters[targetMonster.key];
             delete this.scene.monsters[targetMonster.key];
-            console.log("Monster removed from active monsters");
         }
     
         // Reset battle flags
@@ -269,7 +266,6 @@ export class GameEvents {
     
         // Finally, destroy the monster sprite
         targetMonster.sprite.destroy();
-        console.log("Monster sprite destroyed");
     }
     
 
