@@ -15,6 +15,9 @@
     "react-spring": "^9.7.3",
     "web-vitals": "^2.1.4"
   },
+  "scripts": {
+    "start": "react-scripts start"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -32,9 +35,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "javascript-obfuscator": "^4.1.0",
-    "terser": "^5.25.0"
   }
 }

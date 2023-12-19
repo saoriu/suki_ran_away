@@ -41,7 +41,6 @@ export const usePhaserGame = (gameRef) => {
 
 
         gameRef.current = new Phaser.Game(config);
-        console.log("gameInstance created: ", gameRef.current);
         window.game = gameRef.current;
 
         // Initialize Phaser Game
@@ -53,6 +52,7 @@ export const usePhaserGame = (gameRef) => {
         const tilesBuffer = GAME_CONFIG.TILES_BUFFER;
         const moveSpeed = PlayerState.speed;
         const diagonalVelocity = (moveSpeed / Math.sqrt(2))
+        
 
 
         function preload() {
@@ -68,10 +68,8 @@ export const usePhaserGame = (gameRef) => {
         function create() {
             const camera = this.cameras.main;
             this.scene.launch('UIScene');
-            console.log("Scene name:", this.scene.key);
             this.collidingMonsters = {};
             this.monsters = {};
-            console.log("usePhaseGame scene:", this);
             camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
 
             cat = this.matter.add.sprite(0, 0, 'sit', null, {
@@ -181,6 +179,8 @@ export const usePhaserGame = (gameRef) => {
 
         let lastPlayerX = 0;
         let lastPlayerY = 0;
+        let lastRegenerateEnergyTime = 0; // New variable to track last regenerateEnergy call
+        
         const positionChangeThreshold = 20; // Adjust this value as needed
         let gameTime = 0; // In-game hours
         function handlePlayerMovement() {
@@ -308,6 +308,13 @@ export const usePhaserGame = (gameRef) => {
 
             handlePlayerMovement();
 
+                // Call regenerateEnergy once per second
+    if (time - lastRegenerateEnergyTime > 1000) { // 1000 ms = 1 second
+        regenerateEnergy(this);
+        lastRegenerateEnergyTime = time; // Update last call time
+    }
+
+
             //call spawnMonsters by pressing the 'm' key:
             this.input.keyboard.on('keydown', (event) => {
                 if (event.code === 'KeyM') {
@@ -325,6 +332,7 @@ export const usePhaserGame = (gameRef) => {
                 createTilesAround(cat.x, cat.y, this);
                 lastPlayerX = cat.x;
                 lastPlayerY = cat.y;
+                removeFarTiles(cat.x, cat.y, this); // <--- Passing gameEvents here
             }
 
             updateTargetMonsterKey.call(this); // Update the target monster key after collision detection
@@ -365,7 +373,6 @@ export const usePhaserGame = (gameRef) => {
             if (isAttacking && this.collidingMonsterKey) {
                 let attackAnimationKey;
                 const attackNumber = this.registry.get('selectedAttackNumber') || 1;
-                console.log("attackNumber: ", attackNumber);
 
                 switch (lastDirection) {
                     case 'up':
@@ -463,8 +470,6 @@ export const usePhaserGame = (gameRef) => {
             });
 
             this.gameEvents.update(monsters);
-            regenerateEnergy(this); // Assuming 'this' is the scene
-            removeFarTiles(cat.x, cat.y, this); // <--- Passing gameEvents here
 
        
             Object.values(monsters).forEach(monsterObj => {
