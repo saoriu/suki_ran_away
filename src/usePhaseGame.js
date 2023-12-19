@@ -170,9 +170,6 @@ export const usePhaserGame = (gameRef) => {
             spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, daysPassed);
         }
 
-
-
-
         let lastUpdateTime = 0;
         let lastDirection = null; // Variable to store the last direction the cat moved
         const updateInterval = 1000 / 10; // For 10 FPS
