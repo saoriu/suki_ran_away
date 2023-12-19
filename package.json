@@ -1,7 +1,7 @@
 {
   "name": "suki-ran-away",
-  "homepage": "http://s9ori.github.io/",
-  "version": "0.1.0",
+  "homepage": "http://sukiranaway.com/",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -14,14 +14,6 @@
     "react-scripts": "^5.0.1",
     "react-spring": "^9.7.3",
     "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && terser 'build/static/js/*.js' --output 'build/static/js/main.min.js' && javascript-obfuscator build/static/js/main.min.js --output build/static/js/main.min.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
