@@ -89,7 +89,7 @@ export class GameEvents {
             // Emit player battle update event
             const availableAttacks = unlockedAttacksForLevel(PlayerState.level);
             const selectedAttack = availableAttacks[Phaser.Math.Between(0, availableAttacks.length - 1)];
-            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 50));
+            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 0));
         
             // Store selected attack in the scene for animation
             console.log("Selected Attack:", selectedAttack.name, "Number:", selectedAttack.attack); // Add for debugging

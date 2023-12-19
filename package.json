@@ -16,7 +16,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start"
+    "start": "react-scripts start",
+    "build": "GENERATE_SOURCEMAP=true react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -35,5 +36,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.0",
+    "terser": "^5.25.0"
   }
 }
