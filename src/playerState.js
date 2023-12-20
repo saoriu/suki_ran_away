@@ -1,5 +1,5 @@
 export const skills = {
-    dancing: { level: 1, xp: 0, totalXP: 0 },
+    dancing: { level: 3, xp: 0, totalXP: 0 },
     gathering: { level: 1, xp: 0, totalXP: 0 },
 };
 
@@ -17,6 +17,7 @@ export const PlayerState = {
     eventsBonus: 0, //chance to get an event
     weakenBonus: 0, //chance to lower monster level
     lastEnergyUpdate: Date.now(),
+    selectedAttacks: ['scratch'],
 };
 
 export function xpRequiredForLevel(level) {

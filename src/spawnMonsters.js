@@ -104,8 +104,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     let monsterImage = scene.textures.get(monsterSpriteKey).getSourceImage();
     let monsterRadius = monsterImage.width * GAME_CONFIG.SCALE / 3;
 
-    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * monsterImage.width)) / 2;
-    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.SCALE * monsterImage.height)) / 2;
+    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.width)) / 2;
+    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.height)) / 2;
 
     let monster
 
@@ -163,8 +163,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
         fill: monsterHealthBar.fill
       },
       healthText: healthText,
-      maxHealth: modifiedLevel * 10,
-      currentHealth: modifiedLevel * 10
+      maxHealth: modifiedLevel * 1000,
+      currentHealth: modifiedLevel * 1000
     };
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);

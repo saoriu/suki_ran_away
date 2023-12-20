@@ -31,7 +31,7 @@ export const usePhaserGame = (gameRef) => {
                 default: 'matter',
                 matter: {
                     gravity: { y: 0 },
-                    debug: false // Set to false in production
+                    debug: true // Set to false in production
                 }
             },
             autoRound: false,
@@ -45,7 +45,7 @@ export const usePhaserGame = (gameRef) => {
 
         // Initialize Phaser Game
         let tiles = {};
-        const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.SCALE;
+        const tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.TILE_SCALE;
         let cat;
         let cursors;
         let monsters = {};
@@ -70,12 +70,12 @@ export const usePhaserGame = (gameRef) => {
             this.scene.launch('UIScene');
             this.collidingMonsters = {};
             this.monsters = {};
-            camera.setSize(720, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
+            camera.setSize(GAME_CONFIG.CAMERA_WIDTH, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
 
             cat = this.matter.add.sprite(0, 0, 'sit', null, {
                 isStatic: false,
                 friction: 0,
-            }).setScale(0.35).setCircle(25).setDepth(5);
+            }).setScale(GAME_CONFIG.SCALE / 5.7).setCircle((GAME_CONFIG.SCALE / 5.7) * 60).setDepth(5);
 
             this.cat = cat; // Attach the cat sprite to the scene
 
@@ -138,8 +138,8 @@ export const usePhaserGame = (gameRef) => {
 
         function createTilesAround(centerX, centerY, scene) {
             const camera = scene.cameras.main;
-            const startI = Math.floor((centerX - 720 / 2 - tilesBuffer * tileWidth) / tileWidth);
-            const endI = Math.ceil((centerX + 720 / 2 + tilesBuffer * tileWidth) / tileWidth);
+            const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2 - tilesBuffer * tileWidth) / tileWidth);
+            const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2 + tilesBuffer * tileWidth) / tileWidth);
             const startJ = Math.floor((centerY - camera.height / 2 - tilesBuffer * tileWidth) / tileWidth);
             const endJ = Math.ceil((centerY + camera.height / 2 + tilesBuffer * tileWidth) / tileWidth);
             for (let i = startI; i <= endI; i++) {
@@ -159,7 +159,7 @@ export const usePhaserGame = (gameRef) => {
                         }
 
                         const tileKey = `tile${tileType}`;
-                        const tile = scene.add.image(i * tileWidth, j * tileWidth, tileKey).setOrigin(0).setScale(GAME_CONFIG.SCALE);
+                        const tile = scene.add.image(i * tileWidth, j * tileWidth, tileKey).setOrigin(0).setScale(GAME_CONFIG.TILE_SCALE);
                         tiles[`${i},${j}`] = tile;
                     }
                 }
@@ -307,7 +307,6 @@ export const usePhaserGame = (gameRef) => {
         regenerateEnergy(this);
         lastRegenerateEnergyTime = time; // Update last call time
     }
-
 
             //call spawnMonsters by pressing the 'm' key:
             this.input.keyboard.on('keydown', (event) => {
@@ -486,6 +485,8 @@ export const usePhaserGame = (gameRef) => {
                     monsterObj.levelText.y = monsterObj.sprite.y - 30;
                 }
             });
+
+
     }
 
         function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
@@ -568,8 +569,8 @@ export const usePhaserGame = (gameRef) => {
         function removeFarTiles(centerX, centerY, scene) {
             const camera = scene.cameras.main;
 
-            const startI = Math.floor((centerX - 720 / 2 - tilesBuffer * tileWidth) / tileWidth);
-            const endI = Math.ceil((centerX + 720 / 2 + tilesBuffer * tileWidth) / tileWidth);
+            const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2 - tilesBuffer * tileWidth) / tileWidth);
+            const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2 + tilesBuffer * tileWidth) / tileWidth);
             const startJ = Math.floor((centerY - camera.height / 2 - (tilesBuffer) * tileWidth) / tileWidth);
             const endJ = Math.ceil((centerY + camera.height / 2 + (tilesBuffer) * tileWidth) / tileWidth);
 

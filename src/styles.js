@@ -3,7 +3,7 @@ import { GAME_CONFIG } from './gameConstants';
 
 export const gameStyles = {
   game: {
-    width: 720  + 'px', 
+    width: GAME_CONFIG.CAMERA_WIDTH  + 'px', 
     height: (GAME_CONFIG.CAMERA_HEIGHT + GAME_CONFIG.UI_HEIGHT) + 'px', // Include UI height in total
     position: 'relative',
   },

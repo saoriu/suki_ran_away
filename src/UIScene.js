@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { textStyles } from './styles.js';
 import chroma from 'chroma-js';
 import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState } from './playerState';
+import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per your project structure
+
 
 export class UIScene extends Phaser.Scene {
     constructor() {
@@ -19,6 +21,7 @@ export class UIScene extends Phaser.Scene {
         this.energyText = null;
         this.activeChangeTexts = 0;
         this.isLevelingUp = false;
+        this.createAttackSelectionMenu();
         this.game.events.on('gameTime', (gameTime) => {
             this.updateTimeCircle(gameTime);
         });
@@ -70,6 +73,38 @@ export class UIScene extends Phaser.Scene {
         progressBarBg.fillPath();
         progressBarBg.setDepth(-1); // Set the depth to -1 so it appears behind the progress bar
     }
+
+    createAttackSelectionMenu() {
+        const unlockedAttacks = unlockedAttacksForLevel(PlayerState.level);
+        this.attackSelectionButtons = {};
+    
+        unlockedAttacks.forEach((attack, index) => {
+            // Exclude 'scratch' from selection as it's always available
+            if (attack.name === 'scratch') return;
+    
+            const button = this.add.text(300, 50 * index, attack.name, { fill: '#fff' })
+                .setInteractive()
+                .on('pointerdown', () => this.toggleAttackSelection(attack.name));
+    
+            // Indicate if the attack is currently selected
+            button.setFill(PlayerState.selectedAttacks.includes(attack.name) ? '#f00' : '#fff');
+            this.attackSelectionButtons[attack.name] = button;
+        });
+    }
+    
+    toggleAttackSelection(attackName) {
+        if (PlayerState.selectedAttacks.includes(attackName)) {
+            PlayerState.selectedAttacks = PlayerState.selectedAttacks.filter(a => a !== attackName);
+        } else if (PlayerState.selectedAttacks.length < 2) {
+            PlayerState.selectedAttacks.push(attackName);
+        }
+    
+        // Update button colors based on selection
+        Object.keys(this.attackSelectionButtons).forEach(name => {
+            this.attackSelectionButtons[name].setFill(PlayerState.selectedAttacks.includes(name) ? '#f00' : '#fff');
+        });
+    }
+    
 
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 80;

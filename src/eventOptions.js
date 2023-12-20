@@ -16,22 +16,6 @@ export const eventOptions = [
     monsterChance: 'common'
   },
   {
-    event: 'monster2',
-    description: 'A little rascal.',
-    monster: 'raccoon',
-    level: 2,
-    monsterMass: 1,
-    damage: 2,
-    speed: 1.8,
-    possibleOutcomes: {
-      common: ['Lemon', 'Pebble'],
-      rare: ['Gold', 'Emerald'],
-      ultrarare: ['Ruby']
-    },
-    skill: 'dancing',
-    monsterChance: 'uncommon'
-  },
-  {
     event: 'monster3',
     description: 'Cute but fierce.',
     monster: 'panda',

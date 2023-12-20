@@ -84,18 +84,35 @@ export class GameEvents {
             // Calculate the monster's health and level
             let monsterHealth = targetMonster.level * 1;
             let monsterLevel = targetMonster.level;
-            const timeToImpact = 100;
+            const timeToImpact = 240;
 
-            // Emit player battle update event
-            const availableAttacks = unlockedAttacksForLevel(PlayerState.level);
-            const selectedAttack = availableAttacks[Phaser.Math.Between(0, availableAttacks.length - 1)];
+            const availableAttacks = unlockedAttacksForLevel(PlayerState.level).filter(attack => PlayerState.selectedAttacks.includes(attack.name) || attack.name === 'scratch');
+            console.log("available attacks: " + JSON.stringify(availableAttacks.map(attack => ({
+                name: attack.name,
+                rarity: attack.rarity
+            })), null, 2));
+            
+            let totalRarity = availableAttacks.reduce((sum, attack) => sum + attack.rarity, 0);
+            
+            const weightedAttackList = availableAttacks.reduce((acc, attack) => {
+                const weight = Math.round(attack.rarity / totalRarity * 100);
+                return acc.concat(new Array(weight).fill(attack));
+            }, []);
+            
+            let attackCounts = weightedAttackList.reduce((acc, attack) => {
+                acc[attack.name] = (acc[attack.name] || 0) + 1;
+                return acc;
+            }, {});
+            console.log("attack counts: " + JSON.stringify(attackCounts, null, 2));
+            
+            const selectedAttack = weightedAttackList[Phaser.Math.Between(0, weightedAttackList.length - 1)];
+            console.log("selected attack: " + JSON.stringify(selectedAttack, null, 2));
+            
             const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 5));
-        
+            
             // Store selected attack in the scene for animation
-
             this.scene.selectedAttackNumber = selectedAttack.attack;
             this.scene.registry.set('selectedAttackNumber', selectedAttack.attack);
-        
         
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
@@ -172,7 +189,7 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(0, monsterDamage * 1);
+        const monsterRoll = Phaser.Math.Between(0, monsterDamage * 0);
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 
