@@ -84,12 +84,12 @@ export class GameEvents {
             // Calculate the monster's health and level
             let monsterHealth = targetMonster.level * 1;
             let monsterLevel = targetMonster.level;
-            const timeToImpact = 200;
+            const timeToImpact = 100;
 
             // Emit player battle update event
             const availableAttacks = unlockedAttacksForLevel(PlayerState.level);
             const selectedAttack = availableAttacks[Phaser.Math.Between(0, availableAttacks.length - 1)];
-            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 50));
+            const playerRoll = Phaser.Math.Between(0, (selectedAttack.level * 5));
         
             // Store selected attack in the scene for animation
 
@@ -318,6 +318,8 @@ export class GameEvents {
     }
 
     updateMonsterMovement(player, monster, distance) {
+        //if monster health is not 0
+        if (monster.currentHealth > 0) {
         if (monster.isFollowing && !monster.isColliding) {
             const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
             const velocity = {
@@ -329,7 +331,10 @@ export class GameEvents {
             // Apply velocity to the monster
             monster.sprite.setVelocity(velocity.x, velocity.y);
         }
+    } else {
+        monster.sprite.setVelocity(0, 0);
     }
+}
     
     
 

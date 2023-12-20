@@ -10,7 +10,7 @@ export function preloadFrames(gameInstance) {
     for (let i = 1; i <= 9; i++) this.load.image(`attack3-front-${i}`, `/attack3-front-${i}.png`);
     for (let i = 1; i <= 9; i++) this.load.image(`attack3-${i}`, `/attack3-${i}.png`);
     for (let i = 1; i <= 5; i++) this.load.image(`attack4-front-${i}`, `/attack4-front-${i}.png`);
-    for (let i = 1; i <= 9; i++) this.load.image(`attack4-back-${i}`, `/attack4-back-${i}.png`);
+    for (let i = 1; i <= 5; i++) this.load.image(`attack4-back-${i}`, `/attack4-back-${i}.png`);
     for (let i = 1; i <= 5; i++) this.load.image(`attack4-${i}`, `/attack4-${i}.png`);
     for (let i = 1; i <= 14; i++) this.load.image(`attack5-${i}`, `/attack5-${i}.png`);
     for (let i = 1; i <= 10; i++) this.load.image(`attack5-back-${i}`, `/attack5-back-${i}.png`);

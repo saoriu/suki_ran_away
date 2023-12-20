@@ -92,6 +92,7 @@ export const usePhaserGame = (gameRef) => {
             this.collidingMonsterKey = null;
 
             createAnims(this);
+        
             camera.startFollow(cat);
             this.gameEvents = new GameEvents(this, cat);
             createTilesAround(0, 0, this);
@@ -105,16 +106,16 @@ export const usePhaserGame = (gameRef) => {
                 if (event.code === 'Space' && !spaceInterval && !this.isFainting) {
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
-                        if (canAttack && this.collidingMonsterKey) {
+                        if (canAttack) {
                             this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
                             isAttacking = true;
                             canAttack = false;
-                            setTimeout(() => {
-                                if (!this.isFainting) {
-                                    canAttack = true;
-                                    isAttacking = false;
-                                }
-                            }, 1000);
+                                cat.on('animationcomplete', (animation, frame) => {
+                                    if (animation.key.startsWith('attack')) {
+                                        isAttacking = false;
+                                        canAttack = true;
+                                    }
+                                }, this);
                         }
                     }, 0);
                 }
@@ -242,7 +243,7 @@ export const usePhaserGame = (gameRef) => {
                 return;
             }
 
-            if (velocityX === 0 && velocityY === 0) {
+            if (velocityX === 0 && velocityY === 0 && !isAttacking) {
                 // Handle idle animations based on last direction
                 switch (lastDirection) {
                     case 'up':
@@ -383,12 +384,6 @@ export const usePhaserGame = (gameRef) => {
                         break;
                 }
                 cat.play(attackAnimationKey, true);
-                cat.on('animationcomplete', (animation, frame) => {
-                    if (isAttacking) {
-                        cat.play('sit');
-                        isAttacking = false; // Reset flag
-                    }
-                }, this);
                 updateTargetMonsterKey.call(this);
             } else if (isAttacking && !PlayerState.isDead) {
                 let attackAnimationKey;
@@ -409,12 +404,6 @@ export const usePhaserGame = (gameRef) => {
                         break;
                 }
                 cat.play(attackAnimationKey, true);
-                cat.on('animationcomplete', (animation, frame) => {
-                    if (isAttacking) {
-                        cat.play('sit');
-                        isAttacking = false; // set flag to false to indicate attack animation is finished
-                    }
-                }, this);
             }
 
             Object.values(monsters).forEach(monster => {
