@@ -1,5 +1,5 @@
 export const skills = {
-    dancing: { level: 3, xp: 0, totalXP: 0 },
+    dancing: { level: 100, xp: 0, totalXP: 0 },
     gathering: { level: 1, xp: 0, totalXP: 0 },
 };
 
@@ -10,6 +10,7 @@ export const PlayerState = {
     skills: skills,
     lastDamageTime: Date.now(),
     isDead: false,
+    attackRange: 1,
     energyBonus: 0, //energy regeneration boost
     danceBonus: 0, //rare dance moves boost
     createBonus: 0, //save an item from being destroyed during creation

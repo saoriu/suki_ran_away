@@ -3,6 +3,7 @@ import { textStyles } from './styles.js';
 import chroma from 'chroma-js';
 import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState } from './playerState';
 import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per your project structure
+import WebFont from 'webfontloader';
 
 
 export class UIScene extends Phaser.Scene {
@@ -27,13 +28,27 @@ export class UIScene extends Phaser.Scene {
         });
         let dayText = null;
 
+        WebFont.load({
+            typekit: {
+                id: 'trh2dsl' // replace with your Adobe Fonts project ID
+            },
+            active: () => {
+                this.energyText = this.add.text(118, 38, ``, textStyles.energyText);
+                this.add.existing(this.energyText);
+        
+                this.dancingText = this.add.text(-535, 120, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText);
+                this.skillsContainer.add([this.dancingText]);
+        
+                // Create dayText with initial value
+                dayText = this.add.text(43, 57, `DAY 0`, textStyles.daysPassed).setDepth(2);
+            }
+        });
+        
         this.game.events.on('daysPassed', (daysPassed) => {
-            this.time.delayedCall(1000, () => {
-                if (dayText) {
-                    dayText.destroy();
-                }
-                dayText = this.add.text(43, 57, `DAY ${daysPassed}`, textStyles.daysPassed).setDepth(2);
-            }, [], this);
+            // Update dayText when daysPassed event occurs
+            if (dayText) {
+                dayText.setText(`DAY ${daysPassed}`);
+            }
         });
         
         this.inventoryContainer = this.add.container(10, 10);
@@ -64,7 +79,6 @@ export class UIScene extends Phaser.Scene {
         this.energyBar = this.createEnergyBar(15, 15);
         this.add.existing(this.energyBar.outer);
         this.add.existing(this.energyBar.fill);
-        this.energyText = this.add.text(118, 38, `Energy: `, textStyles.energyText); 
         this.updateEnergyBar();
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
         let progressBarBg = this.add.graphics();
@@ -95,7 +109,7 @@ export class UIScene extends Phaser.Scene {
     toggleAttackSelection(attackName) {
         if (PlayerState.selectedAttacks.includes(attackName)) {
             PlayerState.selectedAttacks = PlayerState.selectedAttacks.filter(a => a !== attackName);
-        } else if (PlayerState.selectedAttacks.length < 2) {
+        } else if (PlayerState.selectedAttacks.length < 3) {
             PlayerState.selectedAttacks.push(attackName);
         }
     
@@ -213,8 +227,7 @@ export class UIScene extends Phaser.Scene {
             }
         });
     
-        this.dancingText = this.add.text(-535, 120, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-        this.skillsContainer.add([this.dancingText]);
+
     }
 
     updateEnergyBar() {
@@ -230,8 +243,9 @@ export class UIScene extends Phaser.Scene {
         this.energyBar.fill.slice(65, 65, 92 * 0.7 * 0.75, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(targetAngle), false); // Reduced radius by 25%
         this.energyBar.fill.fillPath();
     
-        // Update the text with the capped energy value
-        this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
+        if (this.energyText) {
+            this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
+        }
 
         const energyChange = displayedEnergy - previousEnergy;
         if (energyChange < 0) {

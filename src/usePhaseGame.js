@@ -11,8 +11,11 @@ import { UIScene } from './UIScene';
 import { preloadFrames } from './preloadFrames';
 import { createAnims } from './createAnims';
 
-export const usePhaserGame = (gameRef) => {
+export function usePhaserGame(gameRef, isAuthenticated) {
     useEffect(() => {
+      if (isAuthenticated) {
+
+
         const mainScene = {
             preload,
             create,
@@ -22,16 +25,16 @@ export const usePhaserGame = (gameRef) => {
         const config = {
             type: Phaser.AUTO,
             parent: 'phaser-game',
-            width: GAME_CONFIG.CAMERA_WIDTH, // Add extra 200px for the UI
+            width: GAME_CONFIG.CAMERA_WIDTH,
             height: GAME_CONFIG.CAMERA_HEIGHT + GAME_CONFIG.UI_HEIGHT,
             fps: {
-                target: 100, // Set your desired frame rate here
+                target: 10,
             },
             physics: {
                 default: 'matter',
                 matter: {
                     gravity: { y: 0 },
-                    debug: true // Set to false in production
+                    debug: false // Set to false in production
                 }
             },
             autoRound: false,
@@ -52,7 +55,7 @@ export const usePhaserGame = (gameRef) => {
         const tilesBuffer = GAME_CONFIG.TILES_BUFFER;
         const moveSpeed = PlayerState.speed;
         const diagonalVelocity = (moveSpeed / Math.sqrt(2))
-        
+
 
 
         function preload() {
@@ -62,13 +65,12 @@ export const usePhaserGame = (gameRef) => {
 
         let isAttacking = false; // flag to check if scratch animation is already playing
         let canAttack = true;
-        const monsterBodyIdToKey = {};
         const POSITION_CHANGE_THRESHOLD = 0.1;
 
         function create() {
             const camera = this.cameras.main;
             this.scene.launch('UIScene');
-            this.collidingMonsters = {};
+            this.inReachofPlayer = {};
             this.monsters = {};
             camera.setSize(GAME_CONFIG.CAMERA_WIDTH, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
 
@@ -89,10 +91,10 @@ export const usePhaserGame = (gameRef) => {
             cat.setDepth(5)
 
 
-            this.collidingMonsterKey = null;
+            this.targetMonsterKey = null;
 
             createAnims(this);
-        
+
             camera.startFollow(cat);
             this.gameEvents = new GameEvents(this, cat);
             createTilesAround(0, 0, this);
@@ -107,15 +109,15 @@ export const usePhaserGame = (gameRef) => {
                     spaceInterval = setInterval(() => {
                         this.handleItemPickup();
                         if (canAttack) {
-                            this.gameEvents.playerAttack(monsters, this.collidingMonsterKey);
+                            this.gameEvents.playerAttack(monsters, this.targetMonsterKey);
                             isAttacking = true;
                             canAttack = false;
-                                cat.on('animationcomplete', (animation, frame) => {
-                                    if (animation.key.startsWith('attack')) {
-                                        isAttacking = false;
-                                        canAttack = true;
-                                    }
-                                }, this);
+                            cat.on('animationcomplete', (animation, frame) => {
+                                if (animation.key.startsWith('attack')) {
+                                    isAttacking = false;
+                                    canAttack = true;
+                                }
+                            }, this);
                         }
                     }, 0);
                 }
@@ -177,7 +179,7 @@ export const usePhaserGame = (gameRef) => {
         let lastPlayerX = 0;
         let lastPlayerY = 0;
         let lastRegenerateEnergyTime = 0; // New variable to track last regenerateEnergy call
-        
+
         const positionChangeThreshold = 20; // Adjust this value as needed
         let gameTime = 0; // In-game hours
         function handlePlayerMovement() {
@@ -293,7 +295,7 @@ export const usePhaserGame = (gameRef) => {
                 gameTime = 0;
                 daysPassed++;
             }
-        
+
             if (time - lastUpdateTime > 1000) {
                 this.game.events.emit('gameTime', gameTime);
                 this.game.events.emit('daysPassed', daysPassed);
@@ -302,18 +304,10 @@ export const usePhaserGame = (gameRef) => {
 
             handlePlayerMovement();
 
-                // Call regenerateEnergy once per second
-    if (time - lastRegenerateEnergyTime > 1000) { // 1000 ms = 1 second
-        regenerateEnergy(this);
-        lastRegenerateEnergyTime = time; // Update last call time
-    }
-
-            //call spawnMonsters by pressing the 'm' key:
-            this.input.keyboard.on('keydown', (event) => {
-                if (event.code === 'KeyM') {
-                    spawnMonsters(cat.x, cat.y, this, tileWidth, tilesBuffer, monsters, daysPassed);
-                }
-            });
+            if (time - lastRegenerateEnergyTime > 1000) { // 1000 ms = 1 second
+                regenerateEnergy(this);
+                lastRegenerateEnergyTime = time; // Update last call time
+            }
 
             if (PlayerState.energy <= 0 && !this.isFainting) {
                 handlePlayerDeath.call(this);
@@ -325,45 +319,39 @@ export const usePhaserGame = (gameRef) => {
                 createTilesAround(cat.x, cat.y, this);
                 lastPlayerX = cat.x;
                 lastPlayerY = cat.y;
-                removeFarTiles(cat.x, cat.y, this); // <--- Passing gameEvents here
+                removeFarTiles(cat.x, cat.y, this);
             }
 
-            updateTargetMonsterKey.call(this); // Update the target monster key after collision detection
-
-
-            Object.keys(this.collidingMonsters).forEach(key => {
-                if (!this.collidingMonsters[key].isColliding) {
-                    delete this.collidingMonsters[key];
-                    updateTargetMonsterKey.call(this); // Re-evaluate target monster after each deletion
+            // Check if monster is within PlayerState.attackRange
+            Object.values(monsters).forEach(monster => {
+                const distance = calculateDistance(cat, monster);
+                if (distance <= PlayerState.attackRange) {
+                    monster.inReach = true;
+                    this.inReachofPlayer[monster.key] = monster;
+                } else {
+                    monster.inReach = false;
                 }
             });
 
-            // Create a map of monster body IDs to monster keys
-            for (const [key, monster] of Object.entries(monsters)) {
-                if (monster.sprite && monster.sprite.body) {
-                    monsterBodyIdToKey[monster.sprite.body.id] = key;
+            //Check if player is within monster attack range
+            Object.values(monsters).forEach(monster => {
+                const distance = calculateDistance(cat, monster);
+                if (distance <= monster.attackRange) {
+                    monster.canReach = true;
+                } else {
+                    monster.canReach = false;
                 }
-            }
-
-            this.matter.world.on('collisionstart', (event) => {
-                event.pairs.forEach(pair => {
-                    // Ensure both bodies in the pair are defined
-                    if (pair.bodyA && pair.bodyB) {
-                        // Check if either body in the pair is a monster
-                        const monsterKeyA = monsterBodyIdToKey[pair.bodyA.id];
-                        const monsterKeyB = monsterBodyIdToKey[pair.bodyB.id];
-
-                        if (monsterKeyA && pair.bodyB.id === this.cat.body.id) {
-                            monsters[monsterKeyA].isColliding = true;
-                            this.collidingMonsters[monsterKeyA] = monsters[monsterKeyA];
-                        } else if (monsterKeyB && pair.bodyA.id === this.cat.body.id) {
-                            monsters[monsterKeyB].isColliding = true;
-                            this.collidingMonsters[monsterKeyB] = monsters[monsterKeyB];
-                        }
-                    }
-                });
             });
-            if (isAttacking && this.collidingMonsterKey) {
+
+            updateTargetMonsterKey.call(this);
+
+            Object.keys(this.inReachofPlayer).forEach(key => {
+                if (!this.inReachofPlayer[key].inReach) {
+                    delete this.inReachofPlayer[key];
+                }
+            });
+
+            if (isAttacking && this.targetMonsterKey) {
                 let attackAnimationKey;
                 const attackNumber = this.registry.get('selectedAttackNumber') || 1;
 
@@ -405,6 +393,7 @@ export const usePhaserGame = (gameRef) => {
                 cat.play(attackAnimationKey, true);
             }
 
+            //Monster animations
             Object.values(monsters).forEach(monster => {
                 if (!monster || !monster.sprite || !monster.sprite.active) return;
                 const deltaX = Math.abs(monster.sprite.body.positionPrev.x - monster.sprite.body.position.x);
@@ -417,21 +406,18 @@ export const usePhaserGame = (gameRef) => {
                 }
 
                 if (cat.x < monster.sprite.x) {
-                    // Player is to the left, flip monster to the left
                     monster.sprite.setFlipX(true);
                 } else {
-                    // Player is to the right, flip monster to the right
                     monster.sprite.setFlipX(false);
                 }
 
                 if (monster.currentHealth <= 0) {
                     monster.sprite.play(`${monster.event.monster}_die`, true);
-                 } else if (monster.isHurt) {
+                } else if (monster.isHurt) {
                     monster.sprite.play(`${monster.event.monster}_hurt`, true);
                     monster.sprite.once('animationcomplete', () => {
                         if (monster.sprite && monster.sprite.active) {
-                            monster.isHurt = false; // Reset the flag after playing the hurt animation
-                            // Optionally, you can switch to another animation here, such as idle
+                            monster.isHurt = false;
                             monster.sprite.play(`${monster.event.monster}`, true);
                         }
                     }, this);
@@ -445,32 +431,27 @@ export const usePhaserGame = (gameRef) => {
                 } else if (monster.isMoving) {
                     monster.sprite.play(`${monster.event.monster}_run`, true);
                 } else {
-                    // Default animation (idle)
                     monster.sprite.play(`${monster.event.monster}`, true);
                 }
             });
 
             this.gameEvents.update(monsters);
 
-       
+
             Object.values(monsters).forEach(monsterObj => {
-                // Check if monster object and its essential properties still exist
                 if (!monsterObj || !monsterObj.sprite || !monsterObj.sprite.active || !monsterObj.healthBar || !monsterObj.sprite.body) return;
 
-                // If the previousHealth property is not set, initialize it to the current health
                 if (!monsterObj.hasOwnProperty('previousHealth')) {
                     monsterObj.previousHealth = monsterObj.currentHealth;
                 }
 
                 updateHealthBar(this, monsterObj.healthBar, monsterObj.currentHealth, monsterObj.maxHealth);
 
-                // Check if healthText is valid and update it
                 if (monsterObj.healthText && monsterObj.currentHealth > 0 && monsterObj.sprite) {
                     monsterObj.healthText.setText(`HP: ${monsterObj.currentHealth}`);
                 }
                 monsterObj.previousHealth = monsterObj.currentHealth;  // Update previousHealth for the next iteration
 
-                // Update positions of monster health bar and text only if the sprite is still valid
                 if (monsterObj.sprite) {
                     monsterObj.healthBar.outer.x = monsterObj.sprite.x - 30;
                     monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
@@ -486,8 +467,7 @@ export const usePhaserGame = (gameRef) => {
                 }
             });
 
-
-    }
+        }
 
         function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
             const hue = Phaser.Math.Clamp((currentHealth / maxHealth) * 120, 0, 120);
@@ -519,8 +499,8 @@ export const usePhaserGame = (gameRef) => {
             cat.play('dead'); // Play death animation
 
             //reset the colliding monsters and colliding monster key:
-            this.collidingMonsters = {};
-            this.collidingMonsterKey = null;
+            this.inReachofPlayer = {};
+            this.targetMonsterKey = null;
 
             // Clear monsters and inventory
             Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
@@ -539,17 +519,36 @@ export const usePhaserGame = (gameRef) => {
             }, this);
         }
 
-        function updateTargetMonsterKey() {
-            this.collidingMonsterKey = null; // Reset the target monster key
+        function calculateDistance(player, monster) {
+            if (!player || !monster || !player.body || !monster.sprite || !monster.sprite.body) {
+                return;
+            }
 
-            // Determine the colliding monster that the player is facing
-            for (const [key, monster] of Object.entries(this.collidingMonsters)) {
-                if (isMonsterInFront(cat, monster, lastDirection)) {
-                    this.collidingMonsterKey = key;
-                    break; // Break the loop once the first facing monster is found
+            const playerPosition = player.body.position;
+            const monsterPosition = monster.sprite.body.position;
+
+            const distanceX = (playerPosition.x - monsterPosition.x) / tileWidth;
+            const distanceY = (playerPosition.y - monsterPosition.y) / tileWidth;
+            const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+            const playerRadius = player.body.circleRadius / tileWidth;
+            const monsterRadius = monster.sprite.body.circleRadius / tileWidth;
+            const calculatedDistance = Math.max(0, distance - (playerRadius + monsterRadius));
+
+            return calculatedDistance;
+        }
+
+        function updateTargetMonsterKey() {
+            this.targetMonsterKey = null;
+
+            for (const [key, monster] of Object.entries(this.inReachofPlayer)) {
+                if (calculateDistance(cat, monster) <= PlayerState.attackRange && isMonsterInFront(cat, monster, lastDirection)) {
+                    this.targetMonsterKey = key;
+                    break;
                 }
             }
         }
+
 
         function isMonsterInFront(player, monster, lastDirection) {
             switch (lastDirection) {
@@ -571,15 +570,25 @@ export const usePhaserGame = (gameRef) => {
 
             const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2 - tilesBuffer * tileWidth) / tileWidth);
             const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2 + tilesBuffer * tileWidth) / tileWidth);
-            const startJ = Math.floor((centerY - camera.height / 2 - (tilesBuffer) * tileWidth) / tileWidth);
-            const endJ = Math.ceil((centerY + camera.height / 2 + (tilesBuffer) * tileWidth) / tileWidth);
+            const startJ = Math.floor((centerY - camera.height / 2 - tilesBuffer * tileWidth) / tileWidth);
+            const endJ = Math.ceil((centerY + camera.height / 2 + tilesBuffer * tileWidth) / tileWidth);
 
-            // Removing far tiles
             Object.keys(tiles).forEach((key) => {
                 const [i, j] = key.split(',').map(Number);
                 if (i < startI || i > endI || j < startJ || j > endJ) {
                     tiles[key].destroy();
                     delete tiles[key];
+
+                    // Check for monsters in these tiles and clean them up
+                    Object.values(monsters).forEach(monster => {
+                        if (monster.sprite && monster.sprite.active) {
+                            const monsterTileI = Math.floor(monster.sprite.x / tileWidth);
+                            const monsterTileJ = Math.floor(monster.sprite.y / tileWidth);
+                            if (monsterTileI === i && monsterTileJ === j) {
+                                scene.gameEvents.cleanUpMonster(monster);
+                            }
+                        }
+                    });
                 }
             });
         }
@@ -589,6 +598,7 @@ export const usePhaserGame = (gameRef) => {
             gameRef.current?.destroy(true);
             gameRef.current = null;
         };
-    }, [gameRef]);
+    }
+}, [gameRef, isAuthenticated]);
     return gameRef.current;
 }

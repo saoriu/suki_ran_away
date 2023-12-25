@@ -11,12 +11,12 @@ h1,p,strong,h2 {
 
 h1 {
   font-family: 'Gabriella', sans-serif;
-  font-size: 40px;
+  font-size: 20px;
   margin-bottom: 0;
 }
 
 h2 {
-  font-size: 20px;
+  font-size: 15px;
   margin-top: 0;
   font-weight: 300;
 }
@@ -25,6 +25,7 @@ p {
   font-family: 'redonda-condensed', sans-serif;
   font-weight: 300;
   font-style: normal;
+  font-size: 1em;
 }
 
 #copyright {
@@ -42,6 +43,10 @@ p {
 
 .title {
   margin: 10px;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  column-gap: 20px;
 }
 
 .quantity {

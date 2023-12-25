@@ -152,10 +152,10 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       speed: chosenMonster.speed,
       damage: damage,
       key: monsterKey,
+      attackRange: chosenMonster.attackRange,
       level: modifiedLevel,
       isAggressive: true,
-      isColliding: false,
-      isFollowing: true,
+      inReach: false,
       levelText: levelText,
       event: chosenMonster,
       healthBar: {
