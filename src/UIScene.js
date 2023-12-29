@@ -4,7 +4,7 @@ import chroma from 'chroma-js';
 import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState } from './playerState';
 import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per your project structure
 import WebFont from 'webfontloader';
-
+import { Tooltip } from './Tooltip';
 
 export class UIScene extends Phaser.Scene {
     constructor() {
@@ -17,12 +17,10 @@ export class UIScene extends Phaser.Scene {
 
 
     create() {
-        this.timeCircle = this.add.graphics();
-        this.timeCircle.fillCircle(65, 65, 51); // Draw a circle at (100,100) with radius 50
+        this.timeFilter = this.add.graphics();
         this.energyText = null;
         this.activeChangeTexts = 0;
         this.isLevelingUp = false;
-        this.createAttackSelectionMenu();
         this.game.events.on('gameTime', (gameTime) => {
             this.updateTimeCircle(gameTime);
         });
@@ -33,32 +31,51 @@ export class UIScene extends Phaser.Scene {
                 id: 'trh2dsl' // replace with your Adobe Fonts project ID
             },
             active: () => {
-                this.energyText = this.add.text(118, 38, ``, textStyles.energyText);
+                this.energyText = this.add.text(910, 38, ``, textStyles.energyText);
                 this.add.existing(this.energyText);
-        
-                this.dancingText = this.add.text(-535, 120, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText);
-                this.skillsContainer.add([this.dancingText]);
-        
+                this.createAttackSelectionMenu();
+                this.attackProbabilitiesContainer = this.add.container(0, 0);
+
+                this.dancingContainer = this.add.container(0, 0);
+
+                if (this.dancingBar && this.dancingBar.x && this.dancingBar.y) {
+                    this.dancingText = this.add.text(this.dancingBar.x, this.dancingBar.y, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5);
+                    this.dancingContainer.add(this.dancingText);
+                }
+
                 // Create dayText with initial value
-                dayText = this.add.text(43, 57, `DAY 0`, textStyles.daysPassed).setDepth(2);
+                dayText = this.add.text(143, 67, `DAY 0`, textStyles.daysPassed);
+
+                // Create progress bar and add it to the container
+                this.dancingBar = this.createProgressBar(25, 25);
+                this.dancingContainer.add([this.dancingBar.outer, this.dancingBar.fill, this.dancingBar.inner]);
+
+                // Set the depth of the container to ensure it's rendered above other elements
+                this.dancingContainer.setDepth(10);
+                this.updateSkillsDisplay();
+
             }
         });
-        
+
+        this.tooltip = new Tooltip(this, 0, 0, '');
+        this.add.existing(this.tooltip);
+        this.tooltip.setVisible(false);
+
+        this.game.events.on('showTooltip', this.showTooltip, this);
+        this.game.events.on('hideTooltip', this.hideTooltip, this);
+    
+
         this.game.events.on('daysPassed', (daysPassed) => {
-            // Update dayText when daysPassed event occurs
             if (dayText) {
                 dayText.setText(`DAY ${daysPassed}`);
             }
         });
-        
-        this.inventoryContainer = this.add.container(10, 10);
-        this.skillsContainer = this.add.container(580, 5);
 
-        this.dancingBar = this.createProgressBar(-565, 11);
-        this.skillsContainer.add([this.dancingBar.outer, this.dancingBar.fill]);
+        this.inventoryContainer = this.add.container(10, 10);
+
+
 
         this.updateInventoryDisplay();
-        this.updateSkillsDisplay();
         this.game.events.on('updateSkillsDisplay', this.updateSkillsDisplay, this);
 
         this.game.events.on('levelUp', (skillName) => {
@@ -67,58 +84,123 @@ export class UIScene extends Phaser.Scene {
             }
         });
 
-        let uiBackground = this.add.graphics();
-        uiBackground.fillStyle(0x00000, 1); // Fill color (white) and alpha (fully opaque)
-        // Draw the rectangle at position 0,0 with the width of the game and the height of the UI
-        uiBackground.fillRect(0, this.game.config.height - 100, this.game.config.width, 100);
-
-        // Set the depth to be lower than other UI elements
-        uiBackground.setDepth(-1); 
-//add text on the screen that reads 'Suki Ran Away (Alpha Version) by Saori Uchida':
-
-        this.energyBar = this.createEnergyBar(15, 15);
+        this.energyBar = this.createEnergyBar((this.cameras.main.width / 2 - 150), 50);
         this.add.existing(this.energyBar.outer);
         this.add.existing(this.energyBar.fill);
         this.updateEnergyBar();
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
-        let progressBarBg = this.add.graphics();
-        progressBarBg.fillStyle(0x000000, 1); // Black color for the empty area
-        progressBarBg.slice(65, 65, 57, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(62), false); // Full circle with a radius of 50
-        progressBarBg.fillPath();
-        progressBarBg.setDepth(-1); // Set the depth to -1 so it appears behind the progress bar
+    }
+
+
+
+    showTooltip(data) {
+        this.tooltip.updateText(data.text);
+        this.tooltip.setPosition(data.x, data.y);
+        this.tooltip.setVisible(true);
+        this.tooltip.setDepth(100);
+    }
+
+    hideTooltip() {
+        this.tooltip.setVisible(false);
+    }
+
+    calculateAndDisplayAttackProbabilities() {
+        const availableAttacks = unlockedAttacksForLevel(PlayerState.level).filter(attack => PlayerState.selectedAttacks.includes(attack.name) || attack.name === 'scratch');
+        let totalRarity = availableAttacks.reduce((sum, attack) => sum + attack.rarity, 0);
+
+        let attackAttributes = {};
+        availableAttacks.forEach(attack => {
+            const probability = (attack.rarity / totalRarity * 100).toFixed(2);
+            attackAttributes[attack.name] = {
+                probability: probability,
+                damage: attack.damage,
+                speed: attack.speed,
+                knockback: attack.knockback
+            };
+        });
+
+        this.displayAttackProbabilities(attackAttributes);
     }
 
     createAttackSelectionMenu() {
+        if (this.attackSelectionContainer) {
+            this.attackSelectionContainer.removeAll(true);
+        } else {
+            this.attackSelectionContainer = this.add.container(0, 0);
+        }
+
         const unlockedAttacks = unlockedAttacksForLevel(PlayerState.level);
         this.attackSelectionButtons = {};
-    
+
         unlockedAttacks.forEach((attack, index) => {
-            // Exclude 'scratch' from selection as it's always available
             if (attack.name === 'scratch') return;
-    
-            const button = this.add.text(300, 50 * index, attack.name, { fill: '#fff' })
-                .setInteractive()
+
+            let circleColor = PlayerState.selectedAttacks.includes(attack.name) ? 0xff4c4c : 0xffffff;
+            let circle = this.add.graphics({ fillStyle: { color: circleColor } });
+            circle.fillCircle(0, 0, 30);
+
+            const image = this.add.image(0, 0, attack.name).setScale(.4);
+
+            // Create text elements for displaying the attack attributes
+            const attackInfoText = this.add.text(60, -12, '', textStyles.attacks);
+
+            const probabilityText = this.add.text(60, -30, '', textStyles.attacks);
+
+            const button = this.add.container(50, 100 * index + 180, [circle, image, probabilityText, attackInfoText])
+                .setSize(100, 120) // Adjust size as needed
+                .setInteractive({ useHandCursor: true })
                 .on('pointerdown', () => this.toggleAttackSelection(attack.name));
-    
-            // Indicate if the attack is currently selected
-            button.setFill(PlayerState.selectedAttacks.includes(attack.name) ? '#f00' : '#fff');
-            this.attackSelectionButtons[attack.name] = button;
+
+            this.attackSelectionContainer.add(button);
+            this.attackSelectionButtons[attack.name] = { button, probabilityText, attackInfoText };
+
+            // Update the text with attack information
+            attackInfoText.setText(`Damage: ${attack.damage}\nSpeed: ${attack.speed}\nKnockback: ${attack.knockback}`);
         });
+
+        // Update the probabilities display
+        this.calculateAndDisplayAttackProbabilities();
     }
-    
+
     toggleAttackSelection(attackName) {
         if (PlayerState.selectedAttacks.includes(attackName)) {
             PlayerState.selectedAttacks = PlayerState.selectedAttacks.filter(a => a !== attackName);
         } else if (PlayerState.selectedAttacks.length < 3) {
             PlayerState.selectedAttacks.push(attackName);
         }
-    
+
         // Update button colors based on selection
         Object.keys(this.attackSelectionButtons).forEach(name => {
-            this.attackSelectionButtons[name].setFill(PlayerState.selectedAttacks.includes(name) ? '#f00' : '#fff');
+            // Access the button container correctly
+            let container = this.attackSelectionButtons[name].button;
+            let circle = container.getAt(0); // Assuming the circle is the first element in the container
+
+            // Update circle color
+            circle.clear();
+            let circleColor = PlayerState.selectedAttacks.includes(name) ? 0xff4c4c : 0xffffff;
+            circle.fillStyle(circleColor);
+            circle.fillCircle(0, 0, 30);
+        });
+
+        // Calculate and display new attack probabilities
+        this.calculateAndDisplayAttackProbabilities();
+    }
+
+
+    displayAttackProbabilities(attackAttributes) {
+        Object.keys(this.attackSelectionButtons).forEach(attackName => {
+            const attackData = attackAttributes[attackName];
+            if (attackData && this.attackSelectionButtons[attackName]) {
+                const probabilityText = `${parseFloat(attackData.probability).toFixed(1)}%`;
+                const attributeText = `Strength: ${attackData.damage}\nSpeed: ${attackData.speed}\nKnockback: ${attackData.knockback}`;
+                this.attackSelectionButtons[attackName].probabilityText.setText(probabilityText);
+                this.attackSelectionButtons[attackName].attackInfoText.setText(attributeText);
+            } else {
+                this.attackSelectionButtons[attackName].probabilityText.setText('');
+                this.attackSelectionButtons[attackName].attackInfoText.setText('');
+            }
         });
     }
-    
 
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 80;
@@ -134,13 +216,12 @@ export class UIScene extends Phaser.Scene {
         return { outer: outerRect, fill: progressFill };
     }
 
-    
     handleDancingLevelUp() {
         this.isLevelingUp = true;
 
         this.tweens.add({
             targets: this.dancingBar,
-            endAngle: 60,
+            endAngle: 360,
             duration: 500,
             ease: 'Sine.easeInOut',
             onUpdate: () => {
@@ -157,45 +238,23 @@ export class UIScene extends Phaser.Scene {
         });
     }
 
-    createEnergyBar(x, y) {
-        const outerRadius = 80 * 0.7 * 0.75; // Reduced by 25%
-        const borderThickness = 18; // Reduced by 25%
-    
-    
-        // Create the outer circle of the energy ring (background)
-        const outerCircle = this.add.graphics();
-        outerCircle.lineStyle(borderThickness, 0x000000, 1);
-        outerCircle.strokeCircle(x + 50, y + 50, outerRadius); // Moved more to the right and down
-    
-        // Create the fill arc of the energy ring (progress bar)
-        const energyFill = this.add.graphics();
-        energyFill.fillStyle(0x00ff00, 1); // Green color for energy fill
-        energyFill.slice(x + 50, y + 50, outerRadius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * 0.75), false); // Moved more to the right and down
-        energyFill.fillPath();
-    
-        // Create the inner circle of the energy ring (hollow part)
-        const innerCircle = this.add.graphics();
-        innerCircle.fillStyle(0x000000, 1); // Black color to make it hollow
-    
-        return { outer: outerCircle, inner: innerCircle, fill: energyFill };
-    }
-
     createProgressBar(x, y) {
-        const outerRadius = 55 // Reduced by 25%
-        const borderThickness = 0 * 0.75; // Reduced by 25%
-    
+        const outerRadius = 53 // Reduced by 25%
+        const borderThickness = 18; // Reduced by 25%
+
         const outerCircle = this.add.graphics();
-        outerCircle.lineStyle(borderThickness, 0x54C1EF, 1);
+        outerCircle.lineStyle(borderThickness, 0x00000, 1);
         outerCircle.strokeCircle(x + 50, y + 50, outerRadius);
-    
+
         const progressFill = this.add.graphics();
         progressFill.fillStyle(0x54C1EF, 1);
         progressFill.slice(x + 50, y + 50, outerRadius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(0), false);
         progressFill.fillPath();
-    
+
         const innerCircle = this.add.graphics();
-        innerCircle.fillStyle(0x54C1EF, 1);
-    
+        innerCircle.fillStyle(0x000000, 1);
+        innerCircle.fillCircle(x + 50, y + 50, 45); // Draw the inner circle
+
         return { outer: outerCircle, inner: innerCircle, fill: progressFill, startAngle: 0, endAngle: 0, x: x + 50, y: y + 50, radius: outerRadius };
     }
 
@@ -204,16 +263,24 @@ export class UIScene extends Phaser.Scene {
             this.time.delayedCall(600, this.updateSkillsDisplay, [], this);
             return;
         }
-    
+
+        // Destroy the existing dancingText if it exists
         if (this.dancingText) {
             this.dancingText.destroy();
         }
-    
+
+        // Calculate the progress and target angle for the progress bar
         const currentXP = getSkillXP('dancing');
         const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
         const dancingXPProgress = currentXP / requiredXP;
-        const targetAngle = 60 * dancingXPProgress;
-    
+        const targetAngle = 360 * dancingXPProgress;
+
+        if (this.dancingBar && this.dancingBar.x && this.dancingBar.y) {
+            this.dancingText = this.add.text(this.dancingBar.x, this.dancingBar.y, `Lv.${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5);
+            this.dancingContainer.add(this.dancingText);
+        }
+
+        // Animate the progress bar's end angle to reflect the new XP progress
         this.tweens.add({
             targets: this.dancingBar,
             endAngle: targetAngle,
@@ -226,23 +293,40 @@ export class UIScene extends Phaser.Scene {
                 this.dancingBar.fill.fillPath();
             }
         });
-    
-
+        this.createAttackSelectionMenu();
     }
+
+    createEnergyBar(x, y) {
+        const progressBarWidth = 300;
+        const progressBarHeight = 15;
+        const borderOffset = 2;
+        const outerRect = this.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
+        outerRect.setOrigin(0, 0.5);
+
+        const progressFill = this.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0x00ff00);
+        progressFill.setOrigin(0, 0.5);
+        progressFill.displayWidth = 0;
+
+        return { outer: outerRect, fill: progressFill };
+    }
+
 
     updateEnergyBar() {
         const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
         const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
-        const energyProgress = displayedEnergy / 100;
-        const targetAngle = 360 * energyProgress;
-        const hue = (displayedEnergy / 100) * 120; // Use displayedEnergy for hue calculation
+        const energyProgress = Math.max(0, PlayerState.energy / 100);
+        const targetWidth = 300 * energyProgress;
+        const hue = (PlayerState.energy / 100) * 120;
         const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
-    
-        this.energyBar.fill.clear();
-        this.energyBar.fill.fillStyle(color);
-        this.energyBar.fill.slice(65, 65, 92 * 0.7 * 0.75, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(targetAngle), false); // Reduced radius by 25%
-        this.energyBar.fill.fillPath();
-    
+
+        this.energyBar.fill.setFillStyle(color);
+        this.tweens.add({
+            targets: this.energyBar.fill,
+            displayWidth: targetWidth,
+            duration: 100,
+            ease: 'Sine.easeInOut'
+        });
+
         if (this.energyText) {
             this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
         }
@@ -251,8 +335,8 @@ export class UIScene extends Phaser.Scene {
         if (energyChange < 0) {
             // Adjust the y-position based on the number of active texts
             const changeText = this.add.text(
-                 345,
-                 215 + (this.activeChangeTexts * 20),
+                735,
+                425 + (this.activeChangeTexts * 20),
                 `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
                 {
                     fontFamily: '"redonda-condensed", sans-serif',
@@ -277,7 +361,7 @@ export class UIScene extends Phaser.Scene {
                 }
             });
         }
-    
+
         PlayerState.previousEnergy = displayedEnergy; // Store the capped energy as previous for next update
     }
 
@@ -292,7 +376,6 @@ export class UIScene extends Phaser.Scene {
             'darkblue', // Evening (21)
             'midnightblue' // Night (24)
         ]).mode('lch').domain([0, 3, 6, 12, 18, 21, 24]);
-    
 
         // Get the color for the current game time
         const color = colorScale(gameTime).rgb();
@@ -300,13 +383,17 @@ export class UIScene extends Phaser.Scene {
         // Convert the RGB color to a Phaser color
         const phaserColor = Phaser.Display.Color.RGBStringToColor(`rgb(${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])})`);
 
-        // Clear the previous circle and redraw it with the new color
-        this.timeCircle.clear();
-        this.timeCircle.lineStyle(2, 0x000000); // Add a black border
-        this.timeCircle.fillStyle(phaserColor.color);
-        this.timeCircle.fillCircle(65, 65, 49 * 0.75); // Reduced radius by 25%
-        this.timeCircle.strokeCircle(65, 65, 49 * 0.75); // Reduced radius by 25%
-      this.timeCircle.setDepth(1);
+        // Clear the previous circle and draw a rectangle that covers the entire game area
+        this.timeFilter.clear();
+        this.timeFilter.fillStyle(phaserColor.color);
+        this.timeFilter.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+
+        // Apply a blend mode to the rectangle and opacity lower:
+        this.timeFilter.setBlendMode(Phaser.BlendModes.MULTIPLY)
+        this.timeFilter.setAlpha(0.5);
+
+        // Set the depth to 1 so the rectangle appears above other game objects
+        this.timeFilter.setDepth(0);
     }
 
     updateInventoryDisplay() {
@@ -314,8 +401,8 @@ export class UIScene extends Phaser.Scene {
         const inventory = this.registry.get('inventory') || [];
         inventory.forEach((item, index) => {
             const x = index * 50 + 25;
-            const y = 455;
-            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive();
+            const y = 850;
+            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(2);
             this.inventoryContainer.add(sprite);
             if (item.quantity > 1) {
                 const quantityText = this.add.text(x, y, item.quantity, textStyles.quantity);
@@ -323,4 +410,5 @@ export class UIScene extends Phaser.Scene {
             }
         });
     }
+
 }

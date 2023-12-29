@@ -1,10 +1,11 @@
 export const skills = {
-    dancing: { level: 100, xp: 0, totalXP: 0 },
+    dancing: { level: 10, xp: 0, totalXP: 0 },
     gathering: { level: 1, xp: 0, totalXP: 0 },
 };
 
 export const PlayerState = {
     level: skills.dancing.level,
+    days: 0,
     energy: 100,
     speed: 3,
     skills: skills,

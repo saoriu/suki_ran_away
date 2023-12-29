@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import { GAME_CONFIG } from './gameConstants.js';
 import { eventOptions } from './eventOptions.js';
 import { PlayerState } from './playerState'; // Adjust the path as needed
-import { textStyles } from './styles.js';
 
 function calculateSpawnProbability(baseProbability, eventsBonus) {
   let probability = baseProbability;
@@ -17,7 +16,9 @@ function calculateSpawnProbability(baseProbability, eventsBonus) {
 }
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, daysPassed) {
-  for (const key in monsters) {
+      // At the start of the spawnMonsters function
+
+    for (const key in monsters) {
     if (!monsters[key].sprite || !monsters[key].sprite.active) {
       delete monsters[key];
     }
@@ -30,7 +31,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
   const baseProbability = GAME_CONFIG.baseProbability; // Example: 10% base spawn chance
   const eventsBonus = PlayerState.eventsBonus;
-  const weakenBonus = PlayerState.weakenBonus;
   const spawnProbability = calculateSpawnProbability(baseProbability, eventsBonus);
 
   if (Phaser.Math.FloatBetween(0, 1) < spawnProbability) {
@@ -69,23 +69,23 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
     const chosenRarity = chooseMonsterRarity();
     const chosenMonster = chooseMonster(eventOptions, chosenRarity);
+    
 
     if (!chosenMonster) return;
 
-    // ... after choosing the monster
-    const levelVariation = Phaser.Math.Between(0, Math.ceil((daysPassed + 1) / 2) * (2.5 * (1 - weakenBonus)));
+    const levelVariation = Phaser.Math.Between(0, Math.ceil(daysPassed * 0.15) + chosenMonster.level);   
     let damage = chosenMonster.damage;
     const monsterMass = chosenMonster.monsterMass;
 
     if (chosenMonster.monster !== 'turtle') {
-      damage = chosenMonster.damage + levelVariation;
+      damage = chosenMonster.damage + Math.ceil(daysPassed * 0.25);
     } else {
       damage = chosenMonster.damage;
     }
 
-    const modifiedLevel = chosenMonster.level + levelVariation; // You can also subtract if you want a range of +/- 3
+    const modifiedLevel = chosenMonster.level + levelVariation;
 
-    // Use the 'damage' and 'modifiedLevel' variables in your code
+
     // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
     let spawnTileI, spawnTileJ;
 
@@ -107,23 +107,16 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.width)) / 2;
     const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.height)) / 2;
 
-    let monster
-
-    monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
+    let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
       isStatic: false // Set to true if you want the monster to be immovable
     }).setScale(GAME_CONFIG.SCALE).setCircle(monsterRadius);
 
+    // Remove the cursor option from setInteractive
+   
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation
     monsterBody.inverseInertia = 0;
     monsterBody.mass = monsterMass;
-
-    const levelText = scene.add.text(
-      monsterX + (tileWidth / 2),
-      monsterY - 30,
-      `${monsterSpriteKey.charAt(0).toUpperCase() + monsterSpriteKey.slice(1)}\nLvl ${modifiedLevel}`,
-      textStyles.monsterLevelText // Corrected syntax
-    ).setOrigin(0.5).setVisible(false);
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
 
@@ -145,9 +138,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     monsterHealthBar.outer.setVisible(false); // Initially invisible
     monsterHealthBar.fill.setVisible(false);  // Initially invisible
 
-    const healthText = scene.add.text(monsterX, monsterY + monster.height + 75, `HP: ${modifiedLevel * 10}`, textStyles.healthText).setOrigin(0.5).setVisible(false);
-
     monsters[monsterKey] = {
+      name: chosenMonster.monster,
       sprite: monster,
       speed: chosenMonster.speed,
       damage: damage,
@@ -156,23 +148,18 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       level: modifiedLevel,
       isAggressive: true,
       inReach: false,
-      levelText: levelText,
       event: chosenMonster,
       healthBar: {
         outer: monsterHealthBar.outer,
         fill: monsterHealthBar.fill
       },
-      healthText: healthText,
-      maxHealth: modifiedLevel * 1000,
-      currentHealth: modifiedLevel * 1000
+      maxHealth: modifiedLevel,
+      currentHealth: modifiedLevel
     };
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
     monster.setDepth(3);
-    levelText.setDepth(4); // Ensure the text renders above the monsters and other game objects
     monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
     monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite
-    healthText.setDepth(6); // Ensure the health text is rendered above everything else
-    // Ensure the text renders above the monsters and other game objects
   }
 }

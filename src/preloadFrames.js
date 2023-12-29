@@ -80,4 +80,8 @@ export function preloadFrames(gameInstance) {
     this.load.image('ruby', '/ruby.png');
     this.load.image('silk', '/silk.png');
     this.load.image('thread', '/thread.png');
+    this.load.image('roll', '/roll.png');
+    this.load.image('tailwhip', '/tailwhip.png');
+    this.load.image('horsekick', '/horsekick.png');
+    this.load.image('bite', '/bite.png');
 }

@@ -65,8 +65,8 @@ scene.anims.create({
 
 scene.anims.create({
     key: 'bunny_die',
-    frames: Array.from({ length: 16 }, (_, i) => ({ key: `bunny_die-${i + 1}` })),
-    frameRate: 10,
+    frames: Array.from({ length: 12 }, (_, i) => ({ key: `bunny_die-${i + 1}` })),
+    frameRate: 16,
     repeat: 0
 });
 
