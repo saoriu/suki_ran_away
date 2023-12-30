@@ -144,10 +144,10 @@ export class GameEvents {
                             targetMonster.sprite.y - 20,
                             `${Math.abs(playerRoll).toFixed(0)}`,
                             {
-                                fontFamily: '"redonda-condensed", sans-serif',
+                                fontFamily: 'redonda',
                                 fontSize: '25px',
                                 fill: '#ff0000',
-                                fontWeight: '100',
+                                fontWeight: '900',
                                 stroke: '#ffffff',
                                 strokeThickness: 6,
                                 fontStyle: 'italic'

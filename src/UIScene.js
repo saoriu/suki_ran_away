@@ -28,7 +28,7 @@ export class UIScene extends Phaser.Scene {
 
         WebFont.load({
             typekit: {
-                id: 'trh2dsl' // replace with your Adobe Fonts project ID
+                id: 'trh2dsl' 
             },
             active: () => {
                 this.energyText = this.add.text(910, 38, ``, textStyles.energyText);
@@ -339,10 +339,10 @@ export class UIScene extends Phaser.Scene {
                 425 + (this.activeChangeTexts * 20),
                 `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
                 {
-                    fontFamily: '"redonda-condensed", sans-serif',
+                    fontFamily: '"redonda"',
                     fontSize: '25px',
-                    fill: '#ff0000', // Only negative changes, so color is always red
-                    fontWeight: '100',
+                    fill: '#ff0000',
+                    fontWeight: '900',
                     stroke: '#000000',
                     strokeThickness: 6,
                     fontStyle: 'italic'

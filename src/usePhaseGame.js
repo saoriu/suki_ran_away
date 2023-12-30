@@ -603,7 +603,11 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                         if (Matter.Vertices.contains(monsterBody.vertices, { x: pointer.worldX, y: pointer.worldY })) {
                             isOverMonster = true;
             
-                            let monsterInfo = `Name: ${monster.name}\nLevel: ${monster.level}`;
+                            function capitalizeFirstLetter(string) {
+                                return string.charAt(0).toUpperCase() + string.slice(1);
+                            }
+
+                            let monsterInfo = `${capitalizeFirstLetter(monster.name)}\nLevel ${monster.level}\n${monster.description}`;
                             this.game.events.emit('showTooltip', { text: monsterInfo, x: pointerX, y: pointerY });
                         }
                     }

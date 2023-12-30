@@ -14,12 +14,12 @@ position: 'relative',
 
 export const textStyles = {
     attacks: { 
-      fontFamily: 'redonda-condensed, sans-serif', 
+      fontFamily: 'redonda', 
       fontWeight: '400', 
       fontStyle: 'normal',
       fontSize: '16px', 
       fill: '#ffffff'
-    },    
+    },  
     playerLevelText: { fontWeight:'800', fontSize: '24px', fill: '#ffffff', fontFamily: 'puffin-arcade-regular', stroke: '#000000', strokeThickness: 5 }, 
     monsterLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
     energyText: { fontFamily: 'puffin-arcade-regular'    , fontWeight: 'bolder', fill: '#ffffff', fontSize: '20px', stroke: '#000000', strokeThickness: 5 },
@@ -33,12 +33,20 @@ export const textStyles = {
       fontFamily: 'puffin-arcade-regular'
     },
     tooltip: {
-      fontFamily: 'redonda-condensed, sans-serif', 
-      fontWeight: '400', 
+      fontFamily: 'redonda', 
+      fontWeight: '300', 
       fontStyle: 'normal',
       fontSize: '20px', 
-      backgroundColor: '#FFFFFF',
       fill: '#000000'
+    },
+    tooltipdescription: {
+      fontFamily: 'redonda', 
+      fontWeight: '300', 
+      fontStyle: 'italic',
+      fontSize: '20px', 
+      fill: '#000000',
+      //wordwrap 100:
+      wordWrap: { width: 200, useAdvancedWrap: true }
     },
   };
   

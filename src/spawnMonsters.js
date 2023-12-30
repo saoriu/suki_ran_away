@@ -108,15 +108,15 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.height)) / 2;
 
     let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
-      isStatic: false // Set to true if you want the monster to be immovable
+      isStatic: false
     }).setScale(GAME_CONFIG.SCALE).setCircle(monsterRadius);
-
-    // Remove the cursor option from setInteractive
    
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation
     monsterBody.inverseInertia = 0;
     monsterBody.mass = monsterMass;
+    monsterBody.friction = 1;
+    monsterBody.frictionAir = 0;
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
 
@@ -142,6 +142,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       name: chosenMonster.monster,
       sprite: monster,
       speed: chosenMonster.speed,
+      description: chosenMonster.description,
       damage: damage,
       key: monsterKey,
       attackRange: chosenMonster.attackRange,
