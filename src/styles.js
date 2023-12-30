@@ -11,7 +11,6 @@ export const gameStyles = {
 position: 'relative',
   }
 };
-
 export const textStyles = {
     attacks: { 
       fontFamily: 'redonda', 
