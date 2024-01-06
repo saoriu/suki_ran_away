@@ -1,13 +1,17 @@
-export function handleItemPickup() {
+import Phaser from 'phaser';
+export function handleItemPickup(cat) {
     const cameraView = this.cameras.main.worldView;
 
     this.items = this.items.filter(item => {
         if (cameraView.contains(item.sprite.x, item.sprite.y)) {
-            if (addToInventory.call(this, item.config)) {
-                item.sprite.destroy();
-                return false;
-            } else {
-                console.log('Inventory is full.');
+            // Check if the player is "on" the item
+            if (Phaser.Geom.Intersects.RectangleToRectangle(cat.getBounds(), item.sprite.getBounds())) {
+                if (addToInventory.call(this, item.config)) {
+                    item.sprite.destroy();
+                    return false;
+                } else {
+                    console.log('Inventory is full.');
+                }
             }
         }
         return true;

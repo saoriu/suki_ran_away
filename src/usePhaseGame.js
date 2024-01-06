@@ -132,7 +132,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                         }
                 
                         if (canAttack && attackName !== undefined) {
-                        this.handleItemPickup();
+                        this.handleItemPickup(cat);
                         this.gameEvents.playerAttack(monsters, this.targetMonsterKey, attackName);
                         isAttacking = true;
                         canAttack = false;
