@@ -111,12 +111,14 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       isStatic: false
     }).setScale(GAME_CONFIG.SCALE).setCircle(monsterRadius);
    
+    monster.setInteractive();
+    
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation
     monsterBody.inverseInertia = 0;
     monsterBody.mass = monsterMass;
     monsterBody.friction = 1;
-    monsterBody.frictionAir = 0;
+    monsterBody.frictionAir = 0.1;
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
 

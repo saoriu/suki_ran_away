@@ -11,6 +11,7 @@ export const PlayerState = {
     skills: skills,
     lastDamageTime: Date.now(),
     isDead: false,
+    isUnderAttack: false,
     attackRange: 1,
     energyBonus: 0, //energy regeneration boost
     danceBonus: 0, //rare dance moves boost

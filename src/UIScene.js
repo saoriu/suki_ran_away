@@ -6,6 +6,7 @@ import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per y
 import WebFont from 'webfontloader';
 import { Tooltip } from './Tooltip';
 
+
 export class UIScene extends Phaser.Scene {
     constructor() {
         super({ key: 'UIScene' });
@@ -14,7 +15,6 @@ export class UIScene extends Phaser.Scene {
     preload() {
         this.load.image('dancingFrame', '/skill-bars.png');
     }
-
 
     create() {
         this.timeFilter = this.add.graphics();
@@ -53,7 +53,6 @@ export class UIScene extends Phaser.Scene {
                 // Set the depth of the container to ensure it's rendered above other elements
                 this.dancingContainer.setDepth(10);
                 this.updateSkillsDisplay();
-
             }
         });
 
@@ -72,8 +71,6 @@ export class UIScene extends Phaser.Scene {
         });
 
         this.inventoryContainer = this.add.container(10, 10);
-
-
 
         this.updateInventoryDisplay();
         this.game.events.on('updateSkillsDisplay', this.updateSkillsDisplay, this);
@@ -103,104 +100,79 @@ export class UIScene extends Phaser.Scene {
     hideTooltip() {
         this.tooltip.setVisible(false);
     }
-
-    calculateAndDisplayAttackProbabilities() {
-        const availableAttacks = unlockedAttacksForLevel(PlayerState.level).filter(attack => PlayerState.selectedAttacks.includes(attack.name) || attack.name === 'scratch');
-        let totalRarity = availableAttacks.reduce((sum, attack) => sum + attack.rarity, 0);
-
-        let attackAttributes = {};
-        availableAttacks.forEach(attack => {
-            const probability = (attack.rarity / totalRarity * 100).toFixed(2);
-            attackAttributes[attack.name] = {
-                probability: probability,
-                damage: attack.damage,
-                speed: attack.speed,
-                knockback: attack.knockback
-            };
-        });
-
-        this.displayAttackProbabilities(attackAttributes);
-    }
-
     createAttackSelectionMenu() {
         if (this.attackSelectionContainer) {
             this.attackSelectionContainer.removeAll(true);
         } else {
             this.attackSelectionContainer = this.add.container(0, 0);
         }
-
+    
         const unlockedAttacks = unlockedAttacksForLevel(PlayerState.level);
         this.attackSelectionButtons = {};
-
+    
         unlockedAttacks.forEach((attack, index) => {
             if (attack.name === 'scratch') return;
-
+    
             let circleColor = PlayerState.selectedAttacks.includes(attack.name) ? 0xff4c4c : 0xffffff;
             let circle = this.add.graphics({ fillStyle: { color: circleColor } });
             circle.fillCircle(0, 0, 30);
-
+    
             const image = this.add.image(0, 0, attack.name).setScale(.4);
-
-            // Create text elements for displaying the attack attributes
             const attackInfoText = this.add.text(60, -12, '', textStyles.attacks);
-
-            const probabilityText = this.add.text(60, -30, '', textStyles.attacks);
-
-            const button = this.add.container(50, 100 * index + 180, [circle, image, probabilityText, attackInfoText])
-                .setSize(100, 120) // Adjust size as needed
+            const keyReferenceText = this.add.text(60, -32, '', textStyles.keys);
+    
+            const button = this.add.container(50, 100 * index + 180, [circle, image, attackInfoText, keyReferenceText])
+                .setSize(100, 120)
                 .setInteractive({ useHandCursor: true })
                 .on('pointerdown', () => this.toggleAttackSelection(attack.name));
-
+    
             this.attackSelectionContainer.add(button);
-            this.attackSelectionButtons[attack.name] = { button, probabilityText, attackInfoText };
-
-            // Update the text with attack information
-            attackInfoText.setText(`Damage: ${attack.damage}\nSpeed: ${attack.speed}\nKnockback: ${attack.knockback}`);
-        });
-
-        // Update the probabilities display
-        this.calculateAndDisplayAttackProbabilities();
+            this.attackSelectionButtons[attack.name] = { button, attackInfoText, keyReferenceText };
+    if (PlayerState.selectedAttacks.includes(attack.name)) {
+        let knockbackText = attack.knockback < 1 ? 0 : attack.knockback;
+        let attackIndex = PlayerState.selectedAttacks.indexOf(attack.name);
+        let keyReference = attackIndex === 1 ? 'KEY Z' : attackIndex === 2 ? 'KEY X' : '';
+        keyReferenceText.setText(keyReference);
+        attackInfoText.setText(`Knockback: ${knockbackText}\nDamage: ${attack.damage}\nSpeed: ${attack.speed}`);
+    } else {
+        attackInfoText.setText('');
+        keyReferenceText.setText('');
     }
-
+        });
+    }
+    
     toggleAttackSelection(attackName) {
         if (PlayerState.selectedAttacks.includes(attackName)) {
             PlayerState.selectedAttacks = PlayerState.selectedAttacks.filter(a => a !== attackName);
         } else if (PlayerState.selectedAttacks.length < 3) {
             PlayerState.selectedAttacks.push(attackName);
         }
-
-        // Update button colors based on selection
+    
         Object.keys(this.attackSelectionButtons).forEach(name => {
-            // Access the button container correctly
             let container = this.attackSelectionButtons[name].button;
-            let circle = container.getAt(0); // Assuming the circle is the first element in the container
-
-            // Update circle color
+            let circle = container.getAt(0);
+    
             circle.clear();
             let circleColor = PlayerState.selectedAttacks.includes(name) ? 0xff4c4c : 0xffffff;
             circle.fillStyle(circleColor);
             circle.fillCircle(0, 0, 30);
-        });
-
-        // Calculate and display new attack probabilities
-        this.calculateAndDisplayAttackProbabilities();
-    }
-
-
-    displayAttackProbabilities(attackAttributes) {
-        Object.keys(this.attackSelectionButtons).forEach(attackName => {
-            const attackData = attackAttributes[attackName];
-            if (attackData && this.attackSelectionButtons[attackName]) {
-                const probabilityText = `${parseFloat(attackData.probability).toFixed(1)}%`;
-                const attributeText = `Strength: ${attackData.damage}\nSpeed: ${attackData.speed}\nKnockback: ${attackData.knockback}`;
-                this.attackSelectionButtons[attackName].probabilityText.setText(probabilityText);
-                this.attackSelectionButtons[attackName].attackInfoText.setText(attributeText);
+    
+            let attackInfoText = this.attackSelectionButtons[name].attackInfoText;
+            let keyReferenceText = this.attackSelectionButtons[name].keyReferenceText;
+            if (PlayerState.selectedAttacks.includes(name)) {
+                const attack = unlockedAttacksForLevel(PlayerState.level).find(a => a.name === name);
+                let knockbackText = attack.knockback < 1 ? 0 : attack.knockback;
+                let attackIndex = PlayerState.selectedAttacks.indexOf(name);
+                let keyReference = attackIndex === 1 ? 'KEY Z' : attackIndex === 2 ? 'KEY X' : '';
+                attackInfoText.setText(`Knockback: ${knockbackText}\nDamage: ${attack.damage}\nSpeed: ${attack.speed}`);
+                keyReferenceText.setText(keyReference);
             } else {
-                this.attackSelectionButtons[attackName].probabilityText.setText('');
-                this.attackSelectionButtons[attackName].attackInfoText.setText('');
+                attackInfoText.setText('');
+                keyReferenceText.setText('');
             }
         });
     }
+    
 
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 80;
@@ -330,25 +302,39 @@ export class UIScene extends Phaser.Scene {
         if (this.energyText) {
             this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
         }
-
+        this.trianglePosition = this.trianglePosition || 0;
         const energyChange = displayedEnergy - previousEnergy;
+        this.trianglePosition = (this.trianglePosition + 1) % 3;
+
+let xOffset, yOffset;
+if (this.trianglePosition === 0) {
+    xOffset = 0;
+    yOffset = 0;
+} else if (this.trianglePosition === 1) {
+    xOffset = 0;
+    yOffset = 40; // 40 is the vertical distance between texts
+} else {
+    xOffset = 40; // 40 is the horizontal distance between texts
+    yOffset = 0;
+}
+
+        
+
         if (energyChange < 0) {
             // Adjust the y-position based on the number of active texts
             const changeText = this.add.text(
-                735,
-                425 + (this.activeChangeTexts * 20),
+                735 + xOffset,
+                425 + yOffset,
                 `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
                 {
-                    fontFamily: '"redonda-condensed", sans-serif',
-                    fontSize: '25px',
+                    font: '900 42px redonda', 
                     fill: '#ff0000', // Only negative changes, so color is always red
-                    fontWeight: '100',
                     stroke: '#000000',
                     strokeThickness: 6,
                     fontStyle: 'italic'
                 }
-            );
-            this.activeChangeTexts++;
+                ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
+                this.activeChangeTexts++;
 
             this.tweens.add({
                 targets: changeText,
@@ -358,6 +344,31 @@ export class UIScene extends Phaser.Scene {
                 onComplete: () => {
                     changeText.destroy();
                     this.activeChangeTexts--; // Decrease the counter when a text is removed
+                }
+            });
+        } else if (energyChange === 0 && PlayerState.isUnderAttack) {
+            const missText = this.add.text(
+                735 + xOffset,
+                425 + yOffset,
+                'miss',
+                {
+                    font: '900 42px redonda', 
+                    fill: '#2196f3',
+                    stroke: '#000000',
+                    strokeThickness: 6,
+                    fontStyle: 'italic'
+                }
+                ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
+            this.activeChangeTexts++;
+        
+            this.tweens.add({
+                targets: missText,
+                y: missText.y - 20,
+                alpha: 0,
+                duration: 1200,
+                onComplete: () => {
+                    missText.destroy();
+                    this.activeChangeTexts--;
                 }
             });
         }

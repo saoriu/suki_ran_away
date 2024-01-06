@@ -10,6 +10,7 @@ import * as Inventory from './Inventory';
 import { UIScene } from './UIScene';
 import { preloadFrames } from './preloadFrames';
 import { createAnims } from './createAnims';
+import { attacks } from './attacks';
 
 
 export function usePhaserGame(gameRef, isAuthenticated) {
@@ -65,12 +66,12 @@ export function usePhaserGame(gameRef, isAuthenticated) {
 
             let isAttacking = false; // flag to check if scratch animation is already playing
             let canAttack = true;
+            let attackAnimationKey;
             const POSITION_CHANGE_THRESHOLD = 0.1;
 
             function create() {
                 const camera = this.cameras.main;
                 this.scene.launch('UIScene');
-                this.inReachofPlayer = {};
                 this.monsters = {};
                 camera.setSize(GAME_CONFIG.CAMERA_WIDTH, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
 
@@ -93,14 +94,11 @@ export function usePhaserGame(gameRef, isAuthenticated) {
 
                 this.targetMonsterKey = null;
 
-                createAnims(this);
-
-                this.input.keyboard.on('keyup', (event) => {
-                    if (event.code === 'Space') {
-                        clearInterval(spaceInterval);
-                        spaceInterval = null;
-                    }
+                this.game.events.on('monsterCleanedUp', (targetMonsterKey) => {
+                        this.targetMonsterKey = null;
                 });
+
+                createAnims(this);
 
                 this.inventoryContainer = this.add.container(10, 10); // Adjust the position as needed
                 this.inventory = []; // Initialize the inventory
@@ -114,38 +112,106 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 this.handleItemPickup = Inventory.handleItemPickup.bind(this);
                 this.addToInventory = Inventory.addToInventory.bind(this);
                 this.clearInventory = Inventory.clearInventory.bind(this);
-                let spaceInterval;
 
                 this.input.keyboard.on('keydown', (event) => {
-                    if (event.code === 'Space' && !spaceInterval && !this.isFainting) {
-                        spaceInterval = setInterval(() => {
-                            this.handleItemPickup();
-                            if (canAttack) {
-                                this.gameEvents.playerAttack(monsters, this.targetMonsterKey);
-                                isAttacking = true;
-                                canAttack = false;
-                                cat.on('animationcomplete', (animation, frame) => {
-                                    if (animation.key.startsWith('attack')) {
-                                        isAttacking = false;
-                                        canAttack = true;
-                                    }
-                                }, this);
-                            }
-                        }, 0);
+                    if (!this.isFainting && canAttack) {
+                        let attackName;
+                
+                        switch (event.code) {
+                            case 'Space':
+                                attackName = 'scratch';
+                                break;
+                            case 'KeyZ':
+                                attackName = PlayerState.selectedAttacks[1] || 'scratch';
+                                break;
+                            case 'KeyX':
+                                attackName = PlayerState.selectedAttacks[2] || 'scratch';
+                                break;
+                            default:
+                                return; // Exit the function if a non-attack key is pressed
+                        }
+                
+                        if (canAttack && attackName !== undefined) {
+                        this.handleItemPickup();
+                        this.gameEvents.playerAttack(monsters, this.targetMonsterKey, attackName);
+                        isAttacking = true;
+                        canAttack = false;
+            
+                        // Determine the attack animation based on direction
+                        let attackNumber = attacks[attackName].attack;
+                        
+                        switch (lastDirection) {
+                            case 'up':
+                                attackAnimationKey = `attack${attackNumber}-back`;
+                                lastDirection = 'up';
+                                break;
+                            case 'down':
+                                attackAnimationKey = `attack${attackNumber}-front`;
+                                lastDirection = 'down';
+                                break;
+                            case 'left':
+                                attackAnimationKey = `attack${attackNumber}`;
+                                lastDirection = 'left';
+                                break;
+                            case 'right':
+                                attackAnimationKey = `attack${attackNumber}`;
+                                lastDirection = 'right';
+                                break;
+                            case 'upLeft':
+                                attackAnimationKey = `attack${attackNumber}`;
+                                lastDirection = 'upLeft';
+                                break;
+                            case 'upRight':
+                                attackAnimationKey = `attack${attackNumber}`;
+                                lastDirection = 'upRight';
+                                break;
+                            case 'downLeft':
+                                attackAnimationKey = `attack${attackNumber}`;
+                                lastDirection = 'downLeft';
+                                break;
+                            case 'downRight':
+                                attackAnimationKey = `attack${attackNumber}`;
+                                lastDirection = 'downRight';
+                                break;
+                            default:
+                                attackAnimationKey = `attack${attackNumber}`;
+                                break;
+                        }
+            
+                        // Start the new animation
+                        cat.play(attackAnimationKey, true);
                     }
+                }
                 });
-
-                this.input.keyboard.on('keyup', (event) => {
-                    if (event.code === 'Space') {
-                        clearInterval(spaceInterval);
-                        spaceInterval = null;
+            
+                cat.on('animationcomplete', (animation, frame) => {
+                    if (animation.key === attackAnimationKey) {
+                        isAttacking = false;
+                        canAttack = true;
                     }
-                });
+                }, this);
+            
 
                 this.inventoryContainer = this.add.container(10, 10); // Adjust the position as needed
                 this.inventory = []; // Initialize the inventory
                 this.maxInventorySize = 20; // Or whatever your max inventory size is
                 this.items = []; // Initialize the items array
+
+                
+
+                this.input.on('pointerdown', (pointer) => {
+                    Object.values(monsters).forEach(monster => {
+                        if (monster && monster.sprite && monster.sprite.active) {
+                            const monsterBody = monster.sprite.body;
+                            if (monsterBody && Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
+                                attemptToTargetMonster.bind(this)(monster.key);
+                            }
+                        }
+                    });
+                });
+                
+                
+                
             }
             const Matter = Phaser.Physics.Matter.Matter;
 
@@ -197,7 +263,6 @@ export function usePhaserGame(gameRef, isAuthenticated) {
             let gameTime = 0; // In-game hours
 
             function handlePlayerMovement() {
-                //if player is attacking or fainting velocity is 0
                 if (PlayerState.isDead) {
                     cat.setVelocity(0, 0);
                     return;
@@ -205,44 +270,42 @@ export function usePhaserGame(gameRef, isAuthenticated) {
 
                 let velocityX = 0, velocityY = 0;
 
-                // Only update direction if player is not attacking
-
                 if (cursors.left.isDown && cursors.up.isDown) {
                     // Handle up-left diagonal movement
                     velocityX = -diagonalVelocity;
                     velocityY = -diagonalVelocity;
-                    if (!isAttacking) lastDirection = 'upLeft';
+                    lastDirection = 'upLeft';
                 } else if (cursors.right.isDown && cursors.up.isDown) {
                     // Handle up-right diagonal movement
                     velocityX = diagonalVelocity;
                     velocityY = -diagonalVelocity;
-                    if (!isAttacking) lastDirection = 'upRight';
+                    lastDirection = 'upRight';
                 } else if (cursors.left.isDown && cursors.down.isDown) {
                     // Handle down-left diagonal movement
                     velocityX = -diagonalVelocity;
                     velocityY = diagonalVelocity;
-                    if (!isAttacking) lastDirection = 'downLeft';
+                    lastDirection = 'downLeft';
                 } else if (cursors.right.isDown && cursors.down.isDown) {
                     // Handle down-right diagonal movement
                     velocityX = diagonalVelocity;
                     velocityY = diagonalVelocity;
-                    if (!isAttacking) lastDirection = 'downRight';
+                    lastDirection = 'downRight';
                 } else if (cursors.left.isDown) {
                     // Handle left movement
                     velocityX = -moveSpeed;
-                    if (!isAttacking) lastDirection = 'left';
+                    lastDirection = 'left';
                 } else if (cursors.right.isDown) {
                     // Handle right movement
                     velocityX = moveSpeed;
-                    if (!isAttacking) lastDirection = 'right';
+                    lastDirection = 'right';
                 } else if (cursors.up.isDown) {
                     // Handle up movement
                     velocityY = -moveSpeed;
-                    if (!isAttacking) lastDirection = 'up';
+                    lastDirection = 'up';
                 } else if (cursors.down.isDown) {
                     // Handle down movement
                     velocityY = moveSpeed;
-                    if (!isAttacking) lastDirection = 'down';
+                    lastDirection = 'down';
                 }
 
                 if (isAttacking) {
@@ -254,6 +317,31 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 cat.setVelocity(velocityX, velocityY);
                 handlePlayerAnimations(lastDirection, velocityX, velocityY);
             }
+        
+            function isMonsterAttackable(monster) {
+                return calculateDistance(cat, monster) <= PlayerState.attackRange && isMonsterInFront(cat, monster, lastDirection);
+            }
+            
+            function attemptToTargetMonster(key) {
+                const monster = monsters[key];
+                if (monster) {
+                    this.lastClickedMonsterKey = key;
+                    if (isMonsterAttackable(monster)) {
+                        this.targetMonsterKey = key;
+                    } else {
+
+                    }
+                } else {
+
+                }
+            }
+
+
+            
+        
+            
+            
+
             function handlePlayerAnimations(lastDirection, velocityX, velocityY) {
 
                 if (PlayerState.isDead) {
@@ -262,6 +350,11 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 }
 
                 if (isAttacking) {
+                    // Adjust the flip of the character without interrupting the animation
+                    const shouldFlip = (lastDirection === 'left' || lastDirection === 'upLeft' || lastDirection === 'downLeft');
+                    if (cat.flipX !== shouldFlip) {
+                        cat.flipX = shouldFlip;
+                    }
                     return;
                 }
 
@@ -344,17 +437,6 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                     removeFarTiles(cat.x, cat.y, this);
                 }
 
-                // Check if monster is within PlayerState.attackRange
-                Object.values(monsters).forEach(monster => {
-                    const distance = calculateDistance(cat, monster);
-                    if (distance <= PlayerState.attackRange) {
-                        monster.inReach = true;
-                        this.inReachofPlayer[monster.key] = monster;
-                    } else {
-                        monster.inReach = false;
-                    }
-                });
-
                 //Check if player is within monster attack range
                 Object.values(monsters).forEach(monster => {
                     const distance = calculateDistance(cat, monster);
@@ -365,66 +447,14 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                     }
                 });
 
-                updateTargetMonsterKey.call(this);
-
-                Object.keys(this.inReachofPlayer).forEach(key => {
-                    if (!this.inReachofPlayer[key].inReach) {
-                        delete this.inReachofPlayer[key];
-                    }
-                });
-
                 if (isAttacking && this.targetMonsterKey) {
-                    let attackAnimationKey;
-                    const attackNumber = this.registry.get('selectedAttackNumber') || 1;
-
-                    switch (lastDirection) {
-                        case 'up':
-                            attackAnimationKey = `attack${attackNumber}-back`;
-                            lastDirection = 'up';
-                            break;
-                        case 'down':
-                            attackAnimationKey = `attack${attackNumber}-front`;
-                            lastDirection = 'down';
-                            break;
-                        case 'left':
-                            attackAnimationKey = `attack${attackNumber}`;
-                            lastDirection = 'left';
-                            break;
-                        case 'right':
-                            attackAnimationKey = `attack${attackNumber}`;
-                            lastDirection = 'right';
-                            break;
-                        default:
-                            attackAnimationKey = `attack${attackNumber}`;
-                            break;
-                    }
-                    cat.play(attackAnimationKey, true);
-                } else if (isAttacking && !PlayerState.isDead) {
-                    let attackAnimationKey;
-                    const attackNumber = this.registry.get('selectedAttackNumber') || 1;
-                    switch (lastDirection) {
-                        case 'up':
-                            attackAnimationKey = `attack${attackNumber}-back`;
-                            lastDirection = 'up';
-                            break;
-                        case 'down':
-                            attackAnimationKey = `attack${attackNumber}-front`;
-                            lastDirection = 'down';
-                            break;
-                        case 'left':
-                            attackAnimationKey = `attack${attackNumber}`;
-                            lastDirection = 'left';
-                            break;
-                        case 'right':
-                            attackAnimationKey = `attack${attackNumber}`;
-                            lastDirection = 'right';
-                            break;
-                        default:
-                            attackAnimationKey = `attack${attackNumber}`;
-                            break;
-                    }
-                    cat.play(attackAnimationKey, true);
+                    cat.flipX = (lastDirection === 'left' || lastDirection === 'upLeft' || lastDirection === 'downLeft');
                 }
+
+                else if (isAttacking && !PlayerState.isDead) {
+                    cat.flipX = (lastDirection === 'left' || lastDirection === 'upLeft' || lastDirection === 'downLeft');
+                }
+
 
                 //Monster animations
                 Object.values(monsters).forEach(monster => {
@@ -455,6 +485,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                             }
                         }, this);
                     } else if (monster.isAttacking) {
+                        //return if the monster ishurt
                         monster.sprite.play(`${monster.event.monster}_attack`, true);
                         monster.sprite.once('animationcomplete', (animation) => {
                             if (animation.key === `${monster.event.monster}_attack`) {
@@ -491,6 +522,34 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                     }
                 });
 
+                if (this.targetMonsterKey) {
+                    const monster = monsters[this.targetMonsterKey];
+                    if (monster && !isMonsterAttackable(monster)) {
+                        this.targetMonsterKey = null;
+                    }
+                }
+            
+                if (this.lastClickedMonsterKey) {
+                    const monster = monsters[this.lastClickedMonsterKey];
+                    if (monster && isMonsterAttackable(monster)) {
+                        this.targetMonsterKey = this.lastClickedMonsterKey;
+                    }
+                }
+
+                updateTargetMonsterKey.call(this);
+
+
+            }
+
+            function updateTargetMonsterKey() {
+                if (this.targetMonsterKey === null) {
+                    for (const [key, monster] of Object.entries(monsters)) {
+                        if (isMonsterAttackable(monster)) {
+                            this.targetMonsterKey = key;
+                            break;
+                        }
+                    }
+                }
             }
 
             function updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
@@ -523,8 +582,8 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 cat.play('dead'); // Play death animation
 
                 //reset the colliding monsters and colliding monster key:
-                this.inReachofPlayer = {};
                 this.targetMonsterKey = null;
+                this.lastClickedMonsterKey = null;
 
                 // Clear monsters and inventory
                 Object.values(monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
@@ -562,17 +621,6 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 return calculatedDistance;
             }
 
-            function updateTargetMonsterKey() {
-                this.targetMonsterKey = null;
-
-                for (const [key, monster] of Object.entries(this.inReachofPlayer)) {
-                    if (calculateDistance(cat, monster) <= PlayerState.attackRange && isMonsterInFront(cat, monster, lastDirection)) {
-                        this.targetMonsterKey = key;
-                        break;
-                    }
-                }
-            }
-
 
             function isMonsterInFront(player, monster, lastDirection) {
                 switch (lastDirection) {
@@ -584,25 +632,34 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                         return monster.sprite.y < player.y;
                     case 'down':
                         return monster.sprite.y > player.y;
+                    case 'upLeft':
+                        return monster.sprite.x < player.x && monster.sprite.y < player.y;
+                    case 'upRight':
+                        return monster.sprite.x > player.x && monster.sprite.y < player.y;
+                    case 'downLeft':
+                        return monster.sprite.x < player.x && monster.sprite.y > player.y;
+                    case 'downRight':
+                        return monster.sprite.x > player.x && monster.sprite.y > player.y;
                     default:
                         return false;
                 }
             }
+
             function updateTooltip() {
                 const pointer = this.input.activePointer;
                 const pointerX = pointer.x; // Use screen coordinates
                 const pointerY = pointer.y; // Use screen coordinates
                 let isOverMonster = false;
-            
+
                 Object.values(monsters).forEach(monster => {
                     if (!monster || !monster.sprite || !monster.sprite.active) return;
-            
+
                     const monsterBody = monster.sprite.body;
-            
+
                     if (monsterBody && Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
                         if (Matter.Vertices.contains(monsterBody.vertices, { x: pointer.worldX, y: pointer.worldY })) {
                             isOverMonster = true;
-            
+
                             function capitalizeFirstLetter(string) {
                                 return string.charAt(0).toUpperCase() + string.slice(1);
                             }
@@ -612,7 +669,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                         }
                     }
                 });
-            
+
                 if (!isOverMonster) {
                     this.game.events.emit('hideTooltip');
                 }

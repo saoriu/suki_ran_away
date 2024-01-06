@@ -1,6 +1,8 @@
 export const attacks = {
     scratch: {
       name: 'scratch',
+      range: 1,
+      attack: 1,
       speed: 2, // animation speed or frames per second
       knockback: 1, // how many tiles the monster is knocked back
       damage: 3, // base damage of the attack
@@ -11,9 +13,10 @@ export const attacks = {
     },
     bite: {
       name: 'bite',
+      range: 5,
       attack: 2,
       speed: 2,
-      knockback: 0,
+      knockback: 0.5,
       damage: 5,
       level: 3,
       bleed: 2,
@@ -22,9 +25,10 @@ export const attacks = {
     },
     horsekick: {
       name: 'horsekick',
+      range: 1,
       attack: 3,
       speed: 1.3,
-      knockback: 5,
+      knockback: 6,
       damage: 3,
       level: 5,
       bleed: 0,
@@ -33,6 +37,7 @@ export const attacks = {
     },
     tailwhip: {
       name: 'tailwhip',
+      range: 1,
       attack: 4,
       speed: 1.6,
       knockback: 4,
@@ -44,10 +49,11 @@ export const attacks = {
     },
     roll: {
       name: 'roll',
+      range: 1,
       attack: 5,
-      speed: 2,
-      knockback: 3,
-      damage: 5,
+      speed: 1.5,
+      knockback: 2,
+      damage: 7,
       level: 10,
       bleed: 4,
       spread: 3,

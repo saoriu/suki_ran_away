@@ -11,6 +11,7 @@ export const gameStyles = {
 position: 'relative',
   }
 };
+
 export const textStyles = {
     attacks: { 
       fontFamily: 'redonda', 
@@ -19,6 +20,18 @@ export const textStyles = {
       fontSize: '16px', 
       fill: '#ffffff'
     },  
+    keys: {
+      fontFamily: 'pf-videotext',
+      fontWeight: '400',
+      fontStyle: 'normal',
+      fontSize: '16px',
+      fill: '#000000',
+      backgroundColor: '#f4eee0',
+      width: '100px',
+      border: 'none',
+      boxSizing: 'border-box', // Added this line
+      color: 'white',
+    },
     playerLevelText: { fontWeight:'800', fontSize: '24px', fill: '#ffffff', fontFamily: 'puffin-arcade-regular', stroke: '#000000', strokeThickness: 5 }, 
     monsterLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
     energyText: { fontFamily: 'puffin-arcade-regular'    , fontWeight: 'bolder', fill: '#ffffff', fontSize: '20px', stroke: '#000000', strokeThickness: 5 },

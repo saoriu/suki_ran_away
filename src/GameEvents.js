@@ -3,7 +3,8 @@ import { PlayerState, addXpToSkill } from './playerState.js';
 import { itemInfo } from './itemInfo.js';
 import { Item } from './Item';
 import { GAME_CONFIG } from './gameConstants.js';
-import { unlockedAttacksForLevel } from './attacks'; // Import the new utility function
+import { attacks } from './attacks'; // Adjust the path as necessary
+
 
 
 export class GameEvents {
@@ -44,7 +45,7 @@ export class GameEvents {
         this.scene.game.events.emit('energyChanged');
     }
 
-    playerAttack(monsters, targetMonsterKey) {
+    playerAttack(monsters, targetMonsterKey, attackName) {
         if (this.scene.isFainting) return; // Skip if player is dead
 
         const targetMonster = monsters[targetMonsterKey];
@@ -83,26 +84,14 @@ export class GameEvents {
             let monsterLevel = targetMonster.level;
             const timeToImpact = 200;
 
-            const availableAttacks = unlockedAttacksForLevel(PlayerState.level).filter(attack => PlayerState.selectedAttacks.includes(attack.name) || attack.name === 'scratch');
 
-
-            let totalRarity = availableAttacks.reduce((sum, attack) => sum + attack.rarity, 0);
-
-            const weightedAttackList = availableAttacks.reduce((acc, attack) => {
-                const weight = Math.round(attack.rarity / totalRarity * 100);
-                return acc.concat(new Array(weight).fill(attack));
-            }, []);
-
-            const selectedAttack = weightedAttackList[Phaser.Math.Between(0, weightedAttackList.length - 1)];
+            const selectedAttack = attacks[attackName] || attacks['scratch'];           
 
             const playerRoll = Phaser.Math.Between(0, Math.floor((PlayerState.skills.dancing.level * 0.1) + selectedAttack.damage));
 
-            // Store selected attack in the scene for animation
-            this.scene.selectedAttackNumber = selectedAttack.attack;
-            this.scene.registry.set('selectedAttackNumber', selectedAttack.attack);
-
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
+            
             if (playerRoll > 0) {
                 targetMonster.isHurt = true;
 
@@ -126,12 +115,17 @@ export class GameEvents {
                             const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000; // Convert to milliseconds
 
                             if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
+                                targetMonster.isBeingKnockedBack = true; // Set the flag to true when the knockback starts
+
                                 this.scene.tweens.add({
                                     targets: targetMonster.sprite,
                                     x: newMonsterX,
                                     y: newMonsterY,
                                     duration: knockbackDuration,
                                     ease: 'Power1',
+                                    onComplete: () => {
+                                        targetMonster.isBeingKnockedBack = false; // Reset the flag to false when the knockback completes
+                                    }
                                 });
                             }
                             
@@ -139,20 +133,19 @@ export class GameEvents {
                 }
 
                 if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
-                        const changeText = this.scene.add.text(
-                            targetMonster.sprite.x,
-                            targetMonster.sprite.y - 20,
-                            `${Math.abs(playerRoll).toFixed(0)}`,
-                            {
-                                fontFamily: '"redonda-condensed", sans-serif',
-                                fontSize: '25px',
-                                fill: '#ff0000',
-                                fontWeight: '100',
-                                stroke: '#ffffff',
-                                strokeThickness: 6,
-                                fontStyle: 'italic'
-                            }
-                        ).setDepth(5);
+                    const changeText = this.scene.add.text(
+                        0,
+                       0,
+                        `${Math.abs(playerRoll).toFixed(0)}`,
+                        {
+                            font: '900 42px redonda', 
+                            fill: '#ff0000',
+                            stroke: '#ffffff',
+                            strokeThickness: 6,
+                            fontStyle: 'italic'
+                        }
+                    ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
+                
                 
                         // Attach damage text to the monster for tracking
                     targetMonster.damageText = changeText;
@@ -173,6 +166,36 @@ export class GameEvents {
                 
                     }
                 }, timeToImpact);
+            } else if (playerRoll === 0) {
+                const missText = this.scene.add.text(
+                    0,
+                    0,
+                    'miss',
+                    {
+                        font: '900 42px redonda', 
+                        fill: '#2196f3',
+                        stroke: '#ffffff',
+                        strokeThickness: 6,
+                        fontStyle: 'italic'
+                    }
+                    ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
+            
+                // Attach miss text to the monster for tracking
+                targetMonster.damageText = missText;
+            
+                // Tween for miss text fade out
+                if (missText) {
+                    this.scene.tweens.add({
+                        targets: missText,
+                        alpha: 0,
+                        duration: 1200,
+                        onComplete: () => {
+                            if (targetMonster.sprite && targetMonster.sprite.active) {
+                                missText.destroy();
+                            }
+                        }
+                    });
+                }
             }
 
 
@@ -182,7 +205,7 @@ export class GameEvents {
                 this._emitPlayerBattleUpdate(monsterLevel, monsterHealth, playerRoll);
                 addXpToSkill('dancing', targetMonster.level * 50);
                 this.handleItemDrop(targetMonster); // Call handleItemDrop for the defeated monster
-                this.endBattleForMonster(targetMonster); // Call endBattleForMonster for the defeated monster
+                this.endBattleForMonster(targetMonster, targetMonsterKey); // Call endBattleForMonster for the defeated monster
             } else if (!this.monsterHasAttacked) {
                 // Monster retaliates if it hasn't already
                 this.monsterHasAttacked = true;
@@ -216,18 +239,18 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(0, monsterDamage * 1);
+        const monsterRoll = Phaser.Math.Between(0, monsterDamage);
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 
-        // Time to impact (in milliseconds)
-        const timeToImpact = 300; // Adjust based on your animation, e.g., 0.3 seconds = 300 ms
+        const timeToImpact = 300;
 
-        // Delay damage application to synchronize with the attack animation's impact frame
         setTimeout(() => {
             if (PlayerState.energy > 0) {
+                PlayerState.isUnderAttack = true;
                 PlayerState.energy -= monsterRoll;
-                PlayerState.lastDamageTime = Date.now(); // Update the last damage time in PlayerState
+                PlayerState.lastDamageTime = Date.now();
+
                 this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
 
                 if (PlayerState.energy <= 0) {
@@ -235,9 +258,9 @@ export class GameEvents {
                     this.endBattleForMonster(targetMonster);
                 }
             }
+            PlayerState.isUnderAttack = false;
         }, timeToImpact);
 
-        // Resetting the attacking flag should be handled after the animation completes
     }
 
 
@@ -263,7 +286,7 @@ export class GameEvents {
         });
     }
 
-    endBattleForMonster(targetMonster) {
+    endBattleForMonster(targetMonster, targetMonsterKey) {
         if (!targetMonster || targetMonster.isDead) return;
 
         // Play the death animation first
@@ -275,11 +298,11 @@ export class GameEvents {
             // Listen for the animation completion
             targetMonster.sprite.once('animationcomplete', () => {
                 // Proceed to clean up after the animation is complete
-                this.cleanUpMonster(targetMonster);
+                this.cleanUpMonster(targetMonster, targetMonsterKey);
             }, this);
         } else {
             // If the monster is not dead, proceed to clean up directly
-            this.cleanUpMonster(targetMonster);
+            this.cleanUpMonster(targetMonster, targetMonsterKey);
         }
     }
 
@@ -293,7 +316,7 @@ export class GameEvents {
     }
 
 
-    cleanUpMonster(targetMonster) {
+    cleanUpMonster(targetMonster, targetMonsterKey) {
         // Destroy the monster health bar (if it exists)
         if (targetMonster.sprite) {
             this.scene.tweens.killTweensOf(targetMonster.sprite);
@@ -314,15 +337,10 @@ export class GameEvents {
             targetMonster.healthBar.outer.destroy();
         }
 
-        // Remove the monster from the active monsters collection
-        if (this.scene.inReachofPlayer[targetMonster.key]) {
-            delete this.scene.inReachofPlayer[targetMonster.key];
-            delete this.scene.monsters[targetMonster.key];
-        }
-
         // Reset battle flags
+        targetMonsterKey = null;
+        this.scene.game.events.emit('monsterCleanedUp', targetMonsterKey);
         this.monsterHasAttacked = false;
-        targetMonster.inReach = false;
         targetMonster.canReach = false;
         PlayerState.lastEnergyUpdate = Date.now();
         this.currentBattleMonsterKey = null;
@@ -374,7 +392,7 @@ export class GameEvents {
 
     updateMonsterMovement(player, monster, distance) {
         //if monster health is not 0
-        if (monster.currentHealth > 0) {
+        if (monster.currentHealth > 0 && !monster.isBeingKnockedBack) {
             if (!monster.canReach) {
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
                 const velocity = {

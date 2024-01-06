@@ -269,7 +269,7 @@ scene.anims.create({
 scene.anims.create({
     key: 'attack5',
     frames: Array.from({ length: 14 }, (_, i) => ({ key: `attack5-${i + 1}` })),
-    frameRate: 28,
+    frameRate: 21,
     repeat: 0 // to loop the animation indefinitely
 })
 scene.anims.create({
@@ -311,16 +311,15 @@ scene.anims.create({
 scene.anims.create({
     key: 'attack5-back',
     frames: Array.from({ length: 10 }, (_, i) => ({ key: `attack5-back-${i + 1}` })),
-    frameRate: 20,
+    frameRate: 15,
     repeat: 0 // to loop the animation indefinitely
 })
 scene.anims.create({
     key: 'attack5-front',
     frames: Array.from({ length: 10 }, (_, i) => ({ key: `attack5-front-${i + 1}` })),
-    frameRate: 20,
+    frameRate: 15,
     repeat: 0 // to loop the animation indefinitely
 })
-
 scene.anims.create({
     key: 'sit-back',
     frames: [

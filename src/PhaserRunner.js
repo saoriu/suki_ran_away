@@ -13,7 +13,7 @@ export default function PhaserRunner() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password === 'esperanza') {
+    if (password === 'espe') {
       setIsAuthenticated(true);
     } else {
       alert('Incorrect password, maybe wait until the game is finished?');
@@ -37,7 +37,7 @@ export default function PhaserRunner() {
     <h2 id="version">alpha version</h2>
     <p>A 2D web-based game developed in JavaScript, employing Phaser3 as the game development framework and React for UI integration.
       Game designed and developed by Saori Uchida.</p>
-      <p id="copyright">©️ 2023 s9o studio</p>
+      <p id="copyright">©️ 2023 saocute studio</p>
     </div>
     </div>
     </div>
