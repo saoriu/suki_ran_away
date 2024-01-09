@@ -36,11 +36,11 @@ export class GameEvents {
         this.scene.game.events.emit('energyChanged');
     }
 
-    _emitMonsterBattleUpdate(monsterLevel, playerEnergy, monsterRoll) {
+    _emitMonsterBattleUpdate(monsterLevel, playerEnergy, ) {
         this.scene.game.events.emit('monsterBattleUpdate', {
             monsterLevel,
             petEnergy: playerEnergy,
-            monsterRoll
+            
         });
         this.scene.game.events.emit('energyChanged');
     }
@@ -134,15 +134,15 @@ export class GameEvents {
 
                 if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
                     const changeText = this.scene.add.text(
-                        0,
+                        -40,
                        0,
                         `${Math.abs(playerRoll).toFixed(0)}`,
                         {
-                            font: '900 42px redonda', 
+                            fontFamily: 'Ninja',
+                            fontSize: '42px',
                             fill: '#ff0000',
                             stroke: '#ffffff',
                             strokeThickness: 6,
-                            fontStyle: 'italic'
                         }
                     ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
                 
@@ -170,13 +170,13 @@ export class GameEvents {
                 const missText = this.scene.add.text(
                     0,
                     0,
-                    'miss',
+                    'MISS',
                     {
-                        font: '900 42px redonda', 
+                        fontFamily: 'Ninja',
+                        fontSize: '42px',
                         fill: '#2196f3',
                         stroke: '#ffffff',
                         strokeThickness: 6,
-                        fontStyle: 'italic'
                     }
                     ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
             
@@ -239,7 +239,7 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(0, monsterDamage);
+        const monsterRoll = Phaser.Math.Between(0, monsterDamage * 0.25);
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 
@@ -258,7 +258,6 @@ export class GameEvents {
                     this.endBattleForMonster(targetMonster);
                 }
             }
-            PlayerState.isUnderAttack = false;
         }, timeToImpact);
 
     }

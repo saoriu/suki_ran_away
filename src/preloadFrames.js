@@ -59,7 +59,7 @@ export function preloadFrames(gameInstance) {
 
 
 
-    this.load.image('frame', '/frame-mini.png');
+    this.load.image('frame', '/frame.png');
     this.load.image('grid', '/grid.png');
     this.load.image('grid-hover', '/grid-hover.png');
     this.load.image('grid-hovers', '/grid-hovers.png');
@@ -84,4 +84,11 @@ export function preloadFrames(gameInstance) {
     this.load.image('tailwhip', '/tailwhip.png');
     this.load.image('horsekick', '/horsekick.png');
     this.load.image('bite', '/bite.png');
+    this.load.image('attack-on', '/attack-on.png');
+    this.load.image('attack-off', '/attack-off.png');
+    this.load.image('attack-lock', '/attack-lock.png');
+    this.load.image('bag', '/bag.png');
+    this.load.image('health-bar', '/health-bar.png');
+    this.load.image('attack-info', '/attack-info.png');
+    this.load.image('save', '/save.png');
 }

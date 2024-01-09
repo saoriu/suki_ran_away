@@ -1,14 +1,12 @@
-export const skills = {
-    dancing: { level: 10, xp: 0, totalXP: 0 },
-    gathering: { level: 1, xp: 0, totalXP: 0 },
-};
-
 export const PlayerState = {
-    level: skills.dancing.level,
+    userid: '',
     days: 0,
     energy: 100,
     speed: 3,
-    skills: skills,
+    skills: {
+        dancing: { level: 5, xp: 0, totalXP: 0 },
+        gathering: { level: 1, xp: 0, totalXP: 0 },
+    },
     lastDamageTime: Date.now(),
     isDead: false,
     isUnderAttack: false,
@@ -21,7 +19,16 @@ export const PlayerState = {
     weakenBonus: 0, //chance to lower monster level
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
+    inventory: [],
+    gameTime: 0,
 };
+// In playerState.js
+export function setLevel(newLevel) {
+    level = newLevel;
+}
+
+
+export let level = PlayerState.skills.dancing.level;
 
 export function xpRequiredForLevel(level) {
     return Math.floor(level + 300 * Math.pow(2, level / 7));
@@ -52,7 +59,7 @@ export function addXpToSkill(skillName, xpToAdd) {
         window.game.events.emit('updateSkillsDisplay');
     }
 
-    PlayerState.level = updatePlayerLevel(PlayerState.skills);
+    level = updatePlayerLevel(PlayerState.skills);
 }
 
 

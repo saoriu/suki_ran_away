@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'NinjaAdventure';
+  src: url('/public/Ninja.ttf') format('truetype');
+}
+
 .App {
   text-align: center;
   display: flex;
@@ -9,10 +14,21 @@ h1,p,strong,h2 {
   color: white;
 }
 
+.cardp4 {
+  background: dodgerblue !important;
+  padding: 5em;
+  border-radius: 5px;
+}
+
 h1 {
   font-family: 'Gabriella', sans-serif;
   font-size: 20px;
   margin-bottom: 0;
+}
+
+.form-group {
+
+  margin-bottom: 10px;
 }
 
 h2 {
