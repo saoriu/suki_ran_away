@@ -5,25 +5,74 @@
 
 .main {
   height: 100vh;
-  width: 100vw;
-  background-size: cover;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-repeat: no-repeat;
-  flex-direction: column;
+  width: 100vw;
   gap: 50px;
 }
 
-button:hover {
-  background: #ff105f !important;
-  color: white !important;
+.parallax {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -1; /* Ensure the parallax is behind other content */
 }
+
+.layer {
+  position: absolute;
+  width: 100%;
+  height: 100vh; /* Set the height to 100% of the viewport height */
+  background-repeat: no-repeat;
+  background-size: cover; /* Make the background image cover the entire div */
+}
+
+@keyframes slide {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+
+.sky {
+}
+
+.clouds-front {
+  animation: slide 30s linear infinite;
+}
+
+.clouds-mid {
+  animation: slide 40s linear infinite;
+}
+
+.clouds-mid-tc {
+  animation: slide 40s linear infinite;
+}
+
+.clouds-front-tc {
+  animation: slide 30s linear infinite;
+}
+
+.far-mountains {
+  animation: slide 50s linear infinite;
+}
+
+.grassy-mountains {
+
+}
+
+.hill {
+  /* No animation for the hill */
+}
+
 
 .secondary-text {
   font-size: 30px;
   font-family: 'NinjaAdventure', sans-serif;
-  color: white;
+  color: black;
   margin: 0;
   font-style: italic;
 }
@@ -46,7 +95,7 @@ button:hover {
 }
 
 .footer-item a {
-  color: white;
+  color: black;
   font-family: 'redonda', sans-serif;
   font-weight: 700;
   font-size: 20px;
@@ -91,6 +140,15 @@ form {
   border-radius: 5px !important;
 }
 
+.mobile-warning {
+  background-color: rgba(0, 0, 0, 0.917);
+  padding: 15px;
+  border: 4px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .secondary {
   color: black;
   font-family: 'redonda', sans-serif;
@@ -110,6 +168,8 @@ input {
   width: 100% !important;
   background: #ffe396 !important;
   height: 30px;
+  font-family: 'redonda', sans-serif;
+  font-size: 1.25em;
 }
 
 .form-group {

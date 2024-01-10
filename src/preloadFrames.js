@@ -93,4 +93,12 @@ export function preloadFrames(gameInstance) {
     this.load.image('save', '/save.png');
     this.load.image('login', '/login.png');
     this.load.image('bg1', '/bg1.png');
+    this.load.image('sky_fc', '/sky_fc.png');
+    this.load.image('clouds_front_fc', '/clouds_front_fc.png');
+    this.load.image('clouds_front_t_fc', '/clouds_front_t_fc.png');
+    this.load.image('clouds_mid_fc', '/clouds_mid_fc.png');
+    this.load.image('clouds_mid_t_fc', '/clouds_mid_t_fc.png');
+    this.load.image('far_mountains_fc', '/far_mountains_fc.png');
+    this.load.image('grassy_mountains_fc', '/grassy_mountains_fc.png');
+    this.load.image('hill', '/hill.png');
 }

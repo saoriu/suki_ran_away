@@ -5,6 +5,7 @@ import { gameStyles } from './styles.js';
 import { PuffLoader } from 'react-spinners';
 
 
+
 export default function PhaserRunner() {
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -35,6 +36,20 @@ export default function PhaserRunner() {
 
   const handleUsernameInput = (e) => setUsername(e.target.value);
   const handlePasswordInput = (e) => setPassword(e.target.value);
+
+
+  const MyComponent = () => (
+    <div className='parallax'>
+        <div className='layer sky' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/sky_fc.png'})` }} />
+        <div className='layer far-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/far_mountains_fc.png'})` }} />
+        <div className='layer grassy-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/grassy_mountains_fc.png'})` }} />
+        <div className='layer clouds-mid' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_fc.png'})` }} />
+        <div className='layer clouds-mid-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_t_fc.png'})` }} />
+        <div className='layer hill' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/hill.png'})` }} />
+        <div className='layer clouds-front-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_t_fc.png'})` }} />
+        <div className='layer clouds-front' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_fc.png'})` }} />
+      </div>
+  );
 
   const login = async (userid, password) => {
     setIsLoading(true);
@@ -111,12 +126,21 @@ setLevel(updatePlayerLevel(PlayerState.skills));
   // Toggle between login and registration
   const toggleAuthMode = () => setIsRegistering(!isRegistering);
 
+  const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
+
   usePhaserGame(gameRef, isAuthenticated);
 
   return (
     <div>
       {!isAuthenticated ? (
-        <div className='main' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/bg1.png'})` }}>
+        <div className='main'>
+                        <MyComponent />
+                        {isMobileDevice() ? (
+                          alert("This game is not supported on mobile devices! Mobile gaming is for babies and you are not a baby.")
+      ) : null}
         <div className='header'>
         <h1 className="main-text">SUKI  RAN  AWAY!</h1>
         <h3 className="secondary-text">alpha version</h3>
