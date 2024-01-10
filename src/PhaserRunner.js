@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePhaserGame } from './usePhaseGame.js';
 import { PlayerState, setLevel, updatePlayerLevel } from './playerState.js';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { gameStyles } from './styles.js';
 import { PuffLoader } from 'react-spinners';
 
@@ -117,40 +116,43 @@ setLevel(updatePlayerLevel(PlayerState.skills));
   return (
     <div>
       {!isAuthenticated ? (
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-12 login-container">
-              <div className="cardp4">
-                <div className="card-body">
-                  <h1 className="text-center">{isRegistering ? 'Register' : 'Login'}</h1>
-                  {isLoading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', marginTop: '35px' }}>
-                      <PuffLoader color="#000000" />
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit}>
-                      <div className="form-group">
-                        <label>Username</label>
-                        <input type="text" className="form-control" value={username} onChange={handleUsernameInput} placeholder="Username" />
-                      </div>
-                      <div className="form-group">
-                        <label>Password</label>
-                        <input type="password" className="form-control" value={password} onChange={handlePasswordInput} placeholder="Password" />
-                      </div>
-                      <div className="form-group">
-                        <button type="submit" className="btn btn-primary btn-block">{isRegistering ? 'Register' : 'Login'}</button>
-                      </div>
-                      <div className="form-group">
-                        <button type="button" className="btn btn-secondary btn-block" onClick={toggleAuthMode}>
-                          {isRegistering ? 'Switch to Login' : 'Switch to Register'}
-                        </button>
-                      </div>
-                    </form>
-                  )}
+        <div className='main' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/bg1.png'})` }}>
+        <div className="container" style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/login.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="login-container">
+              <h1 className="text-center">{isRegistering ? 'REGISTER' : 'LOGIN'}</h1>
+              {isLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', marginTop: '35px' }}>
+                  <PuffLoader color="#000000" />
                 </div>
-              </div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label>USERNAME</label>
+                    <input type="text" className="form-control" value={username} onChange={handleUsernameInput} />
+                  </div>
+                  <div className="form-group">
+                    <label>PASSWORD</label>
+                    <input type="password" className="form-control" value={password} onChange={handlePasswordInput} />
+                  </div>
+                  <div className="form-group">
+                    <button type="submit" className="btn btn-primary btn-block">{isRegistering ? 'REGISTER' : 'LOGIN'}</button>
+                  </div>
+                  <div className="form-group">
+                    <button type="button" className="btn btn-secondary btn-block" onClick={toggleAuthMode}>
+                      {isRegistering ? 'EXISTING   ACCOUNT' : 'CREATE   ACCOUNT'}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
-          </div>
+        </div>
+        <div className='footer'>
+          <div className='footer-container'>
+            <div className='footer-item'>
+              <a href='https://www.saoriuchida.com/'>© 2023 Saori Uchida. All rights reserved</a>
+            </div>
+            </div>
+       </div>
         </div>
       ) : (
         <div id="frame-container" style={gameStyles.frameContainer}>

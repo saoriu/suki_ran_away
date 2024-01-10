@@ -91,4 +91,6 @@ export function preloadFrames(gameInstance) {
     this.load.image('health-bar', '/health-bar.png');
     this.load.image('attack-info', '/attack-info.png');
     this.load.image('save', '/save.png');
+    this.load.image('login', '/login.png');
+    this.load.image('bg1', '/bg1.png');
 }

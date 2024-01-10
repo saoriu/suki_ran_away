@@ -3,11 +3,89 @@
   src: url('/public/Ninja.ttf') format('truetype');
 }
 
+.main {
+  height: 100vh;
+  width: 100vw;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-repeat: no-repeat;
+}
+
 .App {
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.footer-item a {
+  color: white;
+  font-family: 'redonda', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+.footer {
+  position: absolute;
+  bottom: 10px;
+}
+
+.container {
+  background-size: contain;
+  background-position: top;
+  width: 470px;
+  background-repeat: no-repeat;
+  height: 495px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+}
+
+.form-group button {
+  background: #073336 !important;
+  color: white !important;
+  font-family: 'NinjaAdventure', sans-serif;
+  font-size: 15px !important;
+  padding: 5px !important;
+  width: 100% !important;
+  border-radius: 5px !important;
+}
+
+input {
+  border-radius: 5px !important;
+  border: 2px solid #724800 !important;
+  padding: 5px !important;
+  width: 100% !important;
+  background: #ffe396 !important;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+}
+
+label {
+  font-family: 'NinjaAdventure', sans-serif;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.text-center {
+color: black;
+font-size: 45px;
 }
 
 h1,p,strong,h2 {
@@ -21,7 +99,7 @@ h1,p,strong,h2 {
 }
 
 h1 {
-  font-family: 'Gabriella', sans-serif;
+  font-family: 'NinjaAdventure', sans-serif;
   font-size: 20px;
   margin-bottom: 0;
 }
