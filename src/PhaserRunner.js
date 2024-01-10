@@ -10,29 +10,31 @@ export default function PhaserRunner() {
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
-});
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false); // To toggle between login and register
   const gameRef = useRef(null);
+  const [errorMessage, setErrorMessage] = useState(null); // Add this state variable at the top of your component
+
 
   useEffect(() => {
     const handleResize = () => {
-        setWindowSize({
-            width: window.innerWidth,
-            height: window.innerHeight,
-        });
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     };
 
     window.addEventListener('resize', handleResize);
 
     // Cleanup
     return () => {
-        window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', handleResize);
     };
-}, []);
+  }, []);
 
   const handleUsernameInput = (e) => setUsername(e.target.value);
   const handlePasswordInput = (e) => setPassword(e.target.value);
@@ -40,15 +42,15 @@ export default function PhaserRunner() {
 
   const MyComponent = () => (
     <div className='parallax'>
-        <div className='layer sky' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/sky_fc.png'})` }} />
-        <div className='layer far-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/far_mountains_fc.png'})` }} />
-        <div className='layer grassy-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/grassy_mountains_fc.png'})` }} />
-        <div className='layer clouds-mid' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_fc.png'})` }} />
-        <div className='layer clouds-mid-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_t_fc.png'})` }} />
-        <div className='layer hill' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/hill.png'})` }} />
-        <div className='layer clouds-front-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_t_fc.png'})` }} />
-        <div className='layer clouds-front' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_fc.png'})` }} />
-      </div>
+      <div className='layer sky' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/sky_fc.png'})` }} />
+      <div className='layer far-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/far_mountains_fc.png'})` }} />
+      <div className='layer grassy-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/grassy_mountains_fc.png'})` }} />
+      <div className='layer clouds-mid' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_fc.png'})` }} />
+      <div className='layer clouds-mid-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_t_fc.png'})` }} />
+      <div className='layer hill' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/hill.png'})` }} />
+      <div className='layer clouds-front-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_t_fc.png'})` }} />
+      <div className='layer clouds-front' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_fc.png'})` }} />
+    </div>
   );
 
   const login = async (userid, password) => {
@@ -72,18 +74,18 @@ export default function PhaserRunner() {
         // Update local PlayerState with the received data
         Object.assign(PlayerState, playerState);
 
-// In PhaserRunner.js, inside login function
-setLevel(updatePlayerLevel(PlayerState.skills));
+        // In PhaserRunner.js, inside login function
+        setLevel(updatePlayerLevel(PlayerState.skills));
 
         if (typeof window !== 'undefined' && window.game) {
-            window.game.events.emit('playerStateUpdated');
+          window.game.events.emit('playerStateUpdated');
         }
 
 
         setIsAuthenticated(true);
       } else {
-        // Handle errors
-        console.error('Login failed:', response.statusText);
+        const errorData = await response.json(); // Parse error response JSON
+        setErrorMessage(errorData.error); // Set error message  
       }
     } catch (error) {
       // Handle network or other unexpected errors
@@ -92,7 +94,6 @@ setLevel(updatePlayerLevel(PlayerState.skills));
       setIsLoading(false);
     }
   };
-
 
   const register = async (userid, password) => {
     setIsLoading(true);
@@ -107,13 +108,16 @@ setLevel(updatePlayerLevel(PlayerState.skills));
         await login(userid, password);
       } else {
         // Handle errors
+        const errorData = await response.json(); // Parse error response JSON
+        setErrorMessage(errorData.error); // Set error message
       }
     } catch (error) {
+      // Handle network or other unexpected errors
+      console.error('Error during registration:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isRegistering) {
@@ -137,15 +141,15 @@ setLevel(updatePlayerLevel(PlayerState.skills));
     <div>
       {!isAuthenticated ? (
         <div className='main'>
-                        <MyComponent />
-                        {isMobileDevice() ? (
-                          alert("This game is not supported on mobile devices! Mobile gaming is for babies and you are not a baby.")
-      ) : null}
-        <div className='header'>
-        <h1 className="main-text">SUKI  RAN  AWAY!</h1>
-        <h3 className="secondary-text">alpha version</h3>
-        </div>
-        <div className="container" style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/login.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <MyComponent />
+          {isMobileDevice() ? (
+            alert("This game is not supported on mobile devices! Mobile gaming is for babies and you are not a baby.")
+          ) : null}
+          <div className='header'>
+            <h1 className="main-text">SUKI  RAN  AWAY!</h1>
+            <h3 className="secondary-text">private demo version</h3>
+          </div>
+          <div className="container" style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/login.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <div className="login-container">
               <h2 className="text-center">{isRegistering ? 'REGISTER' : 'LOGIN'}</h2>
               {isLoading ? (
@@ -154,6 +158,7 @@ setLevel(updatePlayerLevel(PlayerState.skills));
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
+                  {errorMessage && <p className='error'>{errorMessage}</p>}
                   <div className="form-group">
                     <label>USERNAME</label>
                     <input type="text" className="form-control" value={username} onChange={handleUsernameInput} />
@@ -173,22 +178,22 @@ setLevel(updatePlayerLevel(PlayerState.skills));
                 </form>
               )}
             </div>
-        </div>
-        <div className='footer'>
-          <div className='footer-container'>
-            <div className='footer-item'>
-              <a href='https://www.saoriuchida.com/'>© 2023 Saori Uchida. All rights reserved</a>
+          </div>
+          <div className='footer'>
+            <div className='footer-container'>
+              <div className='footer-item'>
+                <a href='https://www.saoriuchida.com/'>© 2023 Saori Uchida. All rights reserved</a>
+              </div>
             </div>
-            </div>
-       </div>
+          </div>
         </div>
       ) : (
         <div id="frame-container" style={gameStyles.frameContainer}>
-          <div id="phaser-game"           
-          style={{
-                width: `${windowSize.width}px`,
-                height: `${windowSize.height}px`,
-                position: 'relative',
+          <div id="phaser-game"
+            style={{
+              width: `${windowSize.width}px`,
+              height: `${windowSize.height}px`,
+              position: 'relative',
             }}></div>
         </div>
       )}

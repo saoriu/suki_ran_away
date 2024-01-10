@@ -24,11 +24,15 @@ app.post('/register', async (req, res) => {
     const existingUser = await getItem({ userid });
     if (existingUser.Item) {
       res.header('Access-Control-Allow-Origin', '*');
-      return res.status(400).json({ error: 'Username already exists' });
+      return res.status(400).json({ error: 'That username already exists' });
     }
   } catch (error) {
     res.header('Access-Control-Allow-Origin', '*');
     return res.status(500).json({ error: error.toString() });
+  }
+  if (password.length < 6) {
+    res.header('Access-Control-Allow-Origin', '*');
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -73,7 +77,10 @@ app.post('/login', async (req, res) => {
   const { userid, password } = req.body;
   try {
     const user = await getItem({ userid });
-    if (user && await bcrypt.compare(password, user.Item.password)) {
+    if (!user) {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.status(404).json({ error: 'That account does not exist' });
+    } else if (user && await bcrypt.compare(password, user.Item.password)) {
       const token = jwt.sign({ userid }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
       res.header('Access-Control-Allow-Origin', '*');
       res.json({ token, playerState: user.Item.playerState });

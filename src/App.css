@@ -140,6 +140,13 @@ form {
   border-radius: 5px !important;
 }
 
+.error {
+  color: red;
+  font-family: 'redonda', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+}
+
 .mobile-warning {
   background-color: rgba(0, 0, 0, 0.917);
   padding: 15px;
