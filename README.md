@@ -1,70 +1,99 @@
-# Getting Started with Create React App
+# Suki Ran Away by Saori Uchida
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Summary
 
-## Available Scripts
+The game revolves around three fundamental skills for the player's pet: Gathering, Attack, and Creating. To introduce randomness to the game, there is a system called the Random Event System that triggers battle events, gathering events, or no event based on each game tick. Procedural map generation is used, with each tile generated at random, destroying everything outside of the game window.
 
-In the project directory, you can run:
+The Gathering events include peaceful pond, friendly farm, and wild bush. These events can give different food ingredients. The Battle events include monster, demi-boss, and boss. These events can give different types of wearable components. As the days pass, monsters become stronger.
 
-### `npm start`
+The success of battle and gathering events is contingent upon the pet's respective skill levels. On successful completion, the pet gains experience points and potential outputs.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The outputs from events can be used to create two types of craftable items - consumables and wearables. The creation skill is leveraged to process outputs from events. Using different combinations of food outputs from gathering events can create consumables. Combining wearable component outputs from battling events can create wearables.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+As the pet levels up in skill, they unlock new events and outputs. Higher levels in the creation skill allow the pet to craft superior consumables and wearables.
 
-### `npm test`
+An inventory system is implemented where event outputs are stored in the pet's bag. Wearable items are stored in specific slots. Wearables offer a range of benefits, such as increased chance of specific events or higher quality outputs. Consumables offer temporary boosts to skills or experience gain, influencing the success rate of events.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The game is strategically balanced between the use of consumables and wearables. While wearables modify the chance of events and output quality, consumables can directly impact event success rates. The system allows players to customize their gameplay focus depending on their strategy, whether that's gathering, battling, or collecting specific outputs.
 
-### `npm run build`
+The game's content is continually expanded by introducing new events, consumables, wearables, and skills. The game has a story/lore that revolves around a cat named Suki. She was lost and is journeying through different biomes as she tries to find her way back home. Throughout her journey, she battles different animals and monsters, completes quests, trains her skill, and collects resources.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Technical Specifications
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This is a web-based game that is also available on Steam. It has been developed using Phaser 3 as the game engine and JavaScript as the coding language. React has been used for certain interface and state and effect management. The game's backend uses AWS to store user account details and save data.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Skills
 
-### `npm run eject`
+Implement and refine three fundamental skills for the player's pet:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Attack
+- Gathering (coming soon)
+- Creating  (coming soon)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Events
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Introduce a random event system that triggers battle events, gathering events, or no event based on each game tick. It uses procedural map generation, with each tile generated at random, destroying everything outside of the game window.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Gathering events: Peaceful pond (can give any of salmon, tuna, or trout), friendly farm (can give milk, egg, or grains), and wild bush (can give any of three types of berries).
 
-## Learn More
+Battle events: Monster (can give any of three types of wearable components of low quality), demi-boss (can give any of three types of wearable components of medium quality), and boss (can give any of three types of high-quality wearable components). The player unlocks new attacks as they progress attack levels, able to choose from the unlocked attacks during gameplay. As days pass, monsters become stronger. Each player can create a new account.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Skill-Based Outcomes
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Ensure the success of battle and gathering events is contingent upon the pet's respective skill levels and the player's strategic use of consumables, wearables, attacks, and terrains. On success, the pet gains experience points and potential outputs (food ingredients or gear components).
 
-### Code Splitting
+### Creating
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Leverage the 'creation' skill to process outputs from events into two types of craftable items - consumables and wearables.
 
-### Analyzing the Bundle Size
+Creating consumables: Using different combinations of the food outputs from gathering events can create consumables.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Creating wearables: Combining wearable component outputs from battling events can be used to create wearables.
 
-### Making a Progressive Web App
+## Game Progression
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Skill Progression
 
-### Advanced Configuration
+As the pet levels up in skill, they unlock new events and outputs, adding rewarding progression, depth, and complexity to the gameplay.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Crafting Progression
 
-### Deployment
+Higher levels in the creation skill allow the pet to craft superior consumables and wearables, which in turn can influence the gameplay and player's strategy.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Inventory Management
 
-### `npm run build` fails to minify
+### Inventory System
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Implement an inventory system where event outputs are stored in the pet's bag. Include specific slots for wearable items.
+
+### Wearables
+
+Design wearables to offer a range of benefits, such as an increased chance of specific events or higher quality outputs. This adds strategic depth to the gameplay.
+
+Luck of the drop: Increase the chance of rare and ultra-rare drops.
+
+Tireless run: Energy restores faster.
+
+Strength: Increased chance of rolling a higher level move.
+
+More to do: Increased chance of any event occurring.
+
+I’m so crafty: Increased chance of not consuming an item when crafting.
+
+### Consumables
+
+Design consumables that offer temporary boosts to skills or experience gain, influencing the success rate of events and adding an additional layer of strategic gameplay.
+
+## Balancing and Optimization
+
+### Strategic Balance
+
+Ensure a strategic balance between the use of consumables and wearables. While wearables modify the chance of events and output quality, consumables can directly impact event success rates.
+
+### Gameplay Focus
+
+Create a system that allows players to customize their gameplay focus depending on their strategy, whether that's gathering, battling, or collecting specific outputs.
+
+## Story/Lore
+
+Suki was a cute, friendly cat that belonged to a cute, friendly girl. One night, Suki fell out the window after seeing something mysterious and was lost. The game is about her going through different biomes as she tries to find her way back home. Throughout her journey, she battles with many different animals and monsters, completes quests, trains her skill, and collects resources.
