@@ -13,6 +13,7 @@
   gap: 50px;
 }
 
+
 .parallax {
   position: fixed;
   top: 0;
@@ -75,6 +76,7 @@
   color: black;
   margin: 0;
   font-style: italic;
+  word-spacing: 0.25em;
 }
 
 .main-text {

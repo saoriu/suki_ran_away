@@ -3,6 +3,8 @@ import { usePhaserGame } from './usePhaseGame.js';
 import { PlayerState, setLevel, updatePlayerLevel } from './playerState.js';
 import { gameStyles } from './styles.js';
 import { PuffLoader } from 'react-spinners';
+import { Analytics } from '@vercel/analytics/react';
+
 
 
 
@@ -139,6 +141,7 @@ export default function PhaserRunner() {
 
   return (
     <div>
+      <Analytics />
       {!isAuthenticated ? (
         <div className='main'>
           <MyComponent />
