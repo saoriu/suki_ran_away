@@ -117,9 +117,13 @@ setLevel(updatePlayerLevel(PlayerState.skills));
     <div>
       {!isAuthenticated ? (
         <div className='main' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/bg1.png'})` }}>
+        <div className='header'>
+        <h1 className="main-text">SUKI  RAN  AWAY!</h1>
+        <h3 className="secondary-text">alpha version</h3>
+        </div>
         <div className="container" style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/login.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <div className="login-container">
-              <h1 className="text-center">{isRegistering ? 'REGISTER' : 'LOGIN'}</h1>
+              <h2 className="text-center">{isRegistering ? 'REGISTER' : 'LOGIN'}</h2>
               {isLoading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', marginTop: '35px' }}>
                   <PuffLoader color="#000000" />
@@ -137,10 +141,10 @@ setLevel(updatePlayerLevel(PlayerState.skills));
                   <div className="form-group">
                     <button type="submit" className="btn btn-primary btn-block">{isRegistering ? 'REGISTER' : 'LOGIN'}</button>
                   </div>
-                  <div className="form-group">
-                    <button type="button" className="btn btn-secondary btn-block" onClick={toggleAuthMode}>
-                      {isRegistering ? 'EXISTING   ACCOUNT' : 'CREATE   ACCOUNT'}
-                    </button>
+                  <div className="form-group secondary">
+                    <p className="secondary" onClick={toggleAuthMode}>
+                      {isRegistering ? 'Log in with an existing account' : 'Create an account?'}
+                    </p>
                   </div>
                 </form>
               )}

@@ -239,7 +239,7 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(0, monsterDamage * 0.25);
+        const monsterRoll = Phaser.Math.Between(0, monsterDamage);
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 

@@ -47,15 +47,16 @@ export class UIScene extends Phaser.Scene {
         Promise.all([ninjaFontObserver.load()]).then(() => {
             this.updateInventoryDisplay();
             const userid = PlayerState.userid;
-            this.add.text((this.x * 2) - 150, 25, `${userid}`, { fontFamily: 'Ninja', fontSize: '40px', fill: '#ffffff' });
-            this.energyText = this.add.text(this.x + 162, 36, ``, textStyles.energyText);
+            let useridText = `${userid}`;
+            this.userText = this.add.text(20, 85, useridText, { fontFamily: 'Ninja', fontSize: '20px', fill: 'gold', stroke: 'black', strokeThickness: 3 });
+            this.energyText = this.add.text(this.x + 182, 48, ``, textStyles.energyText);
             this.add.existing(this.energyText);
             this.createAttackSelectionMenu();
             this.initializeStaticElements();
 
 
             // Create dayText with initial value
-            dayText = this.add.text(235, 105, `DAY 0`, textStyles.daysPassed);
+            dayText = this.add.text((this.x * 2) - 110, 30, `DAY   0`, textStyles.daysPassed);
 
             // Create progress bar and add it to the container
 
@@ -315,10 +316,10 @@ export class UIScene extends Phaser.Scene {
     createProgressBar(x, y) {
         const progressBarWidth = 126;
         const progressBarHeight = 35;
-        const outerRect = this.add.rectangle(165, 180 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x000000);
+        const outerRect = this.add.rectangle(165, 48 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x000000);
         outerRect.setOrigin(0, 1); // Set the origin to the bottom left corner
 
-        const progressFill = this.add.rectangle(165, 180 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x42C5E6);
+        const progressFill = this.add.rectangle(165, 48 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x42C5E6);
         progressFill.setOrigin(0, 1); // Set the origin to the bottom left corner
         progressFill.displayWidth = 0;
         outerRect.setDepth(1);
@@ -334,11 +335,11 @@ export class UIScene extends Phaser.Scene {
         this.skillsContainer = this.add.container(0, 0);
         this.skillsContainer.add([this.dancingBar.outer, this.dancingBar.fill]);
 
-        this.lvText = this.add.text(45, 177, `lv`, textStyles.playerLevelText2).setOrigin(0.5).setDepth(3).setScale(1, 1.1);
+        this.lvText = this.add.text(45, 48, `lv`, textStyles.playerLevelText2).setOrigin(0.5).setDepth(3).setScale(1, 1.1);
         this.createGradientText(this.lvText);         
-        this.xpText = this.add.text(140, 177, `XP`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3).setScale(.8, 1.1);
+        this.xpText = this.add.text(140, 48, `XP`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3).setScale(.8, 1.1);
         this.createGradientText(this.xpText);       
-        this.dancingFrame = this.add.image(165, 115, 'frame').setOrigin(0.5).setDepth(2);
+        this.dancingFrame = this.add.image(165, 50, 'frame').setOrigin(0.5).setDepth(2);
         this.skillsContainer.add([this.dancingFrame, this.xpText, this.lvText]);
     }
 
@@ -371,7 +372,7 @@ export class UIScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
 
-        this.dancingText = this.add.text(82, 177, `${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3);
+        this.dancingText = this.add.text(82, 48, `${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3);
         this.dancingTextReady = true; // Set the flag to true here
     
         if (this.dancingTextReady) {
@@ -438,9 +439,18 @@ createGradientText(textObject) {
             duration: 100,
             ease: 'Sine.easeInOut'
         });
-
         if (this.energyText) {
-            this.energyText.setText(`${displayedEnergy.toFixed(0)}`, textStyles.energyText);
+            // Destroy the gradient sprite
+            if (this.energyText.gradientSprite) {
+                this.energyText.gradientSprite.destroy();
+            }
+
+            this.energyText.destroy();
+            this.energyText = null;
+
+            this.energyText = this.add.text(this.x + 182, 48, `${displayedEnergy.toFixed(0)}`, textStyles.energyText).setOrigin(0.5).setDepth(3);
+
+            this.createGradientText(this.energyText);
         }
         this.trianglePosition = this.trianglePosition || 0;
         const energyChange = displayedEnergy - previousEnergy;

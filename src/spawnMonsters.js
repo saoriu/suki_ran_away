@@ -78,7 +78,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     const monsterMass = chosenMonster.monsterMass;
 
     if (chosenMonster.monster !== 'turtle') {
-      damage = chosenMonster.damage + Math.ceil(daysPassed * 0.25);
+      damage = chosenMonster.damage + Math.ceil(daysPassed * 0.125);
     } else {
       damage = chosenMonster.damage;
     }

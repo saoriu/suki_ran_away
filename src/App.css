@@ -11,6 +11,31 @@
   align-items: center;
   justify-content: center;
   background-repeat: no-repeat;
+  flex-direction: column;
+  gap: 50px;
+}
+
+button:hover {
+  background: #ff105f !important;
+  color: white !important;
+}
+
+.secondary-text {
+  font-size: 30px;
+  font-family: 'NinjaAdventure', sans-serif;
+  color: white;
+  margin: 0;
+  font-style: italic;
+}
+
+.main-text {
+  font-family: 'NinjaAdventure', sans-serif;
+  font-size: 100px;
+  text-align: center;
+  margin: 0;
+  color: gold;
+  text-shadow: -5px 0 black, 0 5px black, 5px 0 black, 0 -5px black;
+
 }
 
 .App {
@@ -45,6 +70,17 @@
   color: black;
 }
 
+form {
+  width: 300px;
+}
+
+.form-group.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 .form-group button {
   background: #073336 !important;
   color: white !important;
@@ -55,12 +91,25 @@
   border-radius: 5px !important;
 }
 
+.secondary {
+  color: black;
+  font-family: 'redonda', sans-serif;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.form-group button:hover {
+  background: #066B72 !important;
+  color: white !important;
+}
+
 input {
   border-radius: 5px !important;
   border: 2px solid #724800 !important;
   padding: 5px !important;
   width: 100% !important;
   background: #ffe396 !important;
+  height: 30px;
 }
 
 .form-group {
@@ -98,7 +147,7 @@ h1,p,strong,h2 {
   border-radius: 5px;
 }
 
-h1 {
+h1, h2 {
   font-family: 'NinjaAdventure', sans-serif;
   font-size: 20px;
   margin-bottom: 0;
