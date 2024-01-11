@@ -5,7 +5,18 @@ import { gameStyles } from './styles.js';
 import { PuffLoader } from 'react-spinners';
 import { Analytics } from '@vercel/analytics/react';
 
-
+const MyComponent = () => (
+  <div className='parallax'>
+    <div className='layer sky' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/sky_fc.png'})` }} />
+    <div className='layer far-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/far_mountains_fc.png'})` }} />
+    <div className='layer grassy-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/grassy_mountains_fc.png'})` }} />
+    <div className='layer clouds-mid' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_fc.png'})` }} />
+    <div className='layer clouds-mid-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_t_fc.png'})` }} />
+    <div className='layer hill' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/hill.png'})` }} />
+    <div className='layer clouds-front-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_t_fc.png'})` }} />
+    <div className='layer clouds-front' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_fc.png'})` }} />
+  </div>
+);
 
 
 export default function PhaserRunner() {
@@ -40,20 +51,6 @@ export default function PhaserRunner() {
 
   const handleUsernameInput = (e) => setUsername(e.target.value);
   const handlePasswordInput = (e) => setPassword(e.target.value);
-
-
-  const MyComponent = () => (
-    <div className='parallax'>
-      <div className='layer sky' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/sky_fc.png'})` }} />
-      <div className='layer far-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/far_mountains_fc.png'})` }} />
-      <div className='layer grassy-mountains' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/grassy_mountains_fc.png'})` }} />
-      <div className='layer clouds-mid' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_fc.png'})` }} />
-      <div className='layer clouds-mid-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_mid_t_fc.png'})` }} />
-      <div className='layer hill' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/hill.png'})` }} />
-      <div className='layer clouds-front-tc' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_t_fc.png'})` }} />
-      <div className='layer clouds-front' style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/clouds_front_fc.png'})` }} />
-    </div>
-  );
 
   const login = async (userid, password) => {
     setIsLoading(true);
