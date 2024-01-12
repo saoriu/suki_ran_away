@@ -4,6 +4,13 @@ import { PlayerState, setLevel, updatePlayerLevel } from './playerState.js';
 import { gameStyles } from './styles.js';
 import { PuffLoader } from 'react-spinners';
 import { Analytics } from '@vercel/analytics/react';
+import { debounce } from 'lodash';
+
+
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 
 const MyComponent = () => (
   <div className='parallax'>
@@ -20,6 +27,9 @@ const MyComponent = () => (
 
 
 export default function PhaserRunner() {
+  useEffect(() => {
+  });
+  
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -30,8 +40,7 @@ export default function PhaserRunner() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false); // To toggle between login and register
   const gameRef = useRef(null);
-  const [errorMessage, setErrorMessage] = useState(null); // Add this state variable at the top of your component
-
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -41,11 +50,24 @@ export default function PhaserRunner() {
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    const debouncedHandleResize = debounce(handleResize, 100);
 
-    // Cleanup
+    window.addEventListener('resize', debouncedHandleResize);
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', debouncedHandleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const blockContextMenu = (evt) => {
+      evt.preventDefault();
+    };
+
+    window.addEventListener('contextmenu', blockContextMenu);
+
+    return () => {
+      window.removeEventListener('contextmenu', blockContextMenu);
     };
   }, []);
 
@@ -63,7 +85,7 @@ export default function PhaserRunner() {
 
       if (response.ok) {
         const data = await response.json(); // Parse response JSON only once
-        // Assuming the token and playerState are part of the response
+        // The token and playerState are part of the response
         const { token, playerState } = data;
 
         // Save the JWT and userid to sessionStorage
@@ -129,15 +151,14 @@ export default function PhaserRunner() {
   // Toggle between login and registration
   const toggleAuthMode = () => setIsRegistering(!isRegistering);
 
-  const isMobileDevice = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  };
-
 
   usePhaserGame(gameRef, isAuthenticated);
 
   return (
-    <div>
+    <div style={{ userSelect: "none", /* Standard syntax */
+    WebkitUserSelect: "none", /* Safari 3.1+ */
+    MozUserSelect: "none", /* Firefox 2+ */
+    MsUserSelect: "none"}}>
       <Analytics />
       {!isAuthenticated ? (
         <div className='main'>

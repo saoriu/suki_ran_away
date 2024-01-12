@@ -10,6 +10,8 @@ export const PlayerState = {
     lastDamageTime: Date.now(),
     isDead: false,
     isUnderAttack: false,
+    isEating: false,
+    JustAte: false,
     attackRange: 1,
     energyBonus: 0, //energy regeneration boost
     danceBonus: 0, //rare dance moves boost

@@ -49,7 +49,7 @@ export class mainScene extends Phaser.Scene {
         this.cat = this.matter.add.sprite(0, 0, 'sit', null, {
             isStatic: false,
             friction: 0,
-        }).setScale(GAME_CONFIG.SCALE / 5.7).setCircle((GAME_CONFIG.SCALE / 5.7) * 60).setDepth(5);
+        }).setScale(1).setCircle((1) * 60).setDepth(5);
 
         // Adjust the physics properties of the this.cat
         const catBody = this.cat.body;
@@ -69,6 +69,11 @@ export class mainScene extends Phaser.Scene {
 
         createAnims(this);
 
+        this.input.on('pointermove', () => {
+            this.game.events.emit('hideTooltip');
+        });
+    
+
         this.maxInventorySize = 11; // Or whatever your max inventory size is
         this.items = []; // Initialize the items array
 
@@ -78,20 +83,24 @@ export class mainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.handleItemPickup = Inventory.handleItemPickup.bind(this);
         this.addToInventory = Inventory.addToInventory.bind(this);
-        this.clearInventory = Inventory.clearInventory.bind(this);
 
         this.input.keyboard.on('keydown', (event) => {
             if (!this.isFainting && this.canAttack) {
                 let attackName;
 
                 switch (event.code) {
+                    case 'Digit1':
+                        attackName = 'scratch';
+                        this.handleItemPickup(this.cat);
+                        break;
                     case 'Space':
                         attackName = 'scratch';
+                        this.handleItemPickup(this.cat);
                         break;
-                    case 'KeyZ':
+                    case 'Digit2':
                         attackName = PlayerState.selectedAttacks[1] || 'scratch';
                         break;
-                    case 'KeyX':
+                    case 'Digit3':
                         attackName = PlayerState.selectedAttacks[2] || 'scratch';
                         break;
                     default:
@@ -99,7 +108,6 @@ export class mainScene extends Phaser.Scene {
                 }
 
                 if (this.canAttack && attackName !== undefined) {
-                    this.handleItemPickup(this.cat);
                     this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName);
                     this.isAttacking = true;
                     this.canAttack = false;
@@ -396,7 +404,13 @@ export class mainScene extends Phaser.Scene {
         }
 
         if (this.isAttacking) {
-            const attackSpeedReductionFactor = 0.3; // Example: reduce speed by 50%
+            const attackSpeedReductionFactor = 0.3; 
+            velocityX *= attackSpeedReductionFactor;
+            velocityY *= attackSpeedReductionFactor;
+        }
+
+        if (PlayerState.isEating) {
+            const attackSpeedReductionFactor = 0.1; 
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
@@ -433,6 +447,14 @@ export class mainScene extends Phaser.Scene {
 
         if (PlayerState.isDead) {
             this.cat.play('dead', true);
+            return;
+        }
+
+        if (PlayerState.isEating) {
+            this.cat.play('eat', true);
+            this.cat.on('animationcomplete', () => {
+                PlayerState.isEating = false;
+            }, this);
             return;
         }
 
@@ -536,7 +558,9 @@ export class mainScene extends Phaser.Scene {
         // Clear this.monsters and inventory
         Object.values(this.monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
         this.monsters = {};
-        this.clearInventory();
+        // In mainScene.js
+        let uiScene = this.scene.get('UIScene');
+        uiScene.clearInventory();
 
         // Listen for the 'animationcomplete' event
         this.cat.on('animationcomplete', (animation) => {
@@ -595,31 +619,35 @@ export class mainScene extends Phaser.Scene {
 
     updateTooltip() {
         const pointer = this.input.activePointer;
-        const pointerX = pointer.x; // Use screen coordinates
-        const pointerY = pointer.y; // Use screen coordinates
-        let isOverMonster = false;
 
-        Object.values(this.monsters).forEach(monster => {
-            if (!monster || !monster.sprite || !monster.sprite.active) return;
+        // Check if the right mouse button was clicked
+        if (pointer.isDown && pointer.button === 2) {
+            const pointerX = pointer.x; // Use screen coordinates
+            const pointerY = pointer.y; // Use screen coordinates
+            let isOverMonster = false;
 
-            const monsterBody = monster.sprite.body;
+            Object.values(this.monsters).forEach(monster => {
+                if (!monster || !monster.sprite || !monster.sprite.active) return;
 
-            if (monsterBody && this.Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
-                if (this.Matter.Vertices.contains(monsterBody.vertices, { x: pointer.worldX, y: pointer.worldY })) {
-                    isOverMonster = true;
+                const monsterBody = monster.sprite.body;
 
-                    function capitalizeFirstLetter(string) {
-                        return string.charAt(0).toUpperCase() + string.slice(1);
+                if (monsterBody && this.Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
+                    if (this.Matter.Vertices.contains(monsterBody.vertices, { x: pointer.worldX, y: pointer.worldY })) {
+                        isOverMonster = true;
+
+                        function capitalizeFirstLetter(string) {
+                            return string.charAt(0).toUpperCase() + string.slice(1);
+                        }
+
+                        let monsterInfo = `${capitalizeFirstLetter(monster.name)}\nLevel ${monster.level}\n${monster.description}`;
+                        this.game.events.emit('showTooltip', { text: monsterInfo, x: pointerX, y: pointerY });
                     }
-
-                    let monsterInfo = `${capitalizeFirstLetter(monster.name)}\nLevel ${monster.level}\n${monster.description}`;
-                    this.game.events.emit('showTooltip', { text: monsterInfo, x: pointerX, y: pointerY });
                 }
-            }
-        });
+            });
 
-        if (!isOverMonster) {
-            this.game.events.emit('hideTooltip');
+            if (!isOverMonster) {
+                this.game.events.emit('hideTooltip');
+            }
         }
     }
 

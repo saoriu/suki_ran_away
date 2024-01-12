@@ -6,7 +6,7 @@ export const eventOptions = [
     attackRange: 0.25,
     level: 2,
     damage: 2,
-    speed: 2.3,
+    speed: 2.7,
     monsterMass: 1,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
@@ -22,8 +22,8 @@ export const eventOptions = [
     monster: 'panda',
     attackRange: 0.25,
     level: 5,
-    speed: 2,
-    damage: 6,
+    speed: 2.2,
+    damage: 8,
     monsterMass: 2,
     possibleOutcomes: {
       common: ['Gold', 'Ruby'],
@@ -34,6 +34,23 @@ export const eventOptions = [
     monsterChance: 'rare'
   },
   {
+    event: 'monster7',
+    description: 'Cute but nasty.',
+    monster: 'raccoon',
+    attackRange: 0.25,
+    level: 5,
+    speed: 2.4,
+    damage: 5,
+    monsterMass: 2,
+    possibleOutcomes: {
+      common: ['Gold', 'Ruby'],
+      rare: ['Diamond', 'Emerald'],
+      ultrarare: ['Silk']
+    },
+    skill: 'dancing',
+    monsterChance: 'common'
+  },
+  {
     event: 'monster4',
     description: 'A very interestinig creature, wonder what it drops.',
     monster: 'dragonfly',
@@ -41,7 +58,7 @@ export const eventOptions = [
     level: 10,
     damage: 15,
     monsterMass: 0.2,
-    speed: 2.7,
+    speed: 2.9,
     possibleOutcomes: {
       common: ['Diamond', 'Thread'],
       rare: ['Gold', 'Silk'],
@@ -58,7 +75,7 @@ export const eventOptions = [
     level: 2,
     monsterMass: 0.8,
     damage: 1,
-    speed: 2.2,
+    speed: 2.4,
     possibleOutcomes: {
       common: ['Milk', 'Egg', 'Flour'],
       rare: ['Ruby', 'Gold'],
@@ -74,7 +91,7 @@ export const eventOptions = [
     description: 'Its a hard life.',
     damage: 0,
     level: 15,
-    speed: 1.3,
+    speed: 1.45,
     monsterMass: 2.5,
     possibleOutcomes: {
       common: ['Milk', 'Egg', 'Flour'],
@@ -82,8 +99,25 @@ export const eventOptions = [
       ultrarare: ['Silk']
     },
     skill: 'dancing',
-    monsterChance: 'rare'
-  }
+    monsterChance: 'common'
+  },
+  {
+    event: 'monster8',
+    monster: 'fox',
+    attackRange: 0.25,
+    description: 'A shiny coat and a sharp bite.',
+    damage: 20,
+    level: 20,
+    speed: 2.7,
+    monsterMass: 2.1,
+    possibleOutcomes: {
+      common: ['Milk', 'Egg', 'Flour'],
+      rare: ['Ruby', 'Gold'],
+      ultrarare: ['Silk']
+    },
+    skill: 'dancing',
+    monsterChance: 'common'
+  },
 ].map(option => {
   const variation = 2; // Define the maximum increase in level
   const maxLevel = option.level + variation;

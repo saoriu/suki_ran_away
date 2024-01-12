@@ -6,6 +6,7 @@ import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per y
 import { Tooltip } from './Tooltip';
 import { updatePlayerState } from './api'; // Adjust the path according to your project structure
 import FontFaceObserver from 'fontfaceobserver';
+import { itemInfo } from './itemInfo.js';
 
 
 
@@ -14,9 +15,11 @@ export class UIScene extends Phaser.Scene {
         super({ key: 'UIScene' });
         this.attackTimeouts = {}; // Initialize this.attackTimeouts
         this.isSaving = false;
+        this.selectedIndex = 0;
     }
 
     create() {
+
         this.x = this.cameras.main.width / 2;
         this.y = this.cameras.main.height / 2;
         this.timeFilter = this.add.graphics();
@@ -79,6 +82,10 @@ export class UIScene extends Phaser.Scene {
             }
         });
 
+        const bag = this.add.image(this.x, (this.y * 2) - 50, 'bag').setOrigin(0.5);
+        //add the bag to the screen, not the inventory container:
+        this.add.existing(bag);
+
         this.inventoryContainer = this.add.container(this.x, (this.y * 2) - 50);
 
         this.game.events.on('userLoggedIn', this.createAttackSelectionMenu, this);
@@ -96,6 +103,44 @@ export class UIScene extends Phaser.Scene {
         this.add.existing(this.energyBar.fill);
         this.updateEnergyBar();
         this.game.events.on('energyChanged', this.updateEnergyBar, this);
+
+        this.input.keyboard.on('keydown', (event) => {
+            switch (event.key) {
+                case 'q':
+                    if (this.selectedIndex !== undefined) {
+                        this.selectedIndex--; // If an index is already selected, move selection to the left
+                        if (this.selectedIndex < 0) {
+                            this.selectedIndex = PlayerState.inventory.length - 1; // Wrap around to the end if index goes below 0
+                        }
+                    } else {
+                        this.selectedIndex = 0; // If no index is selected, focus on the first item in the inventory
+                    }
+                    this.handleInventorySelection();
+                    break;
+                case 'w':
+                    if (this.selectedIndex !== undefined) {
+                        this.selectedIndex++; // If an index is already selected, move selection to the right
+                        if (this.selectedIndex >= PlayerState.inventory.length) {
+                            this.selectedIndex = 0; // Wrap around to the start if index goes above the inventory length
+                        }
+                    } else {
+                        this.selectedIndex = 0; // If no index is selected, focus on the first item in the inventory
+                    }
+                    this.handleInventorySelection();
+                    break;
+                case 's':
+                    this.saveGame();
+                    break;
+                case 'e':
+                    const selectedItem = PlayerState.inventory[this.selectedIndex];
+                    if (selectedItem) {
+                        this.useItem(selectedItem.name);
+                    }
+                    break;   
+                    default:
+                    break; 
+            }
+        });
     }
 
     async saveGame() {
@@ -110,7 +155,7 @@ export class UIScene extends Phaser.Scene {
             }
             return;
         }
-        
+
         if (this.isSaving || this.isSaveTextVisible || this.isUnderAttackTextVisible) {
             return;
         }
@@ -244,7 +289,7 @@ export class UIScene extends Phaser.Scene {
                 const attack = unlockedAttacksForLevel(level).find(a => a.name === name);
                 let knockbackText = attack.knockback < 1 ? 0 : attack.knockback;
                 let attackIndex = PlayerState.selectedAttacks.indexOf(name);
-                let keyReference = attackIndex === 1 ? 'KEY-Z' : attackIndex === 2 ? 'KEY-X' : '';
+                let keyReference = attackIndex === 1 ? 'KEY-2' : attackIndex === 2 ? 'KEY-3' : '';
 
                 attackInfoFrame.setVisible(true);
                 attackInfoText.setText(`knockback: ${knockbackText}\ndamage: ${attack.damage}\nspeed: ${attack.speed}`).setVisible(true);
@@ -336,9 +381,9 @@ export class UIScene extends Phaser.Scene {
         this.skillsContainer.add([this.dancingBar.outer, this.dancingBar.fill]);
 
         this.lvText = this.add.text(45, 48, `lv`, textStyles.playerLevelText2).setOrigin(0.5).setDepth(3).setScale(1, 1.1);
-        this.createGradientText(this.lvText);         
+        this.createGradientText(this.lvText);
         this.xpText = this.add.text(140, 48, `XP`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3).setScale(.8, 1.1);
-        this.createGradientText(this.xpText);       
+        this.createGradientText(this.xpText);
         this.dancingFrame = this.add.image(165, 50, 'frame').setOrigin(0.5).setDepth(2);
         this.skillsContainer.add([this.dancingFrame, this.xpText, this.lvText]);
     }
@@ -354,7 +399,7 @@ export class UIScene extends Phaser.Scene {
             if (this.dancingText.gradientSprite) {
                 this.dancingText.gradientSprite.destroy();
             }
-    
+
             this.dancingText.destroy();
             this.dancingText = null;
             this.dancingTextReady = false; // Set the flag to false here
@@ -374,7 +419,7 @@ export class UIScene extends Phaser.Scene {
 
         this.dancingText = this.add.text(82, 48, `${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3);
         this.dancingTextReady = true; // Set the flag to true here
-    
+
         if (this.dancingTextReady) {
             this.createGradientText(this.dancingText);
         }
@@ -385,25 +430,25 @@ export class UIScene extends Phaser.Scene {
         this.createAttackSelectionMenu();
     }
 
-createGradientText(textObject) {
-    // Check if the text object exists
-    if (textObject) {
-        // Create a sprite with the gradient texture at the same position as the text object
-        let gradientSprite = this.add.sprite(textObject.x, textObject.y, 'lux').setOrigin(0.5);
+    createGradientText(textObject) {
+        // Check if the text object exists
+        if (textObject) {
+            // Create a sprite with the gradient texture at the same position as the text object
+            let gradientSprite = this.add.sprite(textObject.x, textObject.y, 'lux').setOrigin(0.5);
 
-        // Create a mask using the text object
-        let mask = textObject.createBitmapMask();
+            // Create a mask using the text object
+            let mask = textObject.createBitmapMask();
 
-        // Apply the mask to the sprite
-        gradientSprite.setMask(mask);
+            // Apply the mask to the sprite
+            gradientSprite.setMask(mask);
 
-        // Hide the text so only the gradientSprite is visible
-        textObject.setVisible(false);
+            // Hide the text so only the gradientSprite is visible
+            textObject.setVisible(false);
 
-        // Store the gradient sprite in the text object for later use
-        textObject.gradientSprite = gradientSprite;
+            // Store the gradient sprite in the text object for later use
+            textObject.gradientSprite = gradientSprite;
+        }
     }
-}
 
     createEnergyBar(x, y) {
 
@@ -468,15 +513,40 @@ createGradientText(textObject) {
             yOffset = 0;
         }
 
-        if (energyChange < 0) {
-            // Adjust the y-position based on the number of active texts
+        if (energyChange > 0 && PlayerState.JustAte) {
+            const changeText = this.add.text(
+                this.x + xOffset,
+                this.y + yOffset,
+                `+${energyChange.toFixed(0)}`, // Add a plus sign before the energy change
+                {
+                    fill: '#00ff00', // Change the color to green
+                    stroke: '#000000',
+                    strokeThickness: 6,
+                    fontFamily: 'Ninja',
+                    fontSize: '42px'
+                }
+            ).setDepth(5).setOrigin(0.5); // Set origin to center
+            this.activeChangeTexts++;
+        
+            this.tweens.add({
+                targets: changeText,
+                y: changeText.y - 20,
+                alpha: 0,
+                duration: 1200,
+                onComplete: () => {
+                    changeText.destroy();
+                    this.activeChangeTexts--; // Decrease the counter when a text is removed
+                }
+            });
+        } 
+       else if (energyChange < 0 && !PlayerState.isEating) {
             const changeText = this.add.text(
                 this.x
                 + xOffset,
                 this.y + yOffset,
                 `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
                 {
-                    fill: '#ff0000', // Only negative changes, so color is always red
+                    fill: '#ff0000', 
                     stroke: '#000000',
                     strokeThickness: 6,
                     fontFamily: 'Ninja',
@@ -558,25 +628,31 @@ createGradientText(textObject) {
         this.timeFilter.setDepth(0);
     }
 
-    updateInventoryDisplay() {
+
+    handleInventorySelection() {
         this.inventoryContainer.removeAll(true);
 
-        // Add the bag.png image as the background of the inventory display.
-        const bag = this.add.image(0, 0, 'bag').setOrigin(0.5);
-        this.inventoryContainer.add(bag);
+        const xOffset = -242;
 
-        const inventory = PlayerState.inventory || [];
-        const xOffset = -242; // Change this value to adjust the starting position of the items
-
-        inventory.forEach((item, index) => {
+        PlayerState.inventory.forEach((item, index) => {
             const x = xOffset + index * 56.3; // x increments by the index, starting from xOffset
             const y = 2.5; // y is a fixed value
+
+            // Display the 'select.png' icon over the selected slot
+            if (index === this.selectedIndex) {
+                // Add a semi-transparent rectangle behind the selected item
+                const highlight = this.add.rectangle(x, y, 55, 55, 0xffffff, 0.75);
+                this.inventoryContainer.add(highlight);
+            }
+
             const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5);
             this.inventoryContainer.add(sprite);
 
             if (item.quantity > 1) {
-                const quantityText = this.add.text(x + 3, y, item.quantity, {
-                    fontSize: '20px',
+                let quantityStr = this.formatQuantity(item.quantity);
+                let textWidth = quantityStr.length * 6; // Approximate width of one character. Adjust as needed.
+                const quantityText = this.add.text(x - textWidth, y, quantityStr, {
+                    fontSize: '18px',
                     fontFamily: 'Ninja',
                     fill: 'black',
                     stroke: 'white',
@@ -584,6 +660,134 @@ createGradientText(textObject) {
                 });
                 this.inventoryContainer.add(quantityText);
             }
+
+            if (index === this.selectedIndex) {
+                const selectIcon = this.add.image(x, y, 'select').setOrigin(0.5);
+                this.inventoryContainer.add(selectIcon);
+            }
         });
     }
+
+    formatQuantity(quantity) {
+        if (quantity >= 1000) {
+            let divided = quantity / 1000;
+            if (Math.floor(divided) === divided) {
+                return divided + 'k';
+            } else {
+                return divided.toFixed(1) + 'k';
+            }
+        } else {
+            return quantity.toString();
+        }
+    }
+    updateInventoryDisplay() {
+        this.inventoryContainer.removeAll(true);
+
+        const inventory = PlayerState.inventory || [];
+        const xOffset = -242; // Change this value to adjust the starting position of the items
+
+        inventory.forEach((item, index) => {
+            const x = xOffset + index * 56.3; // x increments by the index, starting from xOffset
+            const y = 2.5; // y is a fixed value
+
+            // Display the 'select.png' icon over the selected slot
+            if (index === this.selectedIndex) {
+                // Add a semi-transparent rectangle behind the selected item
+                const highlight = this.add.rectangle(x, y, 55, 55, 0xffffff, 0.75);
+                this.inventoryContainer.add(highlight);
+            }
+
+            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5).setDepth(1);
+            sprite.on('pointerdown', () => {
+                this.selectedIndex = index;
+                this.consumeItem(item.name);
+            });
+            this.inventoryContainer.add(sprite);
+
+            if (item.quantity > 1) {
+                let quantityStr = this.formatQuantity(item.quantity);
+                let textWidth = quantityStr.length * 6; // Approximate width of one character. Adjust as needed.
+                const quantityText = this.add.text(x - textWidth, y, quantityStr, {
+                    fontSize: '18px',
+                    fontFamily: 'Ninja',
+                    fill: 'black',
+                    stroke: 'white',
+                    strokeThickness: 3,
+                });
+                this.inventoryContainer.add(quantityText);
+            }
+
+            if (index === this.selectedIndex) {
+                const selectIcon = this.add.image(x, y, 'select').setOrigin(0.5);
+                this.inventoryContainer.add(selectIcon);
+            }
+        });
+    }
+
+    consumeItem(itemName) {
+        const item = itemInfo[itemName];
+        if (item && item.itemConsumable) {
+            //return if player is eating already
+            if (PlayerState.isEating) {
+                return;
+            }
+            PlayerState.isEating = true;
+            PlayerState.JustAte = true;
+
+            // Apply consumeEffects
+            Object.keys(item.consumeEffects).forEach(effect => {
+                PlayerState[effect] += item.consumeEffects[effect];
+            });
+
+            // Cap energy at 100
+            if (PlayerState.energy > 100) {
+                PlayerState.energy = 100;
+            }
+
+            // Remove the item from the inventory
+            this.destroyItem(itemName);
+            this.updateInventoryDisplay(); // Update the inventory display
+            this.updateEnergyBar()
+            PlayerState.JustAte = false;
+        } else {
+        }
+    }
+
+    destroyItem(itemName) {
+        const index = PlayerState.inventory.findIndex(item => item.name === itemName);
+        if (index !== -1) {
+            const item = PlayerState.inventory[index];
+            if (item.quantity > 1) {
+                item.quantity--;
+            } else {
+                PlayerState.inventory.splice(index, 1);
+            }
+            this.updateInventoryDisplay(); // Update the inventory display
+        } else {
+        }
+    }
+
+    useItem(itemName) {
+        const item = itemInfo[itemName];
+        if (item) {
+            if (item.itemConsumable) {
+                this.consumeItem(itemName);
+            } else {
+                // Implement other item use cases here
+            }
+            this.updateInventoryDisplay(); // Update the inventory display
+        } else {
+        }
+    }
+    
+    clearInventory() {
+        PlayerState.inventory = [];
+        this.inventoryContainer.removeAll(true);
+        //delete the items from the inventory container;
+        this.selectedIndex = 0;
+
+        this.updateInventoryDisplay(); // Update the inventory display
+    }
+
+
 }

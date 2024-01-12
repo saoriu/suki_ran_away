@@ -9,12 +9,8 @@ export function handleItemPickup(cat) {
             if (Phaser.Geom.Intersects.RectangleToRectangle(cat.getBounds(), item.sprite.getBounds())) {
                 if (addToInventory.call(this, item.config)) {
                     item.sprite.destroy();
-                    console.log(`Picked up ${item.config.name}`);
-                    //console log the inventory
-                    console.log(PlayerState.inventory);
                     return false;
                 } else {
-                    console.log('Inventory is full.');
                 }
             }
         }
@@ -43,7 +39,3 @@ export function addToInventory(itemConfig) {
     return true;
 }
 
-export function clearInventory() {
-    PlayerState.inventory = [];
-    this.scene.get('UIScene').updateInventoryDisplay();
-}

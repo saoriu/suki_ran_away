@@ -1,0 +1,818 @@
+{
+	"textures": [
+		{
+			"image": "bunny.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 256,
+				"h": 824
+			},
+			"scale": 4,
+			"frames": [
+				{
+					"filename": "bunny_attack-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 39,
+						"y": 59,
+						"w": 62,
+						"h": 78
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 62,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_attack-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 31,
+						"y": 59,
+						"w": 66,
+						"h": 78
+					},
+					"frame": {
+						"x": 65,
+						"y": 1,
+						"w": 66,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_attack-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 27,
+						"y": 59,
+						"w": 62,
+						"h": 78
+					},
+					"frame": {
+						"x": 133,
+						"y": 1,
+						"w": 62,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_attack-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 67,
+						"w": 86,
+						"h": 70
+					},
+					"frame": {
+						"x": 1,
+						"y": 81,
+						"w": 86,
+						"h": 70
+					}
+				},
+				{
+					"filename": "bunny_attack-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 67,
+						"w": 78,
+						"h": 70
+					},
+					"frame": {
+						"x": 89,
+						"y": 81,
+						"w": 78,
+						"h": 70
+					}
+				},
+				{
+					"filename": "bunny_attack-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 67,
+						"w": 70,
+						"h": 70
+					},
+					"frame": {
+						"x": 169,
+						"y": 81,
+						"w": 70,
+						"h": 70
+					}
+				},
+				{
+					"filename": "bunny_die-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 39,
+						"y": 59,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 1,
+						"y": 153,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_die-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 63,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 65,
+						"y": 153,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_die-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 75,
+						"w": 66,
+						"h": 62
+					},
+					"frame": {
+						"x": 129,
+						"y": 153,
+						"w": 66,
+						"h": 62
+					}
+				},
+				{
+					"filename": "bunny_die-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 1,
+						"y": 229,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 95,
+						"w": 62,
+						"h": 42
+					},
+					"frame": {
+						"x": 65,
+						"y": 229,
+						"w": 62,
+						"h": 42
+					}
+				},
+				{
+					"filename": "bunny_die-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 129,
+						"y": 229,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 193,
+						"y": 229,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 1,
+						"y": 273,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 65,
+						"y": 273,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 129,
+						"y": 273,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-11",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 193,
+						"y": 273,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-12",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 1,
+						"y": 313,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-13",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 65,
+						"y": 313,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-14",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 129,
+						"y": 313,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-15",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 193,
+						"y": 313,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_die-16",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 99,
+						"w": 62,
+						"h": 38
+					},
+					"frame": {
+						"x": 1,
+						"y": 353,
+						"w": 62,
+						"h": 38
+					}
+				},
+				{
+					"filename": "bunny_hurt-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 39,
+						"y": 59,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 65,
+						"y": 353,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_hurt-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 59,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 129,
+						"y": 353,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_hurt-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 39,
+						"y": 59,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 193,
+						"y": 353,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_hurt-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 59,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 1,
+						"y": 429,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_hurt-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 75,
+						"w": 70,
+						"h": 62
+					},
+					"frame": {
+						"x": 65,
+						"y": 429,
+						"w": 70,
+						"h": 62
+					}
+				},
+				{
+					"filename": "bunny_hurt-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 67,
+						"w": 70,
+						"h": 70
+					},
+					"frame": {
+						"x": 137,
+						"y": 429,
+						"w": 70,
+						"h": 70
+					}
+				},
+				{
+					"filename": "bunny_idle-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 59,
+						"w": 70,
+						"h": 78
+					},
+					"frame": {
+						"x": 1,
+						"y": 505,
+						"w": 70,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_idle-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 55,
+						"w": 70,
+						"h": 82
+					},
+					"frame": {
+						"x": 73,
+						"y": 505,
+						"w": 70,
+						"h": 82
+					}
+				},
+				{
+					"filename": "bunny_idle-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 59,
+						"w": 70,
+						"h": 78
+					},
+					"frame": {
+						"x": 145,
+						"y": 505,
+						"w": 70,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_idle-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 67,
+						"w": 70,
+						"h": 70
+					},
+					"frame": {
+						"x": 1,
+						"y": 589,
+						"w": 70,
+						"h": 70
+					}
+				},
+				{
+					"filename": "bunny_run-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 55,
+						"w": 70,
+						"h": 74
+					},
+					"frame": {
+						"x": 73,
+						"y": 589,
+						"w": 70,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_run-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 35,
+						"y": 55,
+						"w": 78,
+						"h": 78
+					},
+					"frame": {
+						"x": 145,
+						"y": 589,
+						"w": 78,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_run-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 47,
+						"y": 63,
+						"w": 70,
+						"h": 74
+					},
+					"frame": {
+						"x": 1,
+						"y": 669,
+						"w": 70,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_run-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 59,
+						"w": 66,
+						"h": 78
+					},
+					"frame": {
+						"x": 73,
+						"y": 669,
+						"w": 66,
+						"h": 78
+					}
+				},
+				{
+					"filename": "bunny_run-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 63,
+						"w": 62,
+						"h": 74
+					},
+					"frame": {
+						"x": 141,
+						"y": 669,
+						"w": 62,
+						"h": 74
+					}
+				},
+				{
+					"filename": "bunny_run-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 160
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 63,
+						"w": 66,
+						"h": 74
+					},
+					"frame": {
+						"x": 1,
+						"y": 749,
+						"w": 66,
+						"h": 74
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:a8c808fbe4193936c893e3c1bb6faecd:b14d6934bc8eaeab0f3771bde91c4017:8cd39669a6554f33ec81b353c76b4981$"
+	}
+}

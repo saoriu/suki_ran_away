@@ -101,18 +101,29 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     }
     const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
 
-    let monsterImage = scene.textures.get(monsterSpriteKey).getSourceImage();
-    let monsterRadius = monsterImage.width * GAME_CONFIG.SCALE / 3;
+    // Get the frame data
+    let atlasKey = 'monsters';
+    let frameName = `${monsterSpriteKey}_idle-1`; // Adjust this to match your actual frame names
+    let frameData = scene.textures.getFrame(atlasKey, frameName);
+    // Calculate the trimmed dimensions
+    let trimmedWidth = frameData.cutWidth;
+    let trimmedHeight = frameData.cutHeight;
 
-    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.width)) / 2;
-    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * monsterImage.height)) / 2;
+    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * trimmedWidth)) / 2;
+    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * trimmedHeight)) / 2;
 
+    
+    //define monsterradius based on monster frame data
+    let monsterRadius = trimmedWidth / 2;
+
+    // Create the monster sprite
     let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
       isStatic: false
-    }).setScale(GAME_CONFIG.SCALE).setCircle(monsterRadius);
-   
+    }).setScale(1).setCircle(monsterRadius)
+
+    // Continue with your existing code...
     monster.setInteractive();
-    
+
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation
     monsterBody.inverseInertia = 0;
@@ -121,7 +132,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     monsterBody.frictionAir = 0.1;
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
-
     function createHealthBar(scene, x, y) {
       const progressBarWidth = 80;
       const progressBarHeight = 6;

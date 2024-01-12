@@ -218,6 +218,5 @@ function getAllUserIds() {
 }
 
 exports.handler = (event, context) => {
-  console.log(`EVENT: ${JSON.stringify(event)}`);
   return serverless.proxy(server, event, context, 'PROMISE').promise;
 };
