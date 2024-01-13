@@ -239,15 +239,21 @@ export class UIScene extends Phaser.Scene {
 
 
     toggleAttackSelection(attackName) {
-        // Existing logic for updating PlayerState.selectedAttacks
-        if (PlayerState.selectedAttacks.includes(attackName)) {
-            PlayerState.selectedAttacks = PlayerState.selectedAttacks.filter(a => a !== attackName);
-        } else if (PlayerState.selectedAttacks.length < 3) {
-            PlayerState.selectedAttacks.push(attackName);
+        const attackIndex = PlayerState.selectedAttacks.indexOf(attackName);
+        if (attackIndex !== -1) {
+            // If it is, deselect it by replacing it with null
+            PlayerState.selectedAttacks[attackIndex] = null;
+        } else {
+            // If it's not, select it by replacing the first null value
+            const nullIndex = PlayerState.selectedAttacks.indexOf(null);
+            if (nullIndex !== -1) {
+                PlayerState.selectedAttacks[nullIndex] = attackName;
+            } else if (PlayerState.selectedAttacks.length < 3) {
+                // If there are no null values, add it to the end (if there's space)
+                PlayerState.selectedAttacks.push(attackName);
+            }
         }
-        if (!this.attackTimeouts) {
-            this.attackTimeouts = {};
-        }
+      
 
         // Iterate over all attack buttons to update their state
         Object.keys(this.attackSelectionButtons).forEach(name => {
@@ -354,6 +360,14 @@ export class UIScene extends Phaser.Scene {
                 this.dancingBar.fill.displayWidth = 0;
                 this.isLevelingUp = false;
                 this.updateSkillsDisplay();
+
+                // Create a sprite for the heal animation
+                const heal = this.add.sprite(this.x, this.y, 'heal');
+                heal.play('heal');
+
+                heal.on('animationcomplete', () => {
+                    heal.destroy();
+                }, this);
             }
         });
     }
@@ -539,7 +553,7 @@ export class UIScene extends Phaser.Scene {
                 }
             });
         } 
-       else if (energyChange < 0 && !PlayerState.isEating) {
+       else if (energyChange < 0 && PlayerState.isUnderAttack) {
             const changeText = this.add.text(
                 this.x
                 + xOffset,
@@ -646,7 +660,16 @@ export class UIScene extends Phaser.Scene {
             }
 
             const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5);
-            this.inventoryContainer.add(sprite);
+            const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(2);
+            zone.on('pointerdown', (pointer) => {
+                this.selectedIndex = index;
+                if (pointer.leftButtonDown()) {
+                    this.useItem(item.name);
+                }
+                this.handleInventorySelection();
+            });
+           
+            this.inventoryContainer.add([sprite, zone]);
 
             if (item.quantity > 1) {
                 let quantityStr = this.formatQuantity(item.quantity);
@@ -680,6 +703,7 @@ export class UIScene extends Phaser.Scene {
             return quantity.toString();
         }
     }
+
     updateInventoryDisplay() {
         this.inventoryContainer.removeAll(true);
 
@@ -690,6 +714,16 @@ export class UIScene extends Phaser.Scene {
             const x = xOffset + index * 56.3; // x increments by the index, starting from xOffset
             const y = 2.5; // y is a fixed value
 
+            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5).setDepth(1);
+            const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(2);
+            zone.on('pointerdown', (pointer) => {
+                this.selectedIndex = index;
+                if (pointer.leftButtonDown()) {
+                    this.useItem(item.name);
+                }
+            });
+
+
             // Display the 'select.png' icon over the selected slot
             if (index === this.selectedIndex) {
                 // Add a semi-transparent rectangle behind the selected item
@@ -697,12 +731,7 @@ export class UIScene extends Phaser.Scene {
                 this.inventoryContainer.add(highlight);
             }
 
-            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5).setDepth(1);
-            sprite.on('pointerdown', () => {
-                this.selectedIndex = index;
-                this.consumeItem(item.name);
-            });
-            this.inventoryContainer.add(sprite);
+this.inventoryContainer.add([sprite, zone]);
 
             if (item.quantity > 1) {
                 let quantityStr = this.formatQuantity(item.quantity);
@@ -728,7 +757,7 @@ export class UIScene extends Phaser.Scene {
         const item = itemInfo[itemName];
         if (item && item.itemConsumable) {
             //return if player is eating already
-            if (PlayerState.isEating) {
+            if (PlayerState.isEating || PlayerState.isAttacking) {
                 return;
             }
             PlayerState.isEating = true;
@@ -744,7 +773,14 @@ export class UIScene extends Phaser.Scene {
                 PlayerState.energy = 100;
             }
 
-            // Remove the item from the inventory
+            const heal = this.add.sprite(this.x, this.y, 'heal');
+            heal.play('heal');
+            heal.setTint(0x00ff00);
+
+            heal.on('animationcomplete', () => {
+                heal.destroy();
+            }, this);
+    
             this.destroyItem(itemName);
             this.updateInventoryDisplay(); // Update the inventory display
             this.updateEnergyBar()

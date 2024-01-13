@@ -13,7 +13,7 @@ export const attacks = {
     },
     bite: {
       name: 'bite',
-      range: 5,
+      range: 1,
       attack: 2,
       speed: 2,
       knockback: 0.5,
@@ -25,7 +25,7 @@ export const attacks = {
     },
     horsekick: {
       name: 'horsekick',
-      range: 1,
+      range: 2,
       attack: 3,
       speed: 1.3,
       knockback: 6,
@@ -37,7 +37,7 @@ export const attacks = {
     },
     tailwhip: {
       name: 'tailwhip',
-      range: 1,
+      range: 2.5,
       attack: 4,
       speed: 1.6,
       knockback: 4,
@@ -59,12 +59,24 @@ export const attacks = {
       spread: 3,
       rarity: 0.01,
     },
+    hairball: {
+      name: 'hairball',
+      attack: 6,
+      range: 11,
+      speed: 1.5,
+      knockback: 1,
+      damage: 2,
+      level: 12,
+      bleed: 4,
+      spread: 3,
+      rarity: 0.01,
+    },
   };
   
   export function unlockedAttacksForLevel(playerLevel) {
-    const unlocked = Object.values(attacks).filter(attack => playerLevel >= attack.level);
+    const unlocked = Object.values(attacks).filter(attack => playerLevel > attack.level);
     if (!unlocked.some(attack => attack.name === 'scratch')) {
-        unlocked.unshift(attacks['scratch']);
+      unlocked.unshift(attacks['scratch']);
     }
     return unlocked;
-}
+  }

@@ -12,7 +12,7 @@ export const PlayerState = {
     isUnderAttack: false,
     isEating: false,
     JustAte: false,
-    attackRange: 1,
+    isAttacking: false,
     energyBonus: 0, //energy regeneration boost
     danceBonus: 0, //rare dance moves boost
     createBonus: 0, //save an item from being destroyed during creation

@@ -27,6 +27,7 @@ export function preloadFrames(gameInstance) {
     this.load.image('tailwhip', '/tailwhip.png');
     this.load.image('horsekick', '/horsekick.png');
     this.load.image('bite', '/bite.png');
+    this.load.image('hairball', '/hairball.png');
     this.load.image('attack-on', '/attack-on.png');
     this.load.image('attack-off', '/attack-off.png');
     this.load.image('attack-lock', '/attack-lock.png');
@@ -46,4 +47,8 @@ export function preloadFrames(gameInstance) {
     this.load.image('hill', '/hill.png');
     this.load.image('ruby', '/ruby.png');
     this.load.image('select', '/select.png');
+    //heal spritesheet
+    this.load.spritesheet('heal', '/heal.png', { frameWidth: 160, frameHeight: 160 });
+    //ball spritesheet
+    this.load.spritesheet('hairballs', '/ball.png', { frameWidth: 23, frameHeight: 23 });
 }

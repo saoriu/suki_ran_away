@@ -32,11 +32,15 @@ export function createAnims(scene, cat) {
             case 'attack5-back':
             case 'attack5-front':
                 return 21;
+            case 'attack6':
+            case 'attack6-back':
+            case 'attack6-front':
+                return 12;
             case 'dead':
                 return 9;
             case 'run':
-            case 'rundiagonal':
-            case 'rundiagonalfront':
+            case 'run-diagonal-back':
+            case 'run-diagonal-front':
                 return 10;
             case 'sit-back':
             case 'sit-forward':
@@ -49,31 +53,36 @@ export function createAnims(scene, cat) {
         }
     }
 
-    createAnimation(scene, 'attack1', 0, 3);
-    createAnimation(scene, 'attack1-back', 4, 7);
-    createAnimation(scene, 'attack1-front', 8, 11);
-    createAnimation(scene, 'attack2', 12, 16);
-    createAnimation(scene, 'attack2-back', 17, 21);
-    createAnimation(scene, 'attack2-front', 22, 26);
-    createAnimation(scene, 'attack3', 27, 35);
-    createAnimation(scene, 'attack3-back', 36, 44);
-    createAnimation(scene, 'attack3-front', 45, 53);
-    createAnimation(scene, 'attack4', 54, 58);
-    createAnimation(scene, 'attack4-back', 59, 63);
-    createAnimation(scene, 'attack4-front', 64, 68);
-    createAnimation(scene, 'attack5', 69, 82);
-    createAnimation(scene, 'attack5-back', 83, 92);
-    createAnimation(scene, 'attack5-front', 93, 102);
-    createAnimation(scene, 'dead', 103, 113);
-    createAnimation(scene, 'down', 114, 121);
-    createAnimation(scene, 'eat', 122, 135);
-    createAnimation(scene, 'run', 136, 143);
-    createAnimation(scene, 'run-diagonal-back', 144, 151);
-    createAnimation(scene, 'run-diagonal-front', 152, 159);
-    createAnimation(scene, 'sit-back', 160, 167);
-    createAnimation(scene, 'sit-forward', 168, 175);
-    createAnimation(scene, 'sit', 176, 183);
-    createAnimation(scene, 'up', 184, 191);
+createAnimation(scene, 'attack1', 0, 3);
+createAnimation(scene, 'attack1-back', 4, 7);
+createAnimation(scene, 'attack1-front', 8, 11);
+createAnimation(scene, 'attack2', 12, 16);
+createAnimation(scene, 'attack2-back', 17, 21);
+createAnimation(scene, 'attack2-front', 22, 26);
+createAnimation(scene, 'attack3', 27, 35);
+createAnimation(scene, 'attack3-back', 36, 44);
+createAnimation(scene, 'attack3-front', 45, 53);
+createAnimation(scene, 'attack4', 54, 58);
+createAnimation(scene, 'attack4-back', 59, 63);
+createAnimation(scene, 'attack4-front', 64, 68);
+createAnimation(scene, 'attack5', 69, 82);
+createAnimation(scene, 'attack5-back', 83, 92);
+createAnimation(scene, 'attack5-front', 93, 102);
+createAnimation(scene, 'attack6', 103, 108); // Updated
+createAnimation(scene, 'attack6-back', 109, 115); // Updated
+createAnimation(scene, 'attack6-front', 116, 122); // Updated
+createAnimation(scene, 'ball', 123, 125); // Updated
+createAnimation(scene, 'dead', 126, 136); // Updated
+createAnimation(scene, 'down', 138, 145); // Updated
+createAnimation(scene, 'eat', 146, 158); // Updated
+createAnimation(scene, 'run-diagonal-back', 159, 166); // Updated
+createAnimation(scene, 'run-diagonal-front', 167, 174); // Updated
+createAnimation(scene, 'run', 175, 182); // Updated
+createAnimation(scene, 'sit-back', 183, 190); // Updated
+createAnimation(scene, 'sit-forward', 191, 198); // Updated
+createAnimation(scene, 'sit', 199, 206); // Updated
+createAnimation(scene, 'up', 207, 214); // Updated
+
     
 
     // Panda animations
@@ -336,4 +345,19 @@ export function createAnims(scene, cat) {
         frameRate: 10,
         repeat: 0
     });
+
+    scene.anims.create({
+        key: 'heal',
+        frames: scene.anims.generateFrameNumbers('heal', { start: 0, end: 6 }),
+        frameRate: 10,
+        repeat: 0
+    });
+
+    scene.anims.create({
+        key: 'hairballs',
+        frames: scene.anims.generateFrameNumbers('hairballs', { start: 0, end: 2 }),
+        frameRate: 4,
+        repeat: -1
+    });
+
 }

@@ -20,7 +20,7 @@ export class mainScene extends Phaser.Scene {
         this.tilesBuffer = GAME_CONFIG.TILES_BUFFER;
         this.moveSpeed = PlayerState.speed;
         this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
-        this.isAttacking = false;
+        PlayerState.isAttacking = false;
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
         this.POSITION_CHANGE_THRESHOLD = 0.1;
@@ -32,6 +32,7 @@ export class mainScene extends Phaser.Scene {
         this.lastPlayerY = 0;
         this.lastRegenerateEnergyTime = 0;
         this.positionChangeThreshold = 20;
+        this.currentAttackName = null;
     }
 
 
@@ -49,7 +50,7 @@ export class mainScene extends Phaser.Scene {
         this.cat = this.matter.add.sprite(0, 0, 'sit', null, {
             isStatic: false,
             friction: 0,
-        }).setScale(1).setCircle((1) * 60).setDepth(5);
+        }).setScale(1).setCircle((1) * 45).setDepth(5);
 
         // Adjust the physics properties of the this.cat
         const catBody = this.cat.body;
@@ -106,14 +107,20 @@ export class mainScene extends Phaser.Scene {
                     default:
                         return; // Exit the function if a non-attack key is pressed
                 }
-
-                if (this.canAttack && attackName !== undefined) {
+                this.currentAttackName = attackName;
+        
+                if (this.canAttack && attackName !== undefined && !PlayerState.isEating) {
                     this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName);
-                    this.isAttacking = true;
+                    PlayerState.isAttacking = true;
                     this.canAttack = false;
-
                     // Determine the attack animation based on direction
                     let attackNumber = attacks[attackName].attack;
+                    if (attackNumber === 6) { // Replace with your specific attack name for the projectile
+                        let targetMonster = this.monsters[this.targetMonsterKey];
+                        if (targetMonster) {
+                            this.launchProjectile(targetMonster);
+                        }
+                    }
 
                     switch (this.lastDirection) {
                         case 'up':
@@ -161,7 +168,7 @@ export class mainScene extends Phaser.Scene {
 
         this.cat.on('animationcomplete', (animation, frame) => {
             if (animation.key === this.attackAnimationKey) {
-                this.isAttacking = false;
+                PlayerState.isAttacking = false;
                 this.canAttack = true;
             }
         }, this);
@@ -229,11 +236,11 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        if (this.isAttacking && this.targetMonsterKey) {
+        if (PlayerState.isAttacking && this.targetMonsterKey) {
             this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
         }
 
-        else if (this.isAttacking && !PlayerState.isDead) {
+        else if (PlayerState.isAttacking && !PlayerState.isDead) {
             this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
         }
 
@@ -306,14 +313,14 @@ export class mainScene extends Phaser.Scene {
 
         if (this.targetMonsterKey) {
             const monster = this.monsters[this.targetMonsterKey];
-            if (monster && !this.isMonsterAttackable(monster)) {
+            if (monster && !this.isMonsterAttackable(monster, this.currentAttackName)) {
                 this.targetMonsterKey = null;
             }
         }
 
         if (this.lastClickedMonsterKey) {
             const monster = this.monsters[this.lastClickedMonsterKey];
-            if (monster && this.isMonsterAttackable(monster)) {
+            if (monster && this.isMonsterAttackable(monster, this.currentAttackName)) {
                 this.targetMonsterKey = this.lastClickedMonsterKey;
             }
         }
@@ -403,7 +410,7 @@ export class mainScene extends Phaser.Scene {
             this.lastDirection = 'down';
         }
 
-        if (this.isAttacking) {
+        if (PlayerState.isAttacking) {
             const attackSpeedReductionFactor = 0.3; 
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
@@ -420,9 +427,15 @@ export class mainScene extends Phaser.Scene {
     }
 
     isMonsterAttackable(monster) {
-        return this.calculateDistance(this.cat, monster) <= PlayerState.attackRange && this.isMonsterInFront(this.cat, monster, this.lastDirection);
+        const attack = attacks[this.currentAttackName]; // Get the attack object from the attacks dictionary
+        if (!attack) {
+            return false;
+        }
+    
+        const attackRange = attack.range;
+        return this.calculateDistance(this.cat, monster) <= attackRange && this.isMonsterInFront(this.cat, monster, this.lastDirection);
     }
-
+    
     attemptToTargetMonster(key) {
         const monster = this.monsters[key];
         if (monster) {
@@ -437,10 +450,29 @@ export class mainScene extends Phaser.Scene {
         }
     }
 
-
-
-
-
+    launchProjectile(targetMonster) {
+        if (!targetMonster || !targetMonster.sprite) return;
+    
+        let projectile = this.add.sprite(this.cat.x, this.cat.y, 'hairballs'); 
+        projectile.setDepth(5); 
+        projectile.play('hairballs');
+    
+        let targetX = targetMonster.sprite.x;
+        let targetY = targetMonster.sprite.y;
+    
+        // Animate projectile to target - adjust duration as needed
+        this.tweens.add({
+            targets: projectile,
+            x: targetX,
+            y: targetY,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => {
+                projectile.destroy();
+            }
+        });
+    }
+    
 
 
     handlePlayerAnimations(lastDirection, velocityX, velocityY) {
@@ -450,6 +482,15 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
+        if (PlayerState.isAttacking && !PlayerState.isEating) {
+            // Adjust the flip of the character without interrupting the animation
+            const shouldFlip = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            if (this.cat.flipX !== shouldFlip) {
+                this.cat.flipX = shouldFlip;
+            }
+            return;
+        }
+    
         if (PlayerState.isEating) {
             this.cat.play('eat', true);
             this.cat.on('animationcomplete', () => {
@@ -458,16 +499,8 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        if (this.isAttacking) {
-            // Adjust the flip of the character without interrupting the animation
-            const shouldFlip = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
-            if (this.cat.flipX !== shouldFlip) {
-                this.cat.flipX = shouldFlip;
-            }
-            return;
-        }
 
-        if (velocityX === 0 && velocityY === 0 && !this.isAttacking) {
+        if (velocityX === 0 && velocityY === 0 && !PlayerState.isAttacking) {
             // Handle idle animations based on last direction
             switch (this.lastDirection) {
                 case 'up':
@@ -547,7 +580,7 @@ export class mainScene extends Phaser.Scene {
         PlayerState.isDead = true;
 
         this.isFainting = true;
-        this.isAttacking = false; // Ensure no attack is in progress
+        PlayerState.isAttacking = false; // Ensure no attack is in progress
         this.cat.anims.stop(); // Stop current animations
         this.cat.play('dead'); // Play death animation
 

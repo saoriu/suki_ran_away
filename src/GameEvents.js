@@ -206,10 +206,6 @@ export class GameEvents {
                 addXpToSkill('dancing', targetMonster.level * 50);
                 this.handleItemDrop(targetMonster); // Call handleItemDrop for the defeated monster
                 this.endBattleForMonster(targetMonster, targetMonsterKey); // Call endBattleForMonster for the defeated monster
-            } else if (!this.monsterHasAttacked) {
-                // Monster retaliates if it hasn't already
-                this.monsterHasAttacked = true;
-                this.monsterAttack(monsters, targetMonster.key); // Call monsterAttack with the specific monster key
             }
         }
     }
