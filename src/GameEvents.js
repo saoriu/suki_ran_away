@@ -206,6 +206,8 @@ export class GameEvents {
                 addXpToSkill('dancing', targetMonster.level * 50);
                 this.handleItemDrop(targetMonster); // Call handleItemDrop for the defeated monster
                 this.endBattleForMonster(targetMonster, targetMonsterKey); // Call endBattleForMonster for the defeated monster
+            } else if (!this.monsterHasAttacked) {
+                targetMonster.isAggressive = true;
             }
         }
     }
@@ -302,7 +304,7 @@ export class GameEvents {
     }
 
     handleMonsterEngagement(monsters, monster) {
-        if (monster.canReach) {
+        if (monster.canReach && monster.isAggressive) {
             this.monsterAttack(monsters, monster.key);
             monster.isFollowing = false;
         } else {
@@ -384,11 +386,10 @@ export class GameEvents {
         monster.distance = Math.max(0, distance - (playerRadius + monsterRadius));
         return monster.distance;
     }
-
     updateMonsterMovement(player, monster, distance) {
         //if monster health is not 0
         if (monster.currentHealth > 0 && !monster.isBeingKnockedBack) {
-            if (!monster.canReach) {
+            if (monster.isAggressive && !monster.canReach) {
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
                 const velocity = {
                     x: normalizedDirectionX * monster.speed,
@@ -397,10 +398,47 @@ export class GameEvents {
 
                 // Apply velocity to the monster
                 monster.sprite.setVelocity(velocity.x, velocity.y);
+
+                // Flip the monster sprite based on the direction of movement
+                monster.sprite.setFlipX(velocity.x < 0);
+            } else if (!monster.isAggressive) {
+                if (!monster.destination) {
+                    // Generate a random point within the wander area
+                    const x = monster.spawnPoint.x + (Math.random() - 0.5) * monster.wanderArea;
+                    const y = monster.spawnPoint.y + (Math.random() - 0.5) * monster.wanderArea;
+                    monster.destination = { x, y };
+                }
+
+                const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPoint(monster.destination, monster);
+                const velocity = {
+                    x: normalizedDirectionX * (monster.speed * 0.35),
+                    y: normalizedDirectionY * (monster.speed * 0.35)
+                };
+
+                // Apply velocity to the monster
+                monster.sprite.setVelocity(velocity.x, velocity.y);
+
+                // Flip the monster sprite based on the direction of movement
+                monster.sprite.setFlipX(velocity.x < 0);
+
+                // If the monster has reached the destination, clear the destination
+                if (Math.abs(monster.sprite.x - monster.destination.x) < monster.speed && Math.abs(monster.sprite.y - monster.destination.y) < monster.speed) {
+                    monster.destination = null;
+                }
             }
         } else {
             monster.sprite.setVelocity(0, 0);
         }
+    }
+
+    getDirectionTowardsPoint(point, monster) {
+        const dx = point.x - monster.sprite.x;
+        const dy = point.y - monster.sprite.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return {
+            normalizedDirectionX: dx / distance,
+            normalizedDirectionY: dy / distance
+        };
     }
 
     getDirectionTowardsPlayer(player, monster) {

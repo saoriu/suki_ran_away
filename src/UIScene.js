@@ -646,11 +646,11 @@ export class UIScene extends Phaser.Scene {
     handleInventorySelection() {
         this.inventoryContainer.removeAll(true);
 
-        const xOffset = -242;
+        const xOffset = -244;
 
         PlayerState.inventory.forEach((item, index) => {
-            const x = xOffset + index * 56.3; // x increments by the index, starting from xOffset
-            const y = 2.5; // y is a fixed value
+            const x = xOffset + index * 56.5; // x increments by the index, starting from xOffset
+            const y = 3; // y is a fixed value
 
             // Display the 'select.png' icon over the selected slot
             if (index === this.selectedIndex) {
@@ -708,11 +708,11 @@ export class UIScene extends Phaser.Scene {
         this.inventoryContainer.removeAll(true);
 
         const inventory = PlayerState.inventory || [];
-        const xOffset = -242; // Change this value to adjust the starting position of the items
+        const xOffset = -244; // Change this value to adjust the starting position of the items
 
         inventory.forEach((item, index) => {
-            const x = xOffset + index * 56.3; // x increments by the index, starting from xOffset
-            const y = 2.5; // y is a fixed value
+            const x = xOffset + index * 56.5; // x increments by the index, starting from xOffset
+            const y = 3; // y is a fixed value
 
             const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5).setDepth(1);
             const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(2);

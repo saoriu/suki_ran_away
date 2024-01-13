@@ -78,7 +78,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     const monsterMass = chosenMonster.monsterMass;
 
     if (chosenMonster.monster !== 'turtle') {
-      damage = chosenMonster.damage + Math.ceil(daysPassed * 0.125);
+      damage = chosenMonster.damage + Math.ceil(daysPassed * 0.05);
     } else {
       damage = chosenMonster.damage;
     }
@@ -159,15 +159,18 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       key: monsterKey,
       attackRange: chosenMonster.attackRange,
       level: modifiedLevel,
-      isAggressive: true,
+      isAggressive:  chosenMonster.isAggressive,
       inReach: false,
       event: chosenMonster,
       healthBar: {
         outer: monsterHealthBar.outer,
         fill: monsterHealthBar.fill
       },
+      spawnPoint: { x: monsterX, y: monsterY },
       maxHealth: modifiedLevel,
-      currentHealth: modifiedLevel
+      //set a wander area of 5 tiles
+      wanderArea: 8 * tileWidth,
+      currentHealth: modifiedLevel,
     };
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);

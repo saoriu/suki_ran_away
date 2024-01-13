@@ -3,6 +3,7 @@ export const eventOptions = [
     event: 'monster1',
     description: 'A cute lil creature.',
     monster: 'bunny',
+    isAggressive: false,
     attackRange: 0.25,
     level: 2,
     damage: 2,
@@ -21,6 +22,7 @@ export const eventOptions = [
     description: 'Cute but fierce.',
     monster: 'panda',
     attackRange: 0.25,
+    isAggressive: false,
     level: 5,
     speed: 2.2,
     damage: 8,
@@ -38,6 +40,7 @@ export const eventOptions = [
     description: 'Cute but nasty.',
     monster: 'raccoon',
     attackRange: 0.25,
+    isAggressive: true,
     level: 5,
     speed: 2.4,
     damage: 5,
@@ -48,13 +51,14 @@ export const eventOptions = [
       ultrarare: ['Silk']
     },
     skill: 'dancing',
-    monsterChance: 'common'
+    monsterChance: 'rare'
   },
   {
     event: 'monster4',
     description: 'A very interestinig creature, wonder what it drops.',
     monster: 'dragonfly',
     attackRange: 0.25,
+    isAggressive: true,
     level: 10,
     damage: 15,
     monsterMass: 0.2,
@@ -73,6 +77,7 @@ export const eventOptions = [
     attackRange: 0.25,
     description: 'She may have something useful.',
     level: 2,
+    isAggressive: false,
     monsterMass: 0.8,
     damage: 1,
     speed: 2.4,
@@ -92,6 +97,7 @@ export const eventOptions = [
     damage: 0,
     level: 15,
     speed: 1.45,
+    isAggressive: false,
     monsterMass: 2.5,
     possibleOutcomes: {
       common: ['Milk', 'Egg', 'Flour'],
@@ -99,12 +105,13 @@ export const eventOptions = [
       ultrarare: ['Silk']
     },
     skill: 'dancing',
-    monsterChance: 'common'
+    monsterChance: 'rare'
   },
   {
     event: 'monster8',
     monster: 'fox',
     attackRange: 0.25,
+    isAggressive: true,
     description: 'A shiny coat and a sharp bite.',
     damage: 20,
     level: 20,
@@ -116,7 +123,7 @@ export const eventOptions = [
       ultrarare: ['Silk']
     },
     skill: 'dancing',
-    monsterChance: 'common'
+    monsterChance: 'ultrarare'
   },
 ].map(option => {
   const variation = 2; // Define the maximum increase in level

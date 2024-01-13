@@ -5,7 +5,7 @@ export const itemInfo = {
         itemName: 'Apple',
         itemConsumable: true,
         consumeEffects: {
-            energy: 50,
+            energy: 5,
                 eventChance: 1,
         },
     },

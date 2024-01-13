@@ -257,12 +257,6 @@ export class mainScene extends Phaser.Scene {
                 monster.isMoving = false;
             }
 
-            if (this.cat.x < monster.sprite.x) {
-                monster.sprite.setFlipX(true);
-            } else {
-                monster.sprite.setFlipX(false);
-            }
-
             if (monster.currentHealth <= 0) {
                 monster.sprite.play(`${monster.event.monster}_die`, true);
             } else if (monster.isHurt) {
@@ -411,13 +405,13 @@ export class mainScene extends Phaser.Scene {
         }
 
         if (PlayerState.isAttacking) {
-            const attackSpeedReductionFactor = 0.3; 
+            const attackSpeedReductionFactor = 0.5; 
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
 
         if (PlayerState.isEating) {
-            const attackSpeedReductionFactor = 0.1; 
+            const attackSpeedReductionFactor = 0.25; 
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
