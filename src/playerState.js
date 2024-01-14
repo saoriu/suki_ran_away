@@ -14,7 +14,7 @@ export const PlayerState = {
     JustAte: false,
     isAttacking: false,
     energyBonus: 0, //energy regeneration boost
-    danceBonus: 0, //rare dance moves boost
+    attackBonus: 0, //rare attack moves boost
     createBonus: 0, //save an item from being destroyed during creation
     luckBonus: 0, //chance to get a rare item from a monster
     eventsBonus: 0, //chance to get an event

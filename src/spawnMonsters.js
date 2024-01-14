@@ -1,19 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from './gameConstants.js';
 import { eventOptions } from './eventOptions.js';
-import { PlayerState } from './playerState'; // Adjust the path as needed
-
-function calculateSpawnProbability(baseProbability, eventsBonus) {
-  let probability = baseProbability;
-
-  // Modify probability based on items the player has
-  probability += eventsBonus;
-
-  // Ensure probability is within [0, 1]
-  probability = Phaser.Math.Clamp(probability, 0, 1);
-
-  return probability;
-}
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, daysPassed) {
       // At the start of the spawnMonsters function
@@ -29,11 +16,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const visibleEndI = Math.ceil((centerX + camera.width / 2) / tileWidth);
   const visibleStartJ = Math.floor((centerY - camera.height / 2) / tileWidth);
   const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
-  const baseProbability = GAME_CONFIG.baseProbability; // Example: 10% base spawn chance
-  const eventsBonus = PlayerState.eventsBonus;
-  const spawnProbability = calculateSpawnProbability(baseProbability, eventsBonus);
-
-  if (Phaser.Math.FloatBetween(0, 1) < spawnProbability) {
 
     const bufferStartI = visibleStartI - (tilesBuffer + 1); // extend outward by 1 tile
     const bufferEndI = visibleEndI + (tilesBuffer + 1);    // extend outward by 1 tile
@@ -178,4 +160,3 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
     monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite
   }
-}

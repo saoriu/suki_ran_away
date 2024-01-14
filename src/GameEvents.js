@@ -85,7 +85,8 @@ export class GameEvents {
             const timeToImpact = 200;
 
 
-            const selectedAttack = attacks[attackName] || attacks['scratch'];           
+            const selectedAttack = attacks[attackName] || attacks['scratch'];   
+        
 
             const playerRoll = Phaser.Math.Between(0, Math.floor((PlayerState.skills.dancing.level * 0.1) + selectedAttack.damage));
 
@@ -206,7 +207,7 @@ export class GameEvents {
                 addXpToSkill('dancing', targetMonster.level * 50);
                 this.handleItemDrop(targetMonster); // Call handleItemDrop for the defeated monster
                 this.endBattleForMonster(targetMonster, targetMonsterKey); // Call endBattleForMonster for the defeated monster
-            } else if (!this.monsterHasAttacked) {
+            } else if (targetMonster.currentHealth > 0) {
                 targetMonster.isAggressive = true;
             }
         }
@@ -336,7 +337,6 @@ export class GameEvents {
 
         // Reset battle flags
         targetMonsterKey = null;
-        this.scene.game.events.emit('monsterCleanedUp', targetMonsterKey);
         this.monsterHasAttacked = false;
         targetMonster.canReach = false;
         PlayerState.lastEnergyUpdate = Date.now();

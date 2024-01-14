@@ -20,7 +20,6 @@ export class mainScene extends Phaser.Scene {
         this.tilesBuffer = GAME_CONFIG.TILES_BUFFER;
         this.moveSpeed = PlayerState.speed;
         this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
-        PlayerState.isAttacking = false;
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
         this.POSITION_CHANGE_THRESHOLD = 0.1;
@@ -31,8 +30,7 @@ export class mainScene extends Phaser.Scene {
         this.lastPlayerX = 0;
         this.lastPlayerY = 0;
         this.lastRegenerateEnergyTime = 0;
-        this.positionChangeThreshold = 20;
-        this.currentAttackName = null;
+        this.positionChangeThreshold = 1.25 * this.tileWidth;
     }
 
 
@@ -64,16 +62,12 @@ export class mainScene extends Phaser.Scene {
 
         this.targetMonsterKey = null;
 
-        this.game.events.on('monsterCleanedUp', (targetMonsterKey) => {
-            this.targetMonsterKey = null;
-        });
-
         createAnims(this);
 
         this.input.on('pointermove', () => {
             this.game.events.emit('hideTooltip');
         });
-    
+
 
         this.maxInventorySize = 11; // Or whatever your max inventory size is
         this.items = []; // Initialize the items array
@@ -107,9 +101,9 @@ export class mainScene extends Phaser.Scene {
                     default:
                         return; // Exit the function if a non-attack key is pressed
                 }
-                this.currentAttackName = attackName;
-        
+
                 if (this.canAttack && attackName !== undefined && !PlayerState.isEating) {
+                    this.updateTargetMonsterKey(attackName);
                     this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName);
                     PlayerState.isAttacking = true;
                     this.canAttack = false;
@@ -173,10 +167,6 @@ export class mainScene extends Phaser.Scene {
             }
         }, this);
 
-
-
-
-
         this.input.on('pointerdown', (pointer) => {
             Object.values(this.monsters).forEach(monster => {
                 if (monster && monster.sprite && monster.sprite.active) {
@@ -187,8 +177,6 @@ export class mainScene extends Phaser.Scene {
                 }
             });
         });
-
-
     }
 
     update(time, delta) {
@@ -243,7 +231,6 @@ export class mainScene extends Phaser.Scene {
         else if (PlayerState.isAttacking && !PlayerState.isDead) {
             this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
         }
-
 
         //Monster animations
         Object.values(this.monsters).forEach(monster => {
@@ -307,20 +294,17 @@ export class mainScene extends Phaser.Scene {
 
         if (this.targetMonsterKey) {
             const monster = this.monsters[this.targetMonsterKey];
-            if (monster && !this.isMonsterAttackable(monster, this.currentAttackName)) {
+            if (monster && !this.isMonsterAttackable(monster)) {
                 this.targetMonsterKey = null;
             }
         }
 
         if (this.lastClickedMonsterKey) {
             const monster = this.monsters[this.lastClickedMonsterKey];
-            if (monster && this.isMonsterAttackable(monster, this.currentAttackName)) {
+            if (monster && this.isMonsterAttackable(monster)) {
                 this.targetMonsterKey = this.lastClickedMonsterKey;
             }
         }
-
-        this.updateTargetMonsterKey.call(this);
-
     }
 
     createTilesAround(centerX, centerY, scene) {
@@ -355,8 +339,28 @@ export class mainScene extends Phaser.Scene {
         }
         this.cat.setDepth(3);
 
-        spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.daysPassed);
+        const spawnProbability = this.calculateSpawnProbability();
+
+        const randomFloat = Phaser.Math.FloatBetween(0, 1);
+        
+        if (randomFloat < spawnProbability) {
+            //console log the float between 0 and 1
+            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.daysPassed);
+        }    
     }
+
+    calculateSpawnProbability() {
+        const eventsBonus = PlayerState.eventsBonus;
+
+        let probability = GAME_CONFIG.baseProbability;
+      
+        // Modify probability based on items the player has
+        probability += eventsBonus;
+      
+        // Ensure probability is within [0, 1]
+        probability = Phaser.Math.Clamp(probability, 0, 1);
+        return probability;
+      }
 
     handlePlayerMovement() {
         if (PlayerState.isDead) {
@@ -405,13 +409,13 @@ export class mainScene extends Phaser.Scene {
         }
 
         if (PlayerState.isAttacking) {
-            const attackSpeedReductionFactor = 0.5; 
+            const attackSpeedReductionFactor = 0.5;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
 
         if (PlayerState.isEating) {
-            const attackSpeedReductionFactor = 0.25; 
+            const attackSpeedReductionFactor = 0.25;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
@@ -420,16 +424,27 @@ export class mainScene extends Phaser.Scene {
         this.handlePlayerAnimations(this.lastDirection, velocityX, velocityY);
     }
 
-    isMonsterAttackable(monster) {
-        const attack = attacks[this.currentAttackName]; // Get the attack object from the attacks dictionary
+    updateTargetMonsterKey(attackName) {
+        if (this.targetMonsterKey === null) {
+            for (const [key, monster] of Object.entries(this.monsters)) {
+                if (this.isMonsterAttackable(monster, attackName)) {
+                    this.targetMonsterKey = key;
+                    break;
+                }
+            }
+        }
+    }
+
+    isMonsterAttackable(monster, attackName) {
+        const attack = attacks[attackName];
         if (!attack) {
             return false;
         }
-    
+
         const attackRange = attack.range;
         return this.calculateDistance(this.cat, monster) <= attackRange && this.isMonsterInFront(this.cat, monster, this.lastDirection);
     }
-    
+
     attemptToTargetMonster(key) {
         const monster = this.monsters[key];
         if (monster) {
@@ -446,14 +461,14 @@ export class mainScene extends Phaser.Scene {
 
     launchProjectile(targetMonster) {
         if (!targetMonster || !targetMonster.sprite) return;
-    
-        let projectile = this.add.sprite(this.cat.x, this.cat.y, 'hairballs'); 
-        projectile.setDepth(5); 
+
+        let projectile = this.add.sprite(this.cat.x, this.cat.y, 'hairballs');
+        projectile.setDepth(5);
         projectile.play('hairballs');
-    
+
         let targetX = targetMonster.sprite.x;
         let targetY = targetMonster.sprite.y;
-    
+
         // Animate projectile to target - adjust duration as needed
         this.tweens.add({
             targets: projectile,
@@ -466,8 +481,6 @@ export class mainScene extends Phaser.Scene {
             }
         });
     }
-    
-
 
     handlePlayerAnimations(lastDirection, velocityX, velocityY) {
 
@@ -484,7 +497,7 @@ export class mainScene extends Phaser.Scene {
             }
             return;
         }
-    
+
         if (PlayerState.isEating) {
             this.cat.play('eat', true);
             this.cat.on('animationcomplete', () => {
@@ -536,17 +549,6 @@ export class mainScene extends Phaser.Scene {
                 this.cat.play('run-diagonal-front', true);
                 this.cat.flipX = false;
             }
-    }
-
-    updateTargetMonsterKey() {
-        if (this.targetMonsterKey === null) {
-            for (const [key, monster] of Object.entries(this.monsters)) {
-                if (this.isMonsterAttackable(monster)) {
-                    this.targetMonsterKey = key;
-                    break;
-                }
-            }
-        }
     }
 
     updateHealthBar(scene, healthBar, currentHealth, maxHealth) {

@@ -14,7 +14,7 @@ export const eventOptions = [
       rare: ['Apple', 'Gold'],
       ultrarare: ['Diamond']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'common'
   },
   {
@@ -32,7 +32,7 @@ export const eventOptions = [
       rare: ['Diamond', 'Emerald'],
       ultrarare: ['Silk']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'rare'
   },
   {
@@ -50,7 +50,7 @@ export const eventOptions = [
       rare: ['Diamond', 'Emerald'],
       ultrarare: ['Silk']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'rare'
   },
   {
@@ -68,7 +68,7 @@ export const eventOptions = [
       rare: ['Gold', 'Silk'],
       ultrarare: ['Silk']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'ultrarare'
   },
   {
@@ -86,7 +86,7 @@ export const eventOptions = [
       rare: ['Ruby', 'Gold'],
       ultrarare: ['Silk']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'common'
   },
   {
@@ -104,7 +104,7 @@ export const eventOptions = [
       rare: ['Ruby', 'Gold'],
       ultrarare: ['Silk']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'rare'
   },
   {
@@ -122,7 +122,7 @@ export const eventOptions = [
       rare: ['Ruby', 'Gold'],
       ultrarare: ['Silk']
     },
-    skill: 'dancing',
+    skill: 'attacking',
     monsterChance: 'ultrarare'
   },
 ].map(option => {

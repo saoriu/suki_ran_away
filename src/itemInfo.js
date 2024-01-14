@@ -157,12 +157,12 @@ export const itemInfo = {
         creationExp: 100,
         ingredients: ['Strawberry', 'Milk', 'Egg', 'Flour'],
     },
-    'Dancing Collar': {
+    'attacking Collar': {
         itemId: '0020',
         description: 'Fashion is my passion.',
-        itemName: 'Dancing Collar',
+        itemName: 'attacking Collar',
         itemConsumable: false,
-        danceMultiplier: 0.005,
+        attackMultiplier: 0.005,
         creationLevel: 4,
         creationExp: 100,
         ingredients: ['Gold', 'Ruby'],
