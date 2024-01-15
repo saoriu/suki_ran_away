@@ -6,7 +6,12 @@ export const itemInfo = {
         itemConsumable: true,
         consumeEffects: {
             energy: 5,
-                eventChance: 1,
+            energyBonus: 1,
+            eventChance: 1,
+            attackBonus: 1,
+            knockbackBonus: 1,
+            exploreBonus: 1,
+            defenceBonus: 1,
         },
     },
     'Raspberry': {

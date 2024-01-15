@@ -14,7 +14,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
         if (isAuthenticated) {
 
                 const config = {
-                type: Phaser.AUTO,
+                type: Phaser.WEBGL,
                 parent: 'phaser-game',
                 width: dimensions.width,
                 height: dimensions.height,
@@ -30,6 +30,11 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 },
                 autoRound: false,
                 antialias: true,
+                plugins: {
+                    scene: [
+                        { key: 'lightsPlugin', plugin: Phaser.GameObjects.LightsPlugin, mapping: 'lights' }
+                    ]
+                },
                 scene: [mainScene, UIScene], // Start only with AuthScene
             };
 

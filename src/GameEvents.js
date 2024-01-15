@@ -18,7 +18,7 @@ export class GameEvents {
         this.currentBattleMonsterKey = null; // Key of monster currently in battle with
         this.monsterHasAttacked = false; // flag to check if monster has retaliated
         this.player = this.scene.cat;
-        this.tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.TILE_SCALE;
+        this.tileWidth = GAME_CONFIG.TILE_WIDTH;
         this.runningDistance = 1;
 
 
@@ -88,7 +88,7 @@ export class GameEvents {
             const selectedAttack = attacks[attackName] || attacks['scratch'];   
         
 
-            const playerRoll = Phaser.Math.Between(0, Math.floor((PlayerState.skills.dancing.level * 0.1) + selectedAttack.damage));
+            const playerRoll = Phaser.Math.Between(0, Math.floor((PlayerState.skills.dancing.level * 0.1) + (selectedAttack.damage * (1 + PlayerState.attackBonus / 100))));
 
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
@@ -99,7 +99,7 @@ export class GameEvents {
                 setTimeout(() => {
                     if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
                         if (targetMonster.currentHealth > 0 && selectedAttack.knockback) {
-                        const knockbackDistance = selectedAttack.knockback * this.tileWidth;
+                        const knockbackDistance = (selectedAttack.knockback * (1 + PlayerState.knockbackBonus/100)) * this.tileWidth;
                         const directionX = targetMonster.sprite.x - this.player.x;
                         const directionY = targetMonster.sprite.y - this.player.y;
                         const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
@@ -238,7 +238,7 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(0, monsterDamage);
+        const monsterRoll = Phaser.Math.Between(0, monsterDamage * (1 - PlayerState.defenceBonus / 100));        
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 
@@ -251,6 +251,35 @@ export class GameEvents {
                 PlayerState.lastDamageTime = Date.now();
 
                 this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
+
+                if (monsterRoll > 0) {
+                    PlayerState.isHurt = true;
+                    PlayerState.isBeingKnockedBack = true;
+    
+                    const knockbackDistance = (monsterRoll / 10) * this.tileWidth;
+                    const directionX = this.player.x - targetMonster.sprite.x;
+                    const directionY = this.player.y - targetMonster.sprite.y;
+                    const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
+                    const normalizedDirectionX = directionX / magnitude;
+                    const normalizedDirectionY = directionY / magnitude;
+    
+                    const newPlayerX = this.player.x + normalizedDirectionX * knockbackDistance;
+                    const newPlayerY = this.player.y + normalizedDirectionY * knockbackDistance;
+    
+                    const knockbackSpeed = 300;
+                    const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000;
+    
+                    this.scene.tweens.add({
+                        targets: this.player,
+                        x: newPlayerX,
+                        y: newPlayerY,
+                        duration: knockbackDuration,
+                        ease: 'Power1',
+                        onComplete: () => {
+                            PlayerState.isBeingKnockedBack = false;
+                        }
+                    });
+                }
 
                 if (PlayerState.energy <= 0) {
                     PlayerState.energy = 0;
@@ -306,7 +335,7 @@ export class GameEvents {
 
     handleMonsterEngagement(monsters, monster) {
         if (monster.canReach && monster.isAggressive) {
-            this.monsterAttack(monsters, monster.key);
+            monster.isAttacking = true;
             monster.isFollowing = false;
         } else {
             monster.isFollowing = true;
@@ -386,6 +415,7 @@ export class GameEvents {
         monster.distance = Math.max(0, distance - (playerRadius + monsterRadius));
         return monster.distance;
     }
+
     updateMonsterMovement(player, monster, distance) {
         //if monster health is not 0
         if (monster.currentHealth > 0 && !monster.isBeingKnockedBack) {

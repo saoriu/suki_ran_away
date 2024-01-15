@@ -11,6 +11,13 @@ export function createAnims(scene, cat) {
         });
     }
 
+    scene.anims.create({
+        key: 'fire',
+        frames: Array(3).fill().map((_, i) => ({ key: 'fire', frame: `fire-${i + 1}` })),
+        frameRate: 8,
+        repeat: -1
+    });
+
     function determineFrameRate(key) {
         switch (key) {
             case 'attack1':

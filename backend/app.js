@@ -82,7 +82,7 @@ app.post('/login', async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
       res.status(404).json({ error: 'That account does not exist' });
     } else if (user && await bcrypt.compare(password, user.Item.password)) {
-      const token = jwt.sign({ userid }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+      const token = jwt.sign({ userid }, process.env.JWT_SECRET_KEY, { expiresIn: '6h' });
       res.header('Access-Control-Allow-Origin', '*');
       res.json({ token, playerState: user.Item.playerState });
     } else {
@@ -100,7 +100,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => { // replace process.env.JWT_SECRET_KEY with the same key used to sign the token
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
     next();

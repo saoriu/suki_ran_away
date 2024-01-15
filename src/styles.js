@@ -14,6 +14,7 @@ position: 'relative',
 
 export const textStyles = {
     save: { fontFamily: 'Ninja', fontWeight: 'bolder', fill: 'GOLD', fontSize: '40px', stroke: 'BLACK', strokeThickness: 5 },
+    levelUpText: { fontFamily: 'Ninja', fontWeight: 'bolder', fill: 'GOLD', fontSize: '35px'},
     saveblock: { fontFamily: 'Ninja', fontWeight: 'bolder', fill: 'red', fontSize: '40px', stroke: 'BLACK', strokeThickness: 5 },
     attacks: { 
       fontFamily: 'Ninja', 
@@ -29,11 +30,12 @@ export const textStyles = {
       fontSize: '16px',
       fill: '#000000',
     },
+    playerBonus: { fontFamily: 'Ninja', fontWeight: '400', fontStyle: 'normal', fontSize: '22px', fill: '#FFFFFF', stroke: '#000000', strokeThickness: 4 },
     playerLevelText: { fontWeight:'800', fontSize: '22px', fill: '#ffffff', fontFamily: 'Ninja', }, 
     playerLevelText2: { fontWeight:'800', fontSize: '22px', fill: '#ffffff', fontFamily: 'Ninja', stroke: '#000000', strokeThickness: 2 }, 
     monsterLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
     energyText: { fontFamily: 'Ninja'    , fontWeight: 'bolder', fill: '#281800', fontSize: '21px' },
-    daysPassed: { fontFamily: 'Ninja', fontWeight:'800', fill: '#ffffff', fontSize: '16px', stroke: '#000000', strokeThickness: 3 },
+    daysPassed: { fontFamily: 'Ninja', fontWeight:'800', fill: 'gold', fontSize: '25px', stroke: '#00000', strokeThickness: 5 },
     quantity: { fontSize: '17px', fill: '#000', fontFamily: 'bitcount-mono-single-square', fontWeight: '700' },
     battleUI: {
       fontSize: '25px',

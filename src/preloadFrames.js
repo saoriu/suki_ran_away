@@ -3,10 +3,6 @@ export function preloadFrames(gameInstance) {
     this.load.atlas('cat', '/cat.png', '/cat.json');
     this.load.atlas('monsters', '/monsters.png', '/monsters.json');
     this.load.image('frame', '/frame.png');
-    this.load.image('grid', '/grid.png');
-    this.load.image('grid-hover', '/grid-hover.png');
-    this.load.image('grid-hovers', '/grid-hovers.png');
-    this.load.image('grid-new', '/grid-new.png');
     this.load.image('apple', '/apple.png');
     this.load.image('cotton', '/cotton.png');
     this.load.image('diamond', '/diamond.png');
@@ -47,8 +43,21 @@ export function preloadFrames(gameInstance) {
     this.load.image('hill', '/hill.png');
     this.load.image('ruby', '/ruby.png');
     this.load.image('select', '/select.png');
-    //heal spritesheet
     this.load.spritesheet('heal', '/heal.png', { frameWidth: 160, frameHeight: 160 });
-    //ball spritesheet
     this.load.spritesheet('hairballs', '/ball.png', { frameWidth: 23, frameHeight: 23 });
+    this.load.image('bonusenergy', '/bonusenergy.png');
+    this.load.image('bonusattack', '/bonusattack.png');
+    this.load.image('bonusluck', '/bonusluck.png');
+    this.load.image('bonusdefence', '/bonusdefence.png');
+    this.load.image('bonusknockback', '/bonusknockback.png');
+    this.load.image('bonusexplore', '/bonusexplore.png');
+    this.load.image('bonusfood', '/bonusfood.png');
+    this.load.image('stats', '/stats.png');
+//load necklace1:
+    this.load.image('necklace1', '/necklace1.png');
+    this.load.image('necklace2', '/necklace2.png');
+    //load fire sprite atlas
+    this.load.atlas('fire', '/fire.png', '/fire.json');
+//load necklace2
+
 }

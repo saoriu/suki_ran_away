@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { textStyles } from './styles.js';
-import chroma from 'chroma-js';
 import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState, level } from './playerState';
 import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per your project structure
 import { Tooltip } from './Tooltip';
@@ -33,11 +32,7 @@ export class UIScene extends Phaser.Scene {
             .setDepth(10);
         this.activeChangeTexts = 0;
         this.isLevelingUp = false;
-        this.game.events.on('gameTime', (gameTime) => {
-            this.updateTimeCircle(gameTime);
-        });
         let dayText = null;
-
 
         let graphics = this.make.graphics({});
         graphics.fillStyle(0x073336);
@@ -45,6 +40,13 @@ export class UIScene extends Phaser.Scene {
         graphics.fillStyle(0x066B72);
         graphics.fillRect(0, 25, 200, 5);
         graphics.generateTexture('lux', 200, 50);
+
+        let graphics2 = this.make.graphics({});
+        graphics2.fillStyle(0xFFD700); // Gold
+        graphics2.fillRect(0, 0, 300, 300);
+        graphics2.fillStyle(0xB8860B); // Dark Gold
+        graphics2.fillRect(0, 150, 300, 10);
+        graphics2.generateTexture('goldTexture', 300, 300);
 
         const ninjaFontObserver = new FontFaceObserver('Ninja');
         Promise.all([ninjaFontObserver.load()]).then(() => {
@@ -59,12 +61,18 @@ export class UIScene extends Phaser.Scene {
 
 
             // Create dayText with initial value
-            dayText = this.add.text((this.x * 2) - 110, 30, `DAY   0`, textStyles.daysPassed);
+            dayText = this.add.text((this.x * 2) - 130, 30, `DAY   0`, textStyles.daysPassed);
 
             // Create progress bar and add it to the container
 
             // Set the depth of the container to ensure it's rendered above other elements
             this.updateSkillsDisplay();
+            this.updateEnergyBonusDisplay();
+            this.updateAttackBonusDisplay();
+            this.updateKnockbackBonusDisplay();
+            this.updateExploreBonusDisplay();
+            this.updateDefenceBonusDisplay();
+            this.updateFoodBonusDisplay();
         });
 
 
@@ -136,9 +144,9 @@ export class UIScene extends Phaser.Scene {
                     if (selectedItem) {
                         this.useItem(selectedItem.name);
                     }
-                    break;   
-                    default:
-                    break; 
+                    break;
+                default:
+                    break;
             }
         });
     }
@@ -253,7 +261,7 @@ export class UIScene extends Phaser.Scene {
                 PlayerState.selectedAttacks.push(attackName);
             }
         }
-      
+
 
         // Iterate over all attack buttons to update their state
         Object.keys(this.attackSelectionButtons).forEach(name => {
@@ -360,6 +368,12 @@ export class UIScene extends Phaser.Scene {
                 this.dancingBar.fill.displayWidth = 0;
                 this.isLevelingUp = false;
                 this.updateSkillsDisplay();
+                this.updateEnergyBonusDisplay();
+                this.updateAttackBonusDisplay();
+                this.updateKnockbackBonusDisplay();
+                this.updateExploreBonusDisplay();
+                this.updateDefenceBonusDisplay();
+                this.updateFoodBonusDisplay();
 
                 // Create a sprite for the heal animation
                 const heal = this.add.sprite(this.x, this.y, 'heal');
@@ -368,9 +382,26 @@ export class UIScene extends Phaser.Scene {
                 heal.on('animationcomplete', () => {
                     heal.destroy();
                 }, this);
-            }
-        });
-    }
+             // Add level up text
+            const levelUpText = this.add.text(this.x, this.y, 'LEVEL   UP!', textStyles.levelUpText).setOrigin(0.5);
+            this.createGradientText2(levelUpText);
+                this.tweens.add({
+                targets: [levelUpText, levelUpText.gradientSprite2],
+                y: '-=150',
+                alpha: 0, // Fade out the text
+                 duration: 6000, // Duration of 2 seconds
+                 ease: 'Power2',
+                 onComplete: () => {
+                     levelUpText.destroy(); // Destroy the text object after the tween completes
+                     //destroy the greadient sprite
+                        if (levelUpText.gradientSprite2) {
+                            levelUpText.gradientSprite2.destroy();
+                        }
+                 }
+             });
+         }
+     });
+ }
 
     createProgressBar(x, y) {
         const progressBarWidth = 126;
@@ -400,6 +431,38 @@ export class UIScene extends Phaser.Scene {
         this.createGradientText(this.xpText);
         this.dancingFrame = this.add.image(165, 50, 'frame').setOrigin(0.5).setDepth(2);
         this.skillsContainer.add([this.dancingFrame, this.xpText, this.lvText]);
+        this.energyBonusIcon = this.add.image(0, 0, 'bonusenergy').setOrigin(0.5).setDepth(2);
+        this.attackBonusIcon = this.add.image(0, 0, 'bonusattack').setOrigin(0.5).setDepth(2);
+        this.knockbackBonusIcon = this.add.image(0, 0, 'bonusknockback').setOrigin(0.5).setDepth(2);
+        this.exploreBonusIcon = this.add.image(0, 0, 'bonusexplore').setOrigin(0.5).setDepth(2);
+        this.defenceBonusIcon = this.add.image(0, 0, 'bonusdefence').setOrigin(0.5).setDepth(2);
+        this.foodBonusIcon = this.add.image(0, 0, 'bonusfood').setOrigin(0.5).setDepth(2);
+
+        this.mainBonusContainer = this.add.container((this.x * 2) - 50, this.y - 60);
+
+        this.energyBonusContainer = this.add.container(0, 0);
+        this.energyBonusContainer.add(this.energyBonusIcon);
+        this.mainBonusContainer.add(this.energyBonusContainer);
+
+        this.attackBonusContainer = this.add.container(0, -110);
+        this.attackBonusContainer.add(this.attackBonusIcon);
+        this.mainBonusContainer.add(this.attackBonusContainer);
+
+        this.knockbackBonusContainer = this.add.container(0, -220);
+        this.knockbackBonusContainer.add(this.knockbackBonusIcon);
+        this.mainBonusContainer.add(this.knockbackBonusContainer);
+
+        this.exploreBonusContainer = this.add.container(0, 330);
+        this.exploreBonusContainer.add(this.exploreBonusIcon);
+        this.mainBonusContainer.add(this.exploreBonusContainer);
+
+        this.defenceBonusContainer = this.add.container(0, 220);
+        this.defenceBonusContainer.add(this.defenceBonusIcon);
+        this.mainBonusContainer.add(this.defenceBonusContainer);
+
+        this.foodBonusContainer = this.add.container(0, 110);
+        this.foodBonusContainer.add(this.foodBonusIcon);
+        this.mainBonusContainer.add(this.foodBonusContainer);
     }
 
     updateSkillsDisplay() {
@@ -444,6 +507,79 @@ export class UIScene extends Phaser.Scene {
         this.createAttackSelectionMenu();
     }
 
+
+
+
+    updateEnergyBonusDisplay() {
+        // If the energyBonusText already exists, destroy it
+        if (this.energyBonusText) {
+            this.energyBonusText.destroy();
+            this.energyBonusContainer.remove(this.energyBonusText);
+        }
+
+        // Create new text for the energy bonus
+        this.energyBonusText = this.add.text(0, 40, `${(PlayerState.energyBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+
+        // Add the energyBonusText to the skillsContainer
+        this.energyBonusContainer.add(this.energyBonusText);
+    }
+
+    updateAttackBonusDisplay() {
+        if (this.attackBonusText) {
+            this.attackBonusText.destroy();
+            this.attackBonusContainer.remove(this.attackBonusText);
+        }
+
+        this.attackBonusText = this.add.text(0, 40, `${(PlayerState.attackBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+
+        this.attackBonusContainer.add(this.attackBonusText);
+    }
+
+
+    updateKnockbackBonusDisplay() {
+        if (this.knockbackBonusText) {
+            this.knockbackBonusText.destroy();
+            this.knockbackBonusContainer.remove(this.knockbackBonusText);
+        }
+
+        this.knockbackBonusText = this.add.text(0, 40, `${(PlayerState.knockbackBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+
+        this.knockbackBonusContainer.add(this.knockbackBonusText);
+    }
+
+    updateExploreBonusDisplay() {
+        if (this.exploreBonusText) {
+            this.exploreBonusText.destroy();
+            this.exploreBonusContainer.remove(this.exploreBonusText);
+        }
+
+        this.exploreBonusText = this.add.text(0, 40, `${(PlayerState.exploreBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+
+        this.exploreBonusContainer.add(this.exploreBonusText);
+    }
+
+    updateFoodBonusDisplay() {
+        if (this.foodBonusText) {
+            this.foodBonusText.destroy();
+            this.foodBonusContainer.remove(this.foodBonusText);
+        }
+
+        this.foodBonusText = this.add.text(0, 40, `${(PlayerState.foodBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+
+        this.foodBonusContainer.add(this.foodBonusText);
+    }
+
+    updateDefenceBonusDisplay() {
+        if (this.defenceBonusText) {
+            this.defenceBonusText.destroy();
+            this.defenceBonusContainer.remove(this.defenceBonusText);
+        }
+
+        this.defenceBonusText = this.add.text(0, 40, `${(PlayerState.defenceBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+
+        this.defenceBonusContainer.add(this.defenceBonusText);
+    }
+
     createGradientText(textObject) {
         // Check if the text object exists
         if (textObject) {
@@ -461,6 +597,27 @@ export class UIScene extends Phaser.Scene {
 
             // Store the gradient sprite in the text object for later use
             textObject.gradientSprite = gradientSprite;
+        }
+    }
+
+
+    createGradientText2(textObject) {
+        // Check if the text object exists
+        if (textObject) {
+            // Create a sprite with the gradient texture at the same position as the text object
+            let gradientSprite2 = this.add.sprite(textObject.x, textObject.y, 'goldTexture').setOrigin(0.5);
+
+            // Create a mask using the text object
+            let mask2 = textObject.createBitmapMask();
+
+            // Apply the mask to the sprite
+            gradientSprite2.setMask(mask2);
+
+            // Hide the text so only the gradientSprite is visible
+            textObject.setVisible(false);
+
+            // Store the gradient sprite in the text object for later use
+            textObject.gradientSprite2 = gradientSprite2;
         }
     }
 
@@ -541,7 +698,7 @@ export class UIScene extends Phaser.Scene {
                 }
             ).setDepth(5).setOrigin(0.5); // Set origin to center
             this.activeChangeTexts++;
-        
+
             this.tweens.add({
                 targets: changeText,
                 y: changeText.y - 20,
@@ -552,15 +709,15 @@ export class UIScene extends Phaser.Scene {
                     this.activeChangeTexts--; // Decrease the counter when a text is removed
                 }
             });
-        } 
-       else if (energyChange < 0 && PlayerState.isUnderAttack) {
+        }
+        else if (energyChange < 0 && PlayerState.isUnderAttack) {
             const changeText = this.add.text(
                 this.x
                 + xOffset,
                 this.y + yOffset,
                 `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
                 {
-                    fill: '#ff0000', 
+                    fill: '#ff0000',
                     stroke: '#000000',
                     strokeThickness: 6,
                     fontFamily: 'Ninja',
@@ -611,37 +768,6 @@ export class UIScene extends Phaser.Scene {
         PlayerState.previousEnergy = displayedEnergy; // Store the capped energy as previous for next update
     }
 
-    updateTimeCircle(gameTime) {
-        // Define a color scale
-        const colorScale = chroma.scale([
-            'midnightblue', // Midnight (0)
-            'darkblue', // Early morning (3)
-            'skyblue', // Morning (6)
-            'lightcyan', // Midday (12)
-            'skyblue', // Afternoon (18)
-            'darkblue', // Evening (21)
-            'midnightblue' // Night (24)
-        ]).mode('lch').domain([0, 3, 6, 12, 18, 21, 24]);
-
-        // Get the color for the current game time
-        const color = colorScale(gameTime).rgb();
-
-        // Convert the RGB color to a Phaser color
-        const phaserColor = Phaser.Display.Color.RGBStringToColor(`rgb(${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])})`);
-
-        // Clear the previous circle and draw a rectangle that covers the entire game area
-        this.timeFilter.clear();
-        this.timeFilter.fillStyle(phaserColor.color);
-        this.timeFilter.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
-
-        // Apply a blend mode to the rectangle and opacity lower:
-        this.timeFilter.setBlendMode(Phaser.BlendModes.MULTIPLY)
-        this.timeFilter.setAlpha(0.5);
-
-        // Set the depth to 1 so the rectangle appears above other game objects
-        this.timeFilter.setDepth(0);
-    }
-
 
     handleInventorySelection() {
         this.inventoryContainer.removeAll(true);
@@ -668,7 +794,7 @@ export class UIScene extends Phaser.Scene {
                 }
                 this.handleInventorySelection();
             });
-           
+
             this.inventoryContainer.add([sprite, zone]);
 
             if (item.quantity > 1) {
@@ -731,7 +857,7 @@ export class UIScene extends Phaser.Scene {
                 this.inventoryContainer.add(highlight);
             }
 
-this.inventoryContainer.add([sprite, zone]);
+            this.inventoryContainer.add([sprite, zone]);
 
             if (item.quantity > 1) {
                 let quantityStr = this.formatQuantity(item.quantity);
@@ -780,9 +906,15 @@ this.inventoryContainer.add([sprite, zone]);
             heal.on('animationcomplete', () => {
                 heal.destroy();
             }, this);
-    
+
             this.destroyItem(itemName);
             this.updateInventoryDisplay(); // Update the inventory display
+            this.updateEnergyBonusDisplay();
+            this.updateAttackBonusDisplay();
+            this.updateKnockbackBonusDisplay();
+            this.updateExploreBonusDisplay();
+            this.updateDefenceBonusDisplay();
+            this.updateFoodBonusDisplay();
             this.updateEnergyBar()
             PlayerState.JustAte = false;
         } else {
@@ -815,7 +947,7 @@ this.inventoryContainer.add([sprite, zone]);
         } else {
         }
     }
-    
+
     clearInventory() {
         PlayerState.inventory = [];
         this.inventoryContainer.removeAll(true);

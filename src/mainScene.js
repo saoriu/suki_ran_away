@@ -8,12 +8,23 @@ import * as Inventory from './Inventory';
 import { preloadFrames } from './preloadFrames';
 import { createAnims } from './createAnims';
 import { attacks } from './attacks';
+import chroma from 'chroma-js';
+
 
 export class mainScene extends Phaser.Scene {
+
+    _emitMonsterBattleUpdate(monsterLevel, playerEnergy, ) {
+        this.game.events.emit('monsterBattleUpdate', {
+            monsterLevel,
+            petEnergy: playerEnergy,
+            
+        });
+        this.game.events.emit('energyChanged');
+    }
     constructor() {
         super({ key: 'mainScene' });
         this.tiles = {};
-        this.tileWidth = GAME_CONFIG.TILE_WIDTH * GAME_CONFIG.TILE_SCALE;
+        this.tileWidth = GAME_CONFIG.TILE_WIDTH;
         this.cat = null; // Will be set in create()
         this.cursors = null; // Will be set in create()
         this.monsters = {};
@@ -29,8 +40,11 @@ export class mainScene extends Phaser.Scene {
         this.lastDirection = null;
         this.lastPlayerX = 0;
         this.lastPlayerY = 0;
+        this.fire = [];
+        this.fires = [];
+        this.tilePool = [];
         this.lastRegenerateEnergyTime = 0;
-        this.positionChangeThreshold = 1.25 * this.tileWidth;
+        this.positionChangeThreshold = 1.1 * this.tileWidth;
     }
 
 
@@ -58,11 +72,13 @@ export class mainScene extends Phaser.Scene {
         this.cat.body.friction = 0;
         this.cat.body.frictionAir = 0;
         this.cat.setDepth(5)
-
+        this.cat.setPipeline('Light2D');
 
         this.targetMonsterKey = null;
 
         createAnims(this);
+
+        this.lights.enable();
 
         this.input.on('pointermove', () => {
             this.game.events.emit('hideTooltip');
@@ -78,6 +94,10 @@ export class mainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.handleItemPickup = Inventory.handleItemPickup.bind(this);
         this.addToInventory = Inventory.addToInventory.bind(this);
+
+        this.game.events.on('gameTime', (gameTime) => {
+            this.updateTimeCircle(gameTime);
+        });
 
         this.input.keyboard.on('keydown', (event) => {
             if (!this.isFainting && this.canAttack) {
@@ -103,7 +123,9 @@ export class mainScene extends Phaser.Scene {
                 }
 
                 if (this.canAttack && attackName !== undefined && !PlayerState.isEating) {
+
                     this.updateTargetMonsterKey(attackName);
+
                     this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName);
                     PlayerState.isAttacking = true;
                     this.canAttack = false;
@@ -254,8 +276,8 @@ export class mainScene extends Phaser.Scene {
                         monster.sprite.play(`${monster.event.monster}`, true);
                     }
                 }, this);
-            } else if (monster.isAttacking) {
-                //return if the monster ishurt
+            } else if (monster.isAttacking && monster.canReach) {
+                this.gameEvents.monsterAttack(this.monsters, monster.key);
                 monster.sprite.play(`${monster.event.monster}_attack`, true);
                 monster.sprite.once('animationcomplete', (animation) => {
                     if (animation.key === `${monster.event.monster}_attack`) {
@@ -305,8 +327,98 @@ export class mainScene extends Phaser.Scene {
                 this.targetMonsterKey = this.lastClickedMonsterKey;
             }
         }
+
+        //check if player is standing on the fire
+        this.fires.forEach((fire) => {
+            if (fire && fire.active) {
+                const dx = this.cat.x - fire.x;
+                const dy = this.cat.y - fire.y;
+                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+
+                if (distanceInTiles <= 1.5) {
+                    this.fireAttack(fire);
+                }
+            }
+        });
+
+        Object.values(this.monsters).forEach(monster => {
+            if (!monster.sprite || !monster.sprite.body) {
+                return;
+            }
+
+            this.fires.forEach(fire => {
+                if (!fire || !fire.active) {
+                    return;
+                }
+
+                const dx = monster.sprite.body.position.x - fire.x;
+                const dy = monster.sprite.body.position.y - fire.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance <= 350) {
+                    monster.isAggressive = false;
+                } else {
+                }
+            });
+        });
     }
 
+    fireAttack(fire) {
+        if (this.scene.isFainting) return; // Skip if player is dead
+
+        const attackCooldown = 300; // .3 second in milliseconds
+        const currentTime = Date.now();
+
+        if (currentTime - fire.lastAttackTime < attackCooldown) {
+            return; // Skip the attack if the cooldown has not elapsed
+        }
+
+        fire.lastAttackTime = currentTime;
+
+        PlayerState.lastEnergyUpdate = Date.now();
+
+        const fireDamage = Phaser.Math.Between(1, 10); // Fire damage is a random number between 1 and 5
+        const fireRoll = Phaser.Math.Between(1, fireDamage); // Ensure fireRoll is at least 1
+        fire.isAttacking = true;
+        let monsterRoll = fireRoll;
+        let monsterLevel = 1;
+
+            if (PlayerState.energy > 0) {
+                PlayerState.isUnderAttack = true;
+                PlayerState.energy -= fireRoll;
+                this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
+                PlayerState.lastDamageTime = Date.now();
+
+                if (fireRoll > 0) {
+                    PlayerState.isHurt = true;
+                }
+
+
+                if (PlayerState.energy <= 0) {
+                    PlayerState.energy = 0;
+                }
+            }
+    }
+
+
+    calculateTileType() {
+        const roll = Phaser.Math.FloatBetween(0, 1);
+        let tileType;
+    
+        if (roll <= 0.70) { // 50% chance for tile 1
+            tileType = 1;
+        } else if (roll <= 0.95) { // Additional 35% chance for this.tiles 2-6
+            tileType = Phaser.Math.Between(2, 5);
+        } else if (roll <= 0.97) { // Additional 10% chance for this.tiles 7-8
+            tileType = Phaser.Math.Between(6, 9);
+        } else { // Remaining 5% chance for this.tiles 9-12
+            tileType = Phaser.Math.Between(10, 13);
+        }        // ... existing logic to determine tileType ...
+        return tileType;
+    }
+
+
+    
     createTilesAround(centerX, centerY, scene) {
         const camera = scene.cameras.main;
         const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2 - this.tilesBuffer * this.tileWidth) / this.tileWidth);
@@ -316,51 +428,43 @@ export class mainScene extends Phaser.Scene {
         for (let i = startI; i <= endI; i++) {
             for (let j = startJ; j <= endJ; j++) {
                 if (!this.tiles[`${i},${j}`]) {
-                    const roll = Phaser.Math.FloatBetween(0, 1);
-                    let tileType;
-
-                    if (roll <= 0.70) { // 50% chance for tile 1
-                        tileType = 1;
-                    } else if (roll <= 0.95) { // Additional 35% chance for this.tiles 2-6
-                        tileType = Phaser.Math.Between(2, 5);
-                    } else if (roll <= 0.97) { // Additional 10% chance for this.tiles 7-8
-                        tileType = Phaser.Math.Between(6, 9);
-                    } else { // Remaining 5% chance for this.tiles 9-12
-                        tileType = Phaser.Math.Between(10, 13);
+                    let tile;
+                    if (this.tilePool.length > 0) {
+                        tile = this.tilePool.pop();
+                        tile.setPosition(i * this.tileWidth, j * this.tileWidth);
+                    } else {
+                        const tileKey = `tile${this.calculateTileType()}`;
+                        tile = scene.add.image(i * this.tileWidth, j * this.tileWidth, tileKey).setOrigin(0).setPipeline('Light2D');
                     }
-
-                    const tileKey = `tile${tileType}`;
-                    const tile = scene.add.image(i * this.tileWidth, j * this.tileWidth, tileKey).setOrigin(0).setScale(GAME_CONFIG.TILE_SCALE);
                     this.tiles[`${i},${j}`] = tile;
                 }
             }
-
-
         }
-        this.cat.setDepth(3);
 
         const spawnProbability = this.calculateSpawnProbability();
 
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
-        
+
         if (randomFloat < spawnProbability) {
             //console log the float between 0 and 1
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.daysPassed);
-        }    
+        }
+
+        //spawn fire very rarely
+        const fireProbability = 0.05;
+        const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
+        if (randomFireFloat < fireProbability) {
+            this.spawnFire();
+        }
     }
 
     calculateSpawnProbability() {
-        const eventsBonus = PlayerState.eventsBonus;
+        let probability = GAME_CONFIG.baseProbability * (1 + PlayerState.exploreBonus / 100);
 
-        let probability = GAME_CONFIG.baseProbability;
-      
-        // Modify probability based on items the player has
-        probability += eventsBonus;
-      
         // Ensure probability is within [0, 1]
         probability = Phaser.Math.Clamp(probability, 0, 1);
         return probability;
-      }
+    }
 
     handlePlayerMovement() {
         if (PlayerState.isDead) {
@@ -435,6 +539,76 @@ export class mainScene extends Phaser.Scene {
         }
     }
 
+    //function to randomly spawn a fire on the map using the fire animation
+    spawnFire() {
+        const camera = this.cameras.main;
+        const centerX = camera.midPoint.x;
+        const centerY = camera.midPoint.y;
+        const visibleStartI = Math.floor((centerX - camera.width / 2) / this.tileWidth);
+        const visibleEndI = Math.ceil((centerX + camera.width / 2) / this.tileWidth);
+        const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 1); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 1);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 1); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 1);    // extend outward by 1 tile
+
+        let spawnTileI, spawnTileJ;
+
+        // Deciding whether to spawn on the horizontal or vertical buffer area
+        if (Phaser.Math.Between(0, 1) === 0) {
+            // Horizontal buffer area (top or bottom)
+            spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+            spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
+        } else {
+            // Vertical buffer area (left or right)
+            spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+            spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+        }
+
+        // Check if the chosen tile is within the visible area
+        if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+            // If it is, return and don't spawn a fire
+            return;
+        }
+
+        const x = spawnTileI * this.tileWidth;
+        const y = spawnTileJ * this.tileWidth;
+
+        const fireTooClose = this.fires.some(fire => {
+            const dx = fire.x - x;
+            const dy = fire.y - y;
+            const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+            return distanceInTiles <= 50;
+        });
+
+        // If there's already a fire too close to the new fire's location, don't spawn a new one
+        if (fireTooClose) {
+            return;
+        }
+
+        const fire = this.add.sprite(x, y, 'fire').setPipeline('Light2D');
+        fire.setDepth(2);
+        fire.setOrigin(0.5)
+        fire.play('fire');
+
+        this.fires.push(fire);
+
+        fire.light = this.lights.addLight(x, y + 50, 400).setColor(0xFF4500).setIntensity(1.0);
+
+
+        // Add a pulsing effect to the fire light
+        this.tweens.add({
+            targets: fire.light,
+            radius: { from: 350, to: 400 },
+            ease: 'Sine.easeInOut',
+            duration: 1500,
+            yoyo: true,
+            repeat: -1
+        });
+    }
+
     isMonsterAttackable(monster, attackName) {
         const attack = attacks[attackName];
         if (!attack) {
@@ -449,11 +623,7 @@ export class mainScene extends Phaser.Scene {
         const monster = this.monsters[key];
         if (monster) {
             this.lastClickedMonsterKey = key;
-            if (this.isMonsterAttackable(monster)) {
                 this.targetMonsterKey = key;
-            } else {
-
-            }
         } else {
 
         }
@@ -469,12 +639,14 @@ export class mainScene extends Phaser.Scene {
         let targetX = targetMonster.sprite.x;
         let targetY = targetMonster.sprite.y;
 
-        // Animate projectile to target - adjust duration as needed
+        const ballDuration = 600; // Set a constant duration
+
+        // Animate projectile to target
         this.tweens.add({
             targets: projectile,
             x: targetX,
             y: targetY,
-            duration: 500,
+            duration: ballDuration,
             ease: 'Power2',
             onComplete: () => {
                 projectile.destroy();
@@ -487,6 +659,25 @@ export class mainScene extends Phaser.Scene {
         if (PlayerState.isDead) {
             this.cat.play('dead', true);
             return;
+        }
+
+        //if player is underattack apply red tint for 1 second
+        if (PlayerState.isHurt) {
+            this.cat.setTint(0xff0000);
+
+            // Start flashing
+            let flash = setInterval(() => {
+                this.cat.alpha = this.cat.alpha === 1 ? 0.5 : 1;
+            }, 100);
+
+            setTimeout(() => {
+                this.cat.clearTint();
+                PlayerState.isHurt = false;
+
+                // Stop flashing
+                clearInterval(flash);
+                this.cat.alpha = 1;
+            }, 200);
         }
 
         if (PlayerState.isAttacking && !PlayerState.isEating) {
@@ -551,6 +742,28 @@ export class mainScene extends Phaser.Scene {
             }
     }
 
+    updateTimeCircle(gameTime) {
+        // Define a color scale
+        const colorScale = chroma.scale([
+            '#404040', // Midnight (0)
+            '#000080', // Early morning (3)
+            '#87CEEB', // Morning (6)
+            '#E0FFFF', // Midday (12)
+            '#87CEEB', // Afternoon (18)
+            '#000080', // Evening (21)
+            '#404040' // Night (24)
+        ]).mode('lch').domain([0, 3, 6, 12, 18, 21, 24]);
+
+        // Get the color for the current game time
+        let color = colorScale(gameTime).hex().substring(1);
+
+        // Convert the color to a number
+        color = parseInt(color, 16);
+
+        // Set the ambient color
+        this.lights.setAmbientColor(color);
+    }
+
     updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
         const hue = Phaser.Math.Clamp((currentHealth / maxHealth) * 120, 0, 120);
         const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
@@ -574,6 +787,9 @@ export class mainScene extends Phaser.Scene {
         if (this.isFainting) return; // Prevent multiple calls if already processing death
 
         PlayerState.isDead = true;
+        PlayerState.isUnderAttack = false;
+        PlayerState.isHurt = false;
+        PlayerState.isEating = false;
 
         this.isFainting = true;
         PlayerState.isAttacking = false; // Ensure no attack is in progress
@@ -680,6 +896,7 @@ export class mainScene extends Phaser.Scene {
         }
     }
 
+
     removeFarTiles(centerX, centerY, scene) {
         const camera = scene.cameras.main;
 
@@ -691,7 +908,8 @@ export class mainScene extends Phaser.Scene {
         Object.keys(this.tiles).forEach((key) => {
             const [i, j] = key.split(',').map(Number);
             if (i < startI || i > endI || j < startJ || j > endJ) {
-                this.tiles[key].destroy();
+                const tile = this.tiles[key];
+                this.tilePool.push(tile); // Add the tile to the pool
                 delete this.tiles[key];
 
                 // Check for this.monsters in these this.tiles and clean them up
@@ -701,6 +919,27 @@ export class mainScene extends Phaser.Scene {
                         const monsterTileJ = Math.floor(monster.sprite.y / this.tileWidth);
                         if (monsterTileI === i && monsterTileJ === j) {
                             scene.gameEvents.cleanUpMonster(monster);
+                        }
+                    }
+                });
+
+
+                this.fires.forEach((fire, index) => {
+                    if (fire && fire.active) {
+                        const fireTileI = Math.floor(fire.x / this.tileWidth);
+                        const fireTileJ = Math.floor(fire.y / this.tileWidth);
+                        if (fireTileI === i && fireTileJ === j) {
+                            // Turn off the light associated with the fire
+                            fire.light.setIntensity(0);
+
+                            // Remove the light from the LightManager's list of lights
+                            this.lights.removeLight(fire.light.x, fire.light.y);
+
+                            // Destroy the fire
+                            fire.destroy();
+
+                            // Remove the fire from the fires array
+                            this.fires.splice(index, 1);
                         }
                     }
                 });

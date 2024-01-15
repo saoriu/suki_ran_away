@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { GAME_CONFIG } from './gameConstants.js';
 import { eventOptions } from './eventOptions.js';
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, daysPassed) {
@@ -23,7 +22,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     const bufferEndJ = visibleEndJ + (tilesBuffer + 1);    // extend outward by 1 tile
 
 
-    // Check if any monster already exists in the extended area including the buffer, if yes, then return
     for (let i = bufferStartI; i <= bufferEndI; i++) {
       for (let j = bufferStartJ; j <= bufferEndJ; j++) {
         if (monsters[`${i},${j}`]) return;
@@ -74,12 +72,18 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     // Deciding whether to spawn on the horizontal or vertical buffer area
     if (Phaser.Math.Between(0, 1) === 0) {
       // Horizontal buffer area (top or bottom)
-      spawnTileI = Phaser.Math.Between(bufferStartI + 1, bufferEndI - 1);
-      spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ + 1 : bufferEndJ - 1;
+      spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+      spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
     } else {
       // Vertical buffer area (left or right)
-      spawnTileJ = Phaser.Math.Between(bufferStartJ + 1, bufferEndJ - 1);
-      spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI + 1 : bufferEndI - 1;
+      spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+      spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+    }
+
+    // Check if the chosen tile is within the visible area
+    if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+      // If it is, return and don't spawn a monster
+      return;
     }
     const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
 
@@ -91,8 +95,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     let trimmedWidth = frameData.cutWidth;
     let trimmedHeight = frameData.cutHeight;
 
-    const monsterX = spawnTileI * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * trimmedWidth)) / 2;
-    const monsterY = spawnTileJ * tileWidth + (tileWidth - (GAME_CONFIG.TILE_SCALE * trimmedHeight)) / 2;
+    const monsterX = spawnTileI * tileWidth + (tileWidth - (trimmedWidth)) / 2;
+    const monsterY = spawnTileJ * tileWidth + (tileWidth - (trimmedHeight)) / 2;
 
     
     //define monsterradius based on monster frame data
@@ -101,7 +105,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     // Create the monster sprite
     let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
       isStatic: false
-    }).setScale(1).setCircle(monsterRadius)
+    }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
 
     // Continue with your existing code...
     monster.setInteractive();

@@ -11,14 +11,16 @@ export const PlayerState = {
     isDead: false,
     isUnderAttack: false,
     isEating: false,
+    isHurt: false,
     JustAte: false,
     isAttacking: false,
     energyBonus: 0, //energy regeneration boost
     attackBonus: 0, //rare attack moves boost
-    createBonus: 0, //save an item from being destroyed during creation
     luckBonus: 0, //chance to get a rare item from a monster
-    eventsBonus: 0, //chance to get an event
-    weakenBonus: 0, //chance to lower monster level
+    exploreBonus: 0, //chance to get an event
+    defenceBonus: 0, //chance to lower monster damage
+    knockbackBonus: 0, //knockback distance
+    foodBonus: 0, //food extra heal rate
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
     inventory: [],
