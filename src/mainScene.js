@@ -40,11 +40,15 @@ export class mainScene extends Phaser.Scene {
         this.lastDirection = null;
         this.lastPlayerX = 0;
         this.lastPlayerY = 0;
+        this.newlastPlayerX = 0;
+        this.newlastPlayerY = 0;
         this.fire = [];
         this.fires = [];
         this.tilePool = [];
         this.lastRegenerateEnergyTime = 0;
-        this.positionChangeThreshold = 1.1 * this.tileWidth;
+        this.positionChangeThreshold = 0.05 * this.tileWidth;
+        this.newpositionChangeThreshold = 1 * this.tileWidth;
+
     }
 
 
@@ -202,13 +206,13 @@ export class mainScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        PlayerState.gameTime += delta / 2000;
+        PlayerState.gameTime += delta / 20000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
         }
 
-        if (time - this.lastUpdateTime > 1000) {
+        if (time - this.lastUpdateTime > 15000) {
             this.game.events.emit('gameTime', PlayerState.gameTime);
             this.game.events.emit('daysPassed', PlayerState.days);
             this.lastUpdateTime = time;
@@ -229,12 +233,19 @@ export class mainScene extends Phaser.Scene {
 
         if (Math.abs(this.cat.x - this.lastPlayerX) > this.positionChangeThreshold ||
             Math.abs(this.cat.y - this.lastPlayerY) > this.positionChangeThreshold) {
-
             this.createTilesAround(this.cat.x, this.cat.y, this);
             this.lastPlayerX = this.cat.x;
             this.lastPlayerY = this.cat.y;
             this.removeFarTiles(this.cat.x, this.cat.y, this);
         }
+
+        if (Math.abs(this.cat.x - this.newlastPlayerX) > this.newpositionChangeThreshold ||
+            Math.abs(this.cat.y - this.newlastPlayerY) > this.newpositionChangeThreshold) {
+            this.spawnMonstersFire(this.cat.x, this.cat.y, this);
+            this.newlastPlayerX = this.cat.x;
+            this.newlastPlayerY = this.cat.y;
+        }
+
 
         //Check if player is within monster attack range
         Object.values(this.monsters).forEach(monster => {
@@ -418,29 +429,7 @@ export class mainScene extends Phaser.Scene {
     }
 
 
-    
-    createTilesAround(centerX, centerY, scene) {
-        const camera = scene.cameras.main;
-        const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2 - this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2 + this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        const startJ = Math.floor((centerY - camera.height / 2 - this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        const endJ = Math.ceil((centerY + camera.height / 2 + this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        for (let i = startI; i <= endI; i++) {
-            for (let j = startJ; j <= endJ; j++) {
-                if (!this.tiles[`${i},${j}`]) {
-                    let tile;
-                    if (this.tilePool.length > 0) {
-                        tile = this.tilePool.pop();
-                        tile.setPosition(i * this.tileWidth, j * this.tileWidth);
-                    } else {
-                        const tileKey = `tile${this.calculateTileType()}`;
-                        tile = scene.add.image(i * this.tileWidth, j * this.tileWidth, tileKey).setOrigin(0).setPipeline('Light2D');
-                    }
-                    this.tiles[`${i},${j}`] = tile;
-                }
-            }
-        }
-
+    spawnMonstersFire(centerX, centerY, scene) {
         const spawnProbability = this.calculateSpawnProbability();
 
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
@@ -455,6 +444,31 @@ export class mainScene extends Phaser.Scene {
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
             this.spawnFire();
+        }
+    }
+
+
+    
+    createTilesAround(centerX, centerY, scene) {
+        const camera = scene.cameras.main;
+        const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
+        const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
+        const startJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const endJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+        for (let i = startI; i <= endI; i++) {
+            for (let j = startJ; j <= endJ; j++) {
+                if (!this.tiles[`${i},${j}`]) {
+                    let tile;
+                    if (this.tilePool.length > 0) {
+                        tile = this.tilePool.pop();
+                        tile.setPosition(i * this.tileWidth, j * this.tileWidth);
+                    } else {
+                        const tileKey = `tile${this.calculateTileType()}`;
+                        tile = scene.add.image(i * this.tileWidth, j * this.tileWidth, tileKey).setOrigin(0).setPipeline('Light2D');
+                    }
+                    this.tiles[`${i},${j}`] = tile;
+                }
+            }
         }
     }
 
@@ -900,10 +914,10 @@ export class mainScene extends Phaser.Scene {
     removeFarTiles(centerX, centerY, scene) {
         const camera = scene.cameras.main;
 
-        const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2 - this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2 + this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        const startJ = Math.floor((centerY - camera.height / 2 - this.tilesBuffer * this.tileWidth) / this.tileWidth);
-        const endJ = Math.ceil((centerY + camera.height / 2 + this.tilesBuffer * this.tileWidth) / this.tileWidth);
+        const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
+        const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
+        const startJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const endJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
 
         Object.keys(this.tiles).forEach((key) => {
             const [i, j] = key.split(',').map(Number);
