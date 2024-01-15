@@ -547,6 +547,17 @@ export class mainScene extends Phaser.Scene {
     }
 
     updateTargetMonsterKey(attackName) {
+        // If a monster has been clicked, check if it's attackable
+        if (this.lastClickedMonsterKey) {
+            const clickedMonster = this.monsters[this.lastClickedMonsterKey];
+            if (clickedMonster && this.isMonsterAttackable(clickedMonster, attackName)) {
+                this.targetMonsterKey = this.lastClickedMonsterKey;
+                return;
+            }
+        }
+
+        // If the clicked monster is not attackable or if no monster has been clicked,
+        // find another attackable monster
         if (this.targetMonsterKey === null) {
             for (const [key, monster] of Object.entries(this.monsters)) {
                 if (this.isMonsterAttackable(monster, attackName)) {
@@ -556,7 +567,7 @@ export class mainScene extends Phaser.Scene {
             }
         }
     }
-
+    
     //function to randomly spawn a fire on the map using the fire animation
     spawnFire() {
         const camera = this.cameras.main;
@@ -929,6 +940,17 @@ export class mainScene extends Phaser.Scene {
                 const tile = this.tiles[key];
                 this.tilePool.push(tile); // Add the tile to the pool
                 delete this.tiles[key];
+
+                this.items.forEach((item, index) => {
+                    if (item && item.sprite.active) {
+                        const itemTileI = Math.floor(item.sprite.x / this.tileWidth);
+                        const itemTileJ = Math.floor(item.sprite.y / this.tileWidth);
+                        if (itemTileI === i && itemTileJ === j) {
+                            item.sprite.destroy(); // Destroy the sprite, not the wrapper object
+                            this.items.splice(index, 1);
+                        }
+                    }
+                });
 
                 // Check for this.monsters in these this.tiles and clean them up
                 Object.values(this.monsters).forEach(monster => {

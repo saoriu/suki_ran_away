@@ -4,6 +4,7 @@ export class Item {
         this.sprite = this.scene.add.sprite(x, y, key).setScale(1);
                 this.config = config;
         this.sprite.setInteractive();
+        this.sprite.setPipeline('Light2D')
     }
 }
 
