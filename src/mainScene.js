@@ -35,7 +35,6 @@ export class mainScene extends Phaser.Scene {
         this.attackAnimationKey = null; // Will be set when needed
         this.POSITION_CHANGE_THRESHOLD = 0.1;
         this.Matter = Phaser.Physics.Matter.Matter; // Ensure Matter is correctly imported/referenced
-        this.daysPassed = PlayerState.days;
         this.lastUpdateTime = 0;
         this.lastDirection = null;
         this.lastPlayerX = 0;
@@ -59,6 +58,7 @@ export class mainScene extends Phaser.Scene {
 
     create() {
         const camera = this.cameras.main;
+        this.lights.enable();
         this.scene.launch('UIScene');
         this.monsters = {};
         camera.setSize(GAME_CONFIG.CAMERA_WIDTH, GAME_CONFIG.CAMERA_HEIGHT); // restrict camera size
@@ -82,7 +82,6 @@ export class mainScene extends Phaser.Scene {
 
         createAnims(this);
 
-        this.lights.enable();
 
         this.input.on('pointermove', () => {
             this.game.events.emit('hideTooltip');
@@ -102,6 +101,9 @@ export class mainScene extends Phaser.Scene {
         this.game.events.on('gameTime', (gameTime) => {
             this.updateTimeCircle(gameTime);
         });
+
+        this.game.events.emit('gameTime', PlayerState.gameTime);
+        this.game.events.emit('daysPassed', PlayerState.days);
 
         this.input.keyboard.on('keydown', (event) => {
             if (!this.isFainting && this.canAttack) {
@@ -198,6 +200,8 @@ export class mainScene extends Phaser.Scene {
                 if (monster && monster.sprite && monster.sprite.active) {
                     const monsterBody = monster.sprite.body;
                     if (monsterBody && this.Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
+                        //clear the target monster key
+                        this.targetMonsterKey = null;
                         this.attemptToTargetMonster.bind(this)(monster.key);
                     }
                 }
@@ -436,7 +440,7 @@ export class mainScene extends Phaser.Scene {
 
         if (randomFloat < spawnProbability) {
             //console log the float between 0 and 1
-            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.daysPassed);
+            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters);
         }
 
         //spawn fire very rarely
@@ -609,7 +613,7 @@ export class mainScene extends Phaser.Scene {
 
         this.fires.push(fire);
 
-        fire.light = this.lights.addLight(x, y + 50, 400).setColor(0xFF4500).setIntensity(1.0);
+        fire.light = this.lights.addLight(x, y + 50, 400).setColor(0xFF4500).setIntensity(1.5);
 
 
         // Add a pulsing effect to the fire light

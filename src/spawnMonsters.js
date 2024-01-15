@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { eventOptions } from './eventOptions.js';
+import { PlayerState } from './playerState.js';
 
-export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, daysPassed) {
+export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters) {
       // At the start of the spawnMonsters function
 
     for (const key in monsters) {
@@ -32,17 +33,24 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       const rarities = ['common', 'uncommon', 'rare', 'ultrarare'];
       const cumulativeProbabilities = [0.55, 0.80, 0.95, 1.00]; // Cumulative probabilities for the rarities
       const roll = Phaser.Math.FloatBetween(0, 1);
-
+    
       for (let i = 0; i < cumulativeProbabilities.length; i++) {
         if (roll <= cumulativeProbabilities[i]) return rarities[i];
       }
     }
 
     function chooseMonster(eventOptions, chosenRarity) {
-      const filteredOptions = eventOptions.filter(option => option.monsterChance === chosenRarity);
-
+      let filteredOptions = eventOptions.filter(option => option.monsterChance === chosenRarity);
+      if ( PlayerState.gameTime >= 21 ||  PlayerState.gameTime <= 2) {
+        console.log('nighttime');
+        const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
+        if (aggressiveOptions.length > 0) {
+          filteredOptions = aggressiveOptions;
+        }
+      }
+    
       if (filteredOptions.length === 0) return null; // Return null if no monsters match the chosen rarity
-
+    
       const index = Phaser.Math.Between(0, filteredOptions.length - 1);
       return filteredOptions[index];
     }
@@ -53,12 +61,12 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
     if (!chosenMonster) return;
 
-    const levelVariation = Phaser.Math.Between(0, Math.ceil(daysPassed * 0.15) + chosenMonster.level);   
+    const levelVariation = Phaser.Math.Between(0, Math.ceil(PlayerState.days * 0.15) + chosenMonster.level);   
     let damage = chosenMonster.damage;
     const monsterMass = chosenMonster.monsterMass;
 
     if (chosenMonster.monster !== 'turtle') {
-      damage = chosenMonster.damage + Math.ceil(daysPassed * 0.05);
+      damage = chosenMonster.damage + Math.ceil(PlayerState.days * 0.05);
     } else {
       damage = chosenMonster.damage;
     }

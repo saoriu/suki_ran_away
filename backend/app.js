@@ -49,17 +49,21 @@ app.post('/register', async (req, res) => {
     lastDamageTime: Date.now(),
     isDead: false,
     isUnderAttack: false,
-    attackRange: 1,
-    energyBonus: 0,
-    attackBonus: 0,
-    createBonus: 0,
-    luckBonus: 0,
-    eventsBonus: 0,
-    weakenBonus: 0,
+    isEating: false,
+    isHurt: false,
+    JustAte: false,
+    isAttacking: false,
+    energyBonus: 0, //energy regeneration boost
+    attackBonus: 0, //rare attack moves boost
+    luckBonus: 0, //chance to get a rare item from a monster
+    exploreBonus: 0, //chance to get an event
+    defenceBonus: 0, //chance to lower monster damage
+    knockbackBonus: 0, //knockback distance
+    foodBonus: 0, //food extra heal rate
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
     inventory: [],
-    gameTime: 0,
+    gameTime: 12,
   };
 
   const user = { userid, password: hashedPassword, playerState };
