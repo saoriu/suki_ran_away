@@ -280,6 +280,7 @@ export class GameEvents {
                 }
 
                 if (PlayerState.energy <= 0) {
+                    PlayerState.isUnderAttack = false;
                     PlayerState.energy = 0;
                     this.endBattleForMonster(targetMonster);
                 }
@@ -396,6 +397,9 @@ export class GameEvents {
 
             this.updateMonsterMovement(this.player, monster, distance); // Update monster movement based on current state
         });
+
+        //Check if monster is colliding with tree:
+        
 
     }
 

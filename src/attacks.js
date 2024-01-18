@@ -35,7 +35,7 @@ export const attacks = {
       speed: 2,
       knockback: 0.5,
       damage: 5,
-      level: 5,
+      level: 6,
       bleed: 2,
       spread: 1,
       rarity: 0.08,

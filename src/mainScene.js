@@ -43,6 +43,8 @@ export class mainScene extends Phaser.Scene {
         this.lastPlayerY = 0;
         this.newlastPlayerX = 0;
         this.newlastPlayerY = 0;
+        this.tree = [];
+        this.trees = [];
         this.fire = [];
         this.fires = [];
         this.tilePool = [];
@@ -192,7 +194,7 @@ export class mainScene extends Phaser.Scene {
         let lastPressTime = 0;
         let lastDashTime = 0;
         const doubleTapThreshold = 300;
-        const dashThreshold = 1000; // 300 ms
+        const dashThreshold = 800; // 300 ms
 
         this.input.keyboard.on('keydown-SPACE', () => {
             let currentTime = new Date().getTime();
@@ -489,6 +491,12 @@ export class mainScene extends Phaser.Scene {
         if (randomFireFloat < fireProbability) {
             this.spawnFire();
         }
+
+        const treeProbability = 0.99;
+        const randomTreeFloat = Phaser.Math.FloatBetween(0, 1);
+        if (randomTreeFloat < treeProbability) {
+            this.spawnTrees();
+        }
     }
 
     createTilesAround(centerX, centerY, scene) {
@@ -760,6 +768,92 @@ export class mainScene extends Phaser.Scene {
         });
     }
 
+    spawnTrees() {
+        const camera = this.cameras.main;
+        const centerX = camera.midPoint.x;
+        const centerY = camera.midPoint.y;
+        const visibleStartI = Math.floor((centerX - camera.width / 2) / this.tileWidth);
+        const visibleEndI = Math.ceil((centerX + camera.width / 2) / this.tileWidth);
+        const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 5); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 5);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 5); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 5);   // extend outward by 1 tile
+
+        let spawnTileI, spawnTileJ;
+
+        // Deciding whether to spawn on the horizontal or vertical buffer area
+        if (Phaser.Math.Between(0, 1) === 0) {
+            // Horizontal buffer area (top or bottom)
+            spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+            spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
+        } else {
+            // Vertical buffer area (left or right)
+            spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+            spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+        }
+
+        // Check if the chosen tile is within the visible area
+        if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+            // If it is, return and don't spawn a fire
+            return;
+        }
+
+        const x = spawnTileI * this.tileWidth;
+        const y = spawnTileJ * this.tileWidth;
+
+        const treeTooClose = this.trees.some(tree => {
+            // Check if the tree object exists and is active
+            if (tree && tree.active) {
+                const dx = tree.x - x;
+                const dy = tree.y - y;
+                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                return distanceInTiles <= 4;
+            }
+            return false; // Return false if the tree object does not exist or is not active
+        });
+
+        // If there's already a tree too close to the new tree's location, don't spawn a new one
+        if (treeTooClose) {
+            return;
+        }
+
+                // If there are already 2 trees in the view, don't spawn a new one
+                if (this.trees.filter(tree => tree.active).length >= 5) {
+                    return;
+                }
+
+        // Create a compound body that is wider at the bottom than at the top
+        const body = this.matter.bodies;
+
+        // Define the vertices for the bottom part of the tree
+        const bottomVertices = [{ x: -135, y: 70 }, { x: 70, y: 70 }, { x: 0, y: -20 }, { x: -70, y: -20 }];
+
+        // Define the vertices for the top part of the tree
+        const topVertices = [{ x: -135, y: 0 }, { x: 80, y: 0 }, { x: 10, y: -60 }, { x: -60, y: -60 }];
+
+        // Combine the vertices
+        const vertices = [...bottomVertices, ...topVertices];
+
+        // Create a body from the vertices at the same position as the sprite
+        const treeBody = body.fromVertices(x, y, vertices, {});
+
+        const tree = this.matter.add.sprite(x, y, 'tree', null, {
+            label: 'tree'
+        }).setExistingBody(treeBody).setDepth(y); // Set the depth to be proportional to the y-coordinate
+
+        tree.setOrigin(0.5, 0.85);
+        tree.setPipeline('Light2D');
+        tree.play('tree');
+
+        this.matter.body.setStatic(tree.body, true);
+
+        this.trees.push(tree);
+        console.log("tree added")
+    }
+
     isMonsterAttackable(monster, attackName) {
         const attack = attacks[attackName];
         if (!attack) {
@@ -999,12 +1093,13 @@ export class mainScene extends Phaser.Scene {
         // Listen for the 'animationcomplete' event
         this.cat.on('animationcomplete', (animation) => {
             if (animation.key === 'dead') {
+                PlayerState.isUnderAttack = false;
                 this.canAttack = true;
                 PlayerState.isDead = false;
                 //emit event to update energy
-                this.game.events.emit('energyUpdate', PlayerState.energy);
                 this.isFainting = false;
                 PlayerState.energy = 100;
+                this.game.events.emit('energyUpdate', PlayerState.energy);
             }
         }, this);
     }
@@ -1134,6 +1229,23 @@ export class mainScene extends Phaser.Scene {
                         }
                     }
                 });
+
+
+                this.trees.forEach((tree, index) => {
+                    if (tree && tree.active) {
+                        const treeTileI = Math.floor(tree.x / this.tileWidth);
+                        const treeTileJ = Math.floor(tree.y / this.tileWidth);
+                        const buffer = 5; // Add a buffer of 2 tiles
+                        if (treeTileI < startI - buffer || treeTileI > endI + buffer || treeTileJ < startJ - buffer || treeTileJ > endJ + buffer) { // Check if the tree is out of view
+                            this.trees.splice(index, 1);
+                            this.matter.world.remove(tree.body);
+
+                            tree.body.destroy();
+                            tree.destroy();
+                        }
+                    }
+                });
+
 
                 this.fires.forEach((fire, index) => {
                     if (fire && fire.active) {

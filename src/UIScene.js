@@ -748,7 +748,7 @@ export class UIScene extends Phaser.Scene {
                     this.activeChangeTexts--; // Decrease the counter when a text is removed
                 }
             });
-        } else if (energyChange === 0 && PlayerState.isUnderAttack) {
+        } else if (energyChange === 0 && PlayerState.isUnderAttack ) {
             const missText = this.add.text(
                 this.x
                 + xOffset,

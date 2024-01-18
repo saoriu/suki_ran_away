@@ -55,18 +55,12 @@ export function preloadFrames(gameInstance) {
     this.load.image('stats', '/stats.png');
     this.load.atlas('fire', '/fire.png', '/fire.json');
     this.load.image('ashes', '/ashes.png');
-    //import modal
     this.load.image('modal', '/modal.png');
-    //attacks-menu.png
     this.load.image('attacks-menu', '/attacks-menu.png');
-    //scratch
     this.load.image('scratch', '/scratch.png');
-    //menu
     this.load.image('menu', '/menu.png');
-
-    //locked
     this.load.image('locked', '/locked.png');
-    //close
     this.load.image('close', '/close.png');
+    this.load.atlas('tree', '/tree.png', '/tree.json');
 
 }

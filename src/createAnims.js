@@ -18,6 +18,13 @@ export function createAnims(scene, cat) {
         repeat: -1
     });
 
+    scene.anims.create({
+        key: 'tree',
+        frames: Array(2).fill().map((_, i) => ({ key: 'tree', frame: `tree-${i + 1}` })),
+        frameRate: 3,
+        repeat: -1
+    });
+
     function determineFrameRate(key) {
         switch (key) {
             case 'attack1':
