@@ -4,8 +4,8 @@
 			"image": "fire.png",
 			"format": "RGBA8888",
 			"size": {
-				"w": 800,
-				"h": 200
+				"w": 480,
+				"h": 120
 			},
 			"scale": 4,
 			"frames": [
@@ -14,20 +14,20 @@
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"frame": {
 						"x": 0,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					}
 				},
 				{
@@ -35,20 +35,20 @@
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"frame": {
-						"x": 200,
+						"x": 120,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					}
 				},
 				{
@@ -56,20 +56,20 @@
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"frame": {
-						"x": 400,
+						"x": 240,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					}
 				},
 				{
@@ -77,20 +77,20 @@
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					},
 					"frame": {
-						"x": 600,
+						"x": 360,
 						"y": 0,
-						"w": 200,
-						"h": 200
+						"w": 120,
+						"h": 120
 					}
 				}
 			]
@@ -99,6 +99,6 @@
 	"meta": {
 		"app": "https://www.codeandweb.com/texturepacker",
 		"version": "3.0",
-		"smartupdate": "$TexturePacker:SmartUpdate:b2e2fcc1100b66d9598c36553809f9e0:6a2a0dad610412a7dfa685beaed2ff09:fe85b518f19a08db92d89ee48ba7169f$"
+		"smartupdate": "$TexturePacker:SmartUpdate:e889c7021b6a842583a364105dfec1f0:94ef9ce8dc8405950e402a1994a40ef0:fe85b518f19a08db92d89ee48ba7169f$"
 	}
 }

@@ -4,7 +4,7 @@ export function regenerateEnergy(scene) {
     const now = Date.now();
 
     // Check if 3 seconds have passed since the last damage
-    if (now - PlayerState.lastDamageTime < 1000 || PlayerState.isDead) 
+    if (now - PlayerState.lastDamageTime < 5000 || PlayerState.isDead) 
     {PlayerState.isUnderAttack = true;
     return; // Do not regenerate if damaged recently
     }

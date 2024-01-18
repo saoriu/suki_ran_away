@@ -41,8 +41,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
     function chooseMonster(eventOptions, chosenRarity) {
       let filteredOptions = eventOptions.filter(option => option.monsterChance === chosenRarity);
-      if ( PlayerState.gameTime >= 21 ||  PlayerState.gameTime <= 2) {
-        console.log('nighttime');
+      if ( PlayerState.gameTime >= 21 ||  PlayerState.gameTime <= 3) {
         const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
         if (aggressiveOptions.length > 0) {
           filteredOptions = aggressiveOptions;
@@ -162,8 +161,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       },
       spawnPoint: { x: monsterX, y: monsterY },
       maxHealth: modifiedLevel,
-      //set a wander area of 5 tiles
-      wanderArea: 8 * tileWidth,
+      wanderArea: 12 * tileWidth,
       currentHealth: modifiedLevel,
     };
 

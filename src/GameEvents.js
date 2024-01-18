@@ -86,8 +86,6 @@ export class GameEvents {
 
 
             const selectedAttack = attacks[attackName] || attacks['scratch'];   
-        
-
             const playerRoll = Phaser.Math.Between(0, Math.floor((PlayerState.skills.dancing.level * 0.1) + (selectedAttack.damage * (1 + PlayerState.attackBonus / 100))));
 
             // Apply damage to the monster

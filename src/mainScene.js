@@ -13,17 +13,19 @@ import chroma from 'chroma-js';
 
 export class mainScene extends Phaser.Scene {
 
-    _emitMonsterBattleUpdate(monsterLevel, playerEnergy, ) {
+    _emitMonsterBattleUpdate(monsterLevel, playerEnergy,) {
         this.game.events.emit('monsterBattleUpdate', {
             monsterLevel,
             petEnergy: playerEnergy,
-            
+
         });
         this.game.events.emit('energyChanged');
     }
     constructor() {
         super({ key: 'mainScene' });
         this.tiles = {};
+        this.isDashing = false;
+        this.ashes = [];
         this.tileWidth = GAME_CONFIG.TILE_WIDTH;
         this.cat = null; // Will be set in create()
         this.cursors = null; // Will be set in create()
@@ -111,19 +113,18 @@ export class mainScene extends Phaser.Scene {
 
                 switch (event.code) {
                     case 'Digit1':
-                        attackName = 'scratch';
-                        this.handleItemPickup(this.cat);
+                        attackName = PlayerState.selectedAttacks[1] || 'scratch';
+                        break;
+                    case 'Digit2':
+                        attackName = PlayerState.selectedAttacks[2] || 'scratch';
+                        break;
+                    case 'Digit3':
+                        attackName = PlayerState.selectedAttacks[3] || 'scratch';
                         break;
                     case 'Space':
                         attackName = 'scratch';
                         this.handleItemPickup(this.cat);
-                        break;
-                    case 'Digit2':
-                        attackName = PlayerState.selectedAttacks[1] || 'scratch';
-                        break;
-                    case 'Digit3':
-                        attackName = PlayerState.selectedAttacks[2] || 'scratch';
-                        break;
+                        break;    
                     default:
                         return; // Exit the function if a non-attack key is pressed
                 }
@@ -188,6 +189,30 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
+        let lastPressTime = 0;
+        let lastDashTime = 0;
+        const doubleTapThreshold = 300;
+        const dashThreshold = 1000; // 300 ms
+
+        this.input.keyboard.on('keydown-SPACE', () => {
+            let currentTime = new Date().getTime();
+            if (currentTime - lastPressTime < doubleTapThreshold && (catBody.velocity.x !== 0 || catBody.velocity.y !== 0)) {     
+                if (currentTime - lastDashTime > dashThreshold) {
+                    this.isDashing = true;
+                    lastDashTime = currentTime; // update last dash time
+
+                    let attackName = 'roll';
+
+                    this.updateTargetMonsterKey(attackName);
+
+                    this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName);
+                    PlayerState.isAttacking = true;
+                    this.canAttack = false;
+                }
+            }
+            lastPressTime = currentTime;
+        });
+
         this.cat.on('animationcomplete', (animation, frame) => {
             if (animation.key === this.attackAnimationKey) {
                 PlayerState.isAttacking = false;
@@ -210,15 +235,16 @@ export class mainScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        PlayerState.gameTime += delta / 20000;
+        PlayerState.gameTime += delta / 12000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
+            this.game.events.emit('daysPassed', PlayerState.days);
         }
 
-        if (time - this.lastUpdateTime > 15000) {
+        if (time - this.lastUpdateTime > 1500) {
             this.game.events.emit('gameTime', PlayerState.gameTime);
-            this.game.events.emit('daysPassed', PlayerState.days);
+            this.spawnMonstersOnly(this.cat.x, this.cat.y, this);
             this.lastUpdateTime = time;
         }
 
@@ -307,10 +333,8 @@ export class mainScene extends Phaser.Scene {
         });
 
         this.gameEvents.update(this.monsters);
-
-
         Object.values(this.monsters).forEach(monsterObj => {
-            if (!monsterObj || !monsterObj.sprite || !monsterObj.sprite.active || !monsterObj.healthBar || !monsterObj.sprite.body) return;
+            if (!monsterObj || !monsterObj.sprite || !monsterObj.sprite.active || !monsterObj.healthBar) return;
 
             if (!monsterObj.hasOwnProperty('previousHealth')) {
                 monsterObj.previousHealth = monsterObj.currentHealth;
@@ -321,14 +345,15 @@ export class mainScene extends Phaser.Scene {
             monsterObj.previousHealth = monsterObj.currentHealth;  // Update previousHealth for the next iteration
 
             if (monsterObj.sprite) {
-                monsterObj.healthBar.outer.x = monsterObj.sprite.x - 30;
-                monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
+                const healthBarWidth = monsterObj.healthBar.outer.width;
 
-                monsterObj.healthBar.fill.x = monsterObj.sprite.x - 28;
-                monsterObj.healthBar.fill.y = monsterObj.sprite.y + monsterObj.sprite.height + 55;
+                monsterObj.healthBar.outer.x = monsterObj.sprite.x - healthBarWidth / 2;
+                monsterObj.healthBar.outer.y = monsterObj.sprite.y + monsterObj.sprite.height / 2 + 30;
+
+                monsterObj.healthBar.fill.x = monsterObj.sprite.x - healthBarWidth / 2;
+                monsterObj.healthBar.fill.y = monsterObj.sprite.y + monsterObj.sprite.height / 2 + 30;
             }
         });
-
         if (this.targetMonsterKey) {
             const monster = this.monsters[this.targetMonsterKey];
             if (monster && !this.isMonsterAttackable(monster)) {
@@ -343,14 +368,18 @@ export class mainScene extends Phaser.Scene {
             }
         }
 
-        //check if player is standing on the fire
         this.fires.forEach((fire) => {
             if (fire && fire.active) {
-                const dx = this.cat.x - fire.x;
-                const dy = this.cat.y - fire.y;
+                const fireBody = fire.body;
+
+                const fireCenterX = fireBody.position.x;
+                const fireCenterY = fireBody.position.y;
+
+                const dx = this.cat.x - fireCenterX;
+                const dy = this.cat.y - fireCenterY;
                 const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
 
-                if (distanceInTiles <= 1.5) {
+                if (distanceInTiles <= 1.1) {
                     this.fireAttack(fire);
                 }
             }
@@ -366,11 +395,15 @@ export class mainScene extends Phaser.Scene {
                     return;
                 }
 
-                const dx = monster.sprite.body.position.x - fire.x;
-                const dy = monster.sprite.body.position.y - fire.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                // Use the fire's body position to get the center of the sprite
+                const fireCenterX = fire.body.position.x;
+                const fireCenterY = fire.body.position.y;
 
-                if (distance <= 350) {
+                const dx = monster.sprite.body.position.x - fireCenterX;
+                const dy = monster.sprite.body.position.y - fireCenterY;
+                const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+
+                if (distance <= 5) {
                     monster.isAggressive = false;
                 } else {
                 }
@@ -398,40 +431,49 @@ export class mainScene extends Phaser.Scene {
         let monsterRoll = fireRoll;
         let monsterLevel = 1;
 
-            if (PlayerState.energy > 0) {
-                PlayerState.isUnderAttack = true;
-                PlayerState.energy -= fireRoll;
-                this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
-                PlayerState.lastDamageTime = Date.now();
+        if (PlayerState.energy > 0) {
+            PlayerState.isUnderAttack = true;
+            PlayerState.energy -= fireRoll;
+            this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
+            PlayerState.lastDamageTime = Date.now();
 
-                if (fireRoll > 0) {
-                    PlayerState.isHurt = true;
-                }
-
-
-                if (PlayerState.energy <= 0) {
-                    PlayerState.energy = 0;
-                }
+            if (fireRoll > 0) {
+                PlayerState.isHurt = true;
             }
+
+
+            if (PlayerState.energy <= 0) {
+                PlayerState.energy = 0;
+            }
+        }
+    }
+
+    spawnMonstersOnly(centerX, centerY, scene) {
+        const spawnProbability = this.calculateSpawnProbability();
+
+        const randomFloat = Phaser.Math.FloatBetween(0, 1);
+
+        if (randomFloat < spawnProbability) {
+            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters);
+        }        
     }
 
 
     calculateTileType() {
         const roll = Phaser.Math.FloatBetween(0, 1);
         let tileType;
-    
-        if (roll <= 0.70) { // 50% chance for tile 1
+
+        if (roll <= 0.70) {
             tileType = 1;
-        } else if (roll <= 0.95) { // Additional 35% chance for this.tiles 2-6
+        } else if (roll <= 0.95) {
             tileType = Phaser.Math.Between(2, 5);
-        } else if (roll <= 0.97) { // Additional 10% chance for this.tiles 7-8
+        } else if (roll <= 0.97) {
             tileType = Phaser.Math.Between(6, 9);
-        } else { // Remaining 5% chance for this.tiles 9-12
+        } else {
             tileType = Phaser.Math.Between(10, 13);
-        }        // ... existing logic to determine tileType ...
+        }
         return tileType;
     }
-
 
     spawnMonstersFire(centerX, centerY, scene) {
         const spawnProbability = this.calculateSpawnProbability();
@@ -439,20 +481,16 @@ export class mainScene extends Phaser.Scene {
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
 
         if (randomFloat < spawnProbability) {
-            //console log the float between 0 and 1
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters);
         }
 
-        //spawn fire very rarely
-        const fireProbability = 0.05;
+        const fireProbability = 0.01 * (1 + PlayerState.exploreBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
             this.spawnFire();
         }
     }
 
-
-    
     createTilesAround(centerX, centerY, scene) {
         const camera = scene.cameras.main;
         const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
@@ -477,13 +515,13 @@ export class mainScene extends Phaser.Scene {
     }
 
     calculateSpawnProbability() {
-        let probability = GAME_CONFIG.baseProbability * (1 + PlayerState.exploreBonus / 100);
+        let probability = GAME_CONFIG.baseProbability;
 
         // Ensure probability is within [0, 1]
         probability = Phaser.Math.Clamp(probability, 0, 1);
         return probability;
     }
-
+    
     handlePlayerMovement() {
         if (PlayerState.isDead) {
             this.cat.setVelocity(0, 0);
@@ -496,41 +534,57 @@ export class mainScene extends Phaser.Scene {
             // Handle up-left diagonal movement
             velocityX = -this.diagonalVelocity;
             velocityY = -this.diagonalVelocity;
-            this.lastDirection = 'upLeft';
+            if (!this.isDashing) {
+                this.lastDirection = 'upLeft';
+            }
         } else if (this.cursors.right.isDown && this.cursors.up.isDown) {
             // Handle up-right diagonal movement
             velocityX = this.diagonalVelocity;
             velocityY = -this.diagonalVelocity;
-            this.lastDirection = 'upRight';
+            if (!this.isDashing) {
+                this.lastDirection = 'upRight';
+            }
         } else if (this.cursors.left.isDown && this.cursors.down.isDown) {
             // Handle down-left diagonal movement
             velocityX = -this.diagonalVelocity;
             velocityY = this.diagonalVelocity;
-            this.lastDirection = 'downLeft';
+            if (!this.isDashing) {
+                this.lastDirection = 'downLeft';
+            }
         } else if (this.cursors.right.isDown && this.cursors.down.isDown) {
             // Handle down-right diagonal movement
             velocityX = this.diagonalVelocity;
             velocityY = this.diagonalVelocity;
-            this.lastDirection = 'downRight';
+            if (!this.isDashing) {
+                this.lastDirection = 'downRight';
+            }
         } else if (this.cursors.left.isDown) {
             // Handle left movement
             velocityX = -this.moveSpeed;
-            this.lastDirection = 'left';
+            if (!this.isDashing) {
+                this.lastDirection = 'left';
+            }
         } else if (this.cursors.right.isDown) {
             // Handle right movement
             velocityX = this.moveSpeed;
-            this.lastDirection = 'right';
+            if (!this.isDashing) {
+                this.lastDirection = 'right';
+            }
         } else if (this.cursors.up.isDown) {
             // Handle up movement
             velocityY = -this.moveSpeed;
-            this.lastDirection = 'up';
+            if (!this.isDashing) {
+                this.lastDirection = 'up';
+            }
         } else if (this.cursors.down.isDown) {
             // Handle down movement
             velocityY = this.moveSpeed;
-            this.lastDirection = 'down';
+            if (!this.isDashing) {
+                this.lastDirection = 'down';
+            }
         }
 
-        if (PlayerState.isAttacking) {
+        if (PlayerState.isAttacking && !this.isDashing) {
             const attackSpeedReductionFactor = 0.5;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
@@ -567,7 +621,7 @@ export class mainScene extends Phaser.Scene {
             }
         }
     }
-    
+
     //function to randomly spawn a fire on the map using the fire animation
     spawnFire() {
         const camera = this.cameras.main;
@@ -606,10 +660,14 @@ export class mainScene extends Phaser.Scene {
         const y = spawnTileJ * this.tileWidth;
 
         const fireTooClose = this.fires.some(fire => {
-            const dx = fire.x - x;
-            const dy = fire.y - y;
-            const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
-            return distanceInTiles <= 50;
+            // Check if the fire object exists and is active
+            if (fire && fire.active) {
+                const dx = fire.x - x;
+                const dy = fire.y - y;
+                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                return distanceInTiles <= 50;
+            }
+            return false; // Return false if the fire object does not exist or is not active
         });
 
         // If there's already a fire too close to the new fire's location, don't spawn a new one
@@ -617,24 +675,88 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        const fire = this.add.sprite(x, y, 'fire').setPipeline('Light2D');
-        fire.setDepth(2);
-        fire.setOrigin(0.5)
+        const fire = this.matter.add.sprite(x, y, 'fire', null, {
+            label: 'fire'
+        }).setCircle(70).setDepth(2);
+
+        fire.setOrigin(0.5, 0.5);
+        fire.setPipeline('Light2D');
         fire.play('fire');
 
-        this.fires.push(fire);
+        this.matter.body.setStatic(fire.body, true);
 
-        fire.light = this.lights.addLight(x, y + 50, 400).setColor(0xFF4500).setIntensity(1.5);
+        //this matter worls is sensor so the player can walk through it
+        fire.body.isSensor = true;
+
+        this.fires.push(fire);
+        
+        fire.light = this.lights.addLight(x, y, 400).setColor(0xFF4500).setIntensity(1.6);
 
 
         // Add a pulsing effect to the fire light
         this.tweens.add({
             targets: fire.light,
-            radius: { from: 350, to: 400 },
+            radius: { from: 325, to: 400 },
             ease: 'Sine.easeInOut',
             duration: 1500,
             yoyo: true,
             repeat: -1
+        });
+        
+        this.fires.forEach((fire, index) => {
+            if (fire && fire.active) {
+                this.time.addEvent({
+                    delay: 30000, // 30 seconds in milliseconds
+                    callback: () => {
+                        // Check if the fire object exists and is active
+                        if (fire && fire.active) {
+                            const x = fire.x;
+                            const y = fire.y;
+
+                            // Check if the fire object has a light property
+                            if (fire.light) {
+                                fire.light.setIntensity(0);
+
+                                // Check if the lights manager exists before removing the light
+                                if (this.lights) {
+                                    this.lights.removeLight(fire.light.x, fire.light.y);
+                                }
+                            }
+
+                            // Check if the matter world exists before removing the fire body
+                            if (this.matter && this.matter.world) {
+                                this.matter.world.remove(fire.body);
+                            }
+
+                            // Check if the fire body exists before destroying it
+                            if (fire.body) {
+                                fire.body.destroy();
+                            }
+
+                            // Check if the fire object exists before destroying it
+                            if (fire) {
+                                fire.destroy();
+                            }
+
+                            // Check if the fires array exists before removing the fire object
+                            if (this.fires) {
+                                this.fires.splice(index, 1);
+                            }
+
+                            // Check if the add method exists before creating the ashes sprite
+                            if (this.add) {
+                                let ashesSprite = this.add.sprite(x, y, 'ashes').setDepth(2).setPipeline('Light2D');
+
+                                // Check if the ashes array exists before adding the ashes sprite
+                                if (this.ashes) {
+                                    this.ashes.push(ashesSprite);
+                                }
+                            }
+                        }
+                    },
+                    loop: false // only run once
+                });
+            }
         });
     }
 
@@ -652,7 +774,7 @@ export class mainScene extends Phaser.Scene {
         const monster = this.monsters[key];
         if (monster) {
             this.lastClickedMonsterKey = key;
-                this.targetMonsterKey = key;
+            this.targetMonsterKey = key;
         } else {
 
         }
@@ -686,9 +808,47 @@ export class mainScene extends Phaser.Scene {
     handlePlayerAnimations(lastDirection, velocityX, velocityY) {
 
         if (PlayerState.isDead) {
-            this.cat.play('dead', true);
             return;
         }
+
+        //if this.isdashing is true, then the player is dashing increase speed and play attack5 animation
+        if (this.isDashing) {
+            this.moveSpeed *= 1.0135
+            //increase diagonal velocity
+            this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
+
+            // Determine the animation key based on the last direction
+            switch (this.lastDirection) {
+                case 'up':
+                    this.attackAnimationKey = 'attack5-back';
+                    break;
+                case 'down':
+                    this.attackAnimationKey = 'attack5-front';
+                    break;
+                case 'left':
+                case 'right':
+                case 'upLeft':
+                case 'upRight':
+                case 'downLeft':
+                case 'downRight':
+                    this.attackAnimationKey = 'attack5';
+                    break;
+                default:
+                    this.attackAnimationKey = 'attack5';
+                    break;
+            }
+
+            this.cat.play(this.attackAnimationKey, true);
+
+            // After the animation is complete, set this.isDashing to false and reset the speed
+            this.cat.on('animationcomplete', () => {
+                this.isDashing = false;
+                this.moveSpeed = PlayerState.speed;
+                this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);  
+            }, this);
+            return;
+        }
+
 
         //if player is underattack apply red tint for 1 second
         if (PlayerState.isHurt) {
@@ -814,6 +974,8 @@ export class mainScene extends Phaser.Scene {
 
     handlePlayerDeath() {
         if (this.isFainting) return; // Prevent multiple calls if already processing death
+        this.cat.anims.stop(); // Stop current animations
+        this.cat.play('dead', true);
 
         PlayerState.isDead = true;
         PlayerState.isUnderAttack = false;
@@ -822,8 +984,6 @@ export class mainScene extends Phaser.Scene {
 
         this.isFainting = true;
         PlayerState.isAttacking = false; // Ensure no attack is in progress
-        this.cat.anims.stop(); // Stop current animations
-        this.cat.play('dead'); // Play death animation
 
         //reset the colliding this.monsters and colliding monster key:
         this.targetMonsterKey = null;
@@ -838,10 +998,11 @@ export class mainScene extends Phaser.Scene {
 
         // Listen for the 'animationcomplete' event
         this.cat.on('animationcomplete', (animation) => {
-            // Check if the completed animation is 'dead'
             if (animation.key === 'dead') {
                 this.canAttack = true;
                 PlayerState.isDead = false;
+                //emit event to update energy
+                this.game.events.emit('energyUpdate', PlayerState.energy);
                 this.isFainting = false;
                 PlayerState.energy = 100;
             }
@@ -952,7 +1113,7 @@ export class mainScene extends Phaser.Scene {
                     }
                 });
 
-                // Check for this.monsters in these this.tiles and clean them up
+
                 Object.values(this.monsters).forEach(monster => {
                     if (monster.sprite && monster.sprite.active) {
                         const monsterTileI = Math.floor(monster.sprite.x / this.tileWidth);
@@ -963,23 +1124,40 @@ export class mainScene extends Phaser.Scene {
                     }
                 });
 
+                this.ashes.forEach((ashes, index) => {
+                    if (ashes && ashes.active) {
+                        const ashesTileI = Math.floor(ashes.x / this.tileWidth);
+                        const ashesTileJ = Math.floor(ashes.y / this.tileWidth);
+                        if (ashesTileI === i && ashesTileJ === j) {
+                            ashes.destroy();
+                            this.ashes.splice(index, 1);
+                        }
+                    }
+                });
 
                 this.fires.forEach((fire, index) => {
                     if (fire && fire.active) {
                         const fireTileI = Math.floor(fire.x / this.tileWidth);
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
                         if (fireTileI === i && fireTileJ === j) {
+                            this.tweens.killTweensOf(fire.light);
                             // Turn off the light associated with the fire
                             fire.light.setIntensity(0);
 
                             // Remove the light from the LightManager's list of lights
                             this.lights.removeLight(fire.light.x, fire.light.y);
 
+                            // Destroy the fire body
+                            this.matter.world.remove(fire.body);
+
+                            // Remove the fire from the fires array before destroying it
+                            this.fires.splice(index, 1);
+
+                            //destroy the fire body
+                            fire.body.destroy();
+
                             // Destroy the fire
                             fire.destroy();
-
-                            // Remove the fire from the fires array
-                            this.fires.splice(index, 1);
                         }
                     }
                 });

@@ -38,7 +38,7 @@ export function createAnims(scene, cat) {
             case 'attack5':
             case 'attack5-back':
             case 'attack5-front':
-                return 21;
+                return 25;
             case 'attack6':
             case 'attack6-back':
             case 'attack6-front':

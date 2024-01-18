@@ -1,13 +1,12 @@
 import Phaser from 'phaser';
 import { textStyles } from './styles.js';
-import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState, level } from './playerState';
-import { unlockedAttacksForLevel } from './attacks'; // Adjust the path as per your project structure
+import { getSkillXP, getSkillLevel, xpRequiredForLevel, PlayerState } from './playerState';
+import { unlockedAttacksForLevel, getAttacksForCurrentLevel } from './attacks'; // Adjust the path as per your project structure
 import { Tooltip } from './Tooltip';
 import { updatePlayerState } from './api'; // Adjust the path according to your project structure
 import FontFaceObserver from 'fontfaceobserver';
 import { itemInfo } from './itemInfo.js';
-
-
+import { attacks } from './attacks.js';
 
 export class UIScene extends Phaser.Scene {
     constructor() {
@@ -15,6 +14,7 @@ export class UIScene extends Phaser.Scene {
         this.attackTimeouts = {}; // Initialize this.attackTimeouts
         this.isSaving = false;
         this.selectedIndex = 0;
+        this.isMenuOpen = false;
     }
 
     create() {
@@ -23,14 +23,36 @@ export class UIScene extends Phaser.Scene {
         this.y = this.cameras.main.height / 2;
         this.timeFilter = this.add.graphics();
         this.energyText = null;
-        this.saveButton = this.add.image(50, (this.y * 2) - 50, 'save')
+        this.activeChangeTexts = 0;
+        // Create the text objects
+        this.saveButtonText = this.add.text((this.x * 2) - 140, (this.y * 2) - 40, 'SAVE', textStyles.indicator).setVisible(false);
+        this.attackMenuButtonText = this.add.text(80, (this.y * 2) - 40, 'ATTACKS', textStyles.indicator).setVisible(false);
+
+        this.saveButton = this.add.image((this.x * 2) - 50, (this.y * 2) - 40, 'save')
             .setInteractive()
-            //make cursor a pointer on hover with gold tint
-            .on('pointerover', () => this.saveButton.setTint(0xffd700))
-            .on('pointerout', () => this.saveButton.setTint(0xffffff))
+            .on('pointerover', () => {
+                this.saveButton.setTint(0xffd700);
+                this.saveButtonText.setVisible(true);  // Show the text
+            })
+            .on('pointerout', () => {
+                this.saveButton.setTint(0xffffff);
+                this.saveButtonText.setVisible(false);  // Hide the text
+            })
             .on('pointerdown', () => this.saveGame())
             .setDepth(10);
-        this.activeChangeTexts = 0;
+
+        this.attackMenuButton = this.add.image(50, (this.y * 2) - 40, 'attacks-menu').setScale(.5)
+            .setInteractive()
+            .on('pointerover', () => {
+                this.attackMenuButton.setTint(0xffd700);
+                this.attackMenuButtonText.setVisible(true);  // Show the text
+            })
+            .on('pointerout', () => {
+                this.attackMenuButton.setTint(0xffffff);
+                this.attackMenuButtonText.setVisible(false);  // Hide the text
+            })
+            .on('pointerdown', () => this.attackMenu())
+            .setDepth(10);
         this.isLevelingUp = false;
         let dayText = null;
 
@@ -47,6 +69,8 @@ export class UIScene extends Phaser.Scene {
         graphics2.fillStyle(0xB8860B); // Dark Gold
         graphics2.fillRect(0, 150, 300, 10);
         graphics2.generateTexture('goldTexture', 300, 300);
+        
+        this.game.events.on('energyUpdate', this.updateEnergyBar, this);
 
         const ninjaFontObserver = new FontFaceObserver('Ninja');
         Promise.all([ninjaFontObserver.load()]).then(() => {
@@ -59,9 +83,8 @@ export class UIScene extends Phaser.Scene {
             this.createAttackSelectionMenu();
             this.initializeStaticElements();
 
-
             // Create dayText with initial value
-            dayText = this.add.text((this.x * 2) - 130, 30, `DAY   0`, textStyles.daysPassed);
+            dayText = this.add.text((this.x * 2) - 130, 30, `DAY ${PlayerState.days}`, textStyles.daysPassed);
 
             // Create progress bar and add it to the container
 
@@ -72,7 +95,6 @@ export class UIScene extends Phaser.Scene {
             this.updateKnockbackBonusDisplay();
             this.updateExploreBonusDisplay();
             this.updateDefenceBonusDisplay();
-            this.updateFoodBonusDisplay();
         });
 
 
@@ -83,7 +105,6 @@ export class UIScene extends Phaser.Scene {
         this.game.events.on('showTooltip', this.showTooltip, this);
         this.game.events.on('hideTooltip', this.hideTooltip, this);
 
-
         this.game.events.on('daysPassed', (daysPassed) => {
             if (dayText) {
                 dayText.setText(`DAY ${daysPassed}`);
@@ -91,12 +112,10 @@ export class UIScene extends Phaser.Scene {
         });
 
         const bag = this.add.image(this.x, (this.y * 2) - 50, 'bag').setOrigin(0.5);
-        //add the bag to the screen, not the inventory container:
         this.add.existing(bag);
 
         this.inventoryContainer = this.add.container(this.x, (this.y * 2) - 50);
 
-        this.game.events.on('userLoggedIn', this.createAttackSelectionMenu, this);
         this.game.events.on('playerStateUpdated', this.createAttackSelectionMenu, this);
         this.game.events.on('updateSkillsDisplay', this.updateSkillsDisplay, this);
 
@@ -212,136 +231,17 @@ export class UIScene extends Phaser.Scene {
     }
 
     createAttackSelectionMenu() {
-        const unlockedAttacks = unlockedAttacksForLevel(level);
-        const numberOfAttacks = unlockedAttacks.length - 1; // excluding 'scratch'
-        const buttonHeight = 74; // from setSize(60, 60)
-        const spaceBetweenButtons = 100; // from 100 * index
-
-        if (this.attackSelectionContainer) {
-            this.attackSelectionContainer.removeAll(true);
-        } else {
-            this.attackSelectionContainer = this.add.container(0, 0); // Initialize at (0, 0)
-        }
-
-
-        this.attackSelectionButtons = {};
-
+        let unlockedAttacks = unlockedAttacksForLevel(PlayerState.skills.dancing.level);
+        unlockedAttacks.sort((a, b) => a.level - b.level);
+    
         unlockedAttacks.forEach((attack, index) => {
-            if (attack.name === 'scratch') return;
-
-            let circle = this.add.graphics();
-            let frameImageKey = PlayerState.selectedAttacks.includes(attack.name) ? 'attack-on' : 'attack-off';
-            const frameImage = this.add.image(0, 0, frameImageKey).setScale(1).setDepth(1);
-            const image = this.add.image(0, 0, attack.name).setScale(.4).setDepth(2);
-
-            const button = this.add.container(50, 100 * index, [circle, frameImage, image])
-                .setSize(60, 60)
-                .setInteractive({ useHandCursor: true })
-                .on('pointerdown', () => this.toggleAttackSelection(attack.name));
-            this.attackSelectionContainer.add(button);
-            this.attackSelectionButtons[attack.name] = { button };
-        });
-        const totalHeight = (numberOfAttacks) * spaceBetweenButtons + buttonHeight;
-        this.attackSelectionContainer.y = this.y - totalHeight / 2;
-    }
-
-
-    toggleAttackSelection(attackName) {
-        const attackIndex = PlayerState.selectedAttacks.indexOf(attackName);
-        if (attackIndex !== -1) {
-            // If it is, deselect it by replacing it with null
-            PlayerState.selectedAttacks[attackIndex] = null;
-        } else {
-            // If it's not, select it by replacing the first null value
-            const nullIndex = PlayerState.selectedAttacks.indexOf(null);
-            if (nullIndex !== -1) {
-                PlayerState.selectedAttacks[nullIndex] = attackName;
-            } else if (PlayerState.selectedAttacks.length < 3) {
-                // If there are no null values, add it to the end (if there's space)
-                PlayerState.selectedAttacks.push(attackName);
-            }
-        }
-
-
-        // Iterate over all attack buttons to update their state
-        Object.keys(this.attackSelectionButtons).forEach(name => {
-            let button = this.attackSelectionButtons[name].button;
-
-            // Update frame image based on selection
-            let frameImageKey = PlayerState.selectedAttacks.includes(name) ? 'attack-on' : 'attack-off';
-            let frameImage = button.getAt(1);
-            frameImage.setTexture(frameImageKey).setDepth(1);
-
-            // Create or update attackInfoFrame, attackInfoText, keyReferenceText
-            let attackInfoFrame = this.attackSelectionButtons[name].attackInfoFrame;
-            let attackInfoText = this.attackSelectionButtons[name].attackInfoText;
-            let keyReferenceText = this.attackSelectionButtons[name].keyReferenceText;
-
-            if (!attackInfoFrame) {
-                // Create the attackInfoFrame if it doesn't exist
-                attackInfoFrame = this.add.image(106, 3, 'attack-info').setScale(1.7, 1.425).setDepth(1);
-                button.add(attackInfoFrame); // Add to the button container
-                this.attackSelectionButtons[name].attackInfoFrame = attackInfoFrame;
-            }
-
-            if (!attackInfoText) {
-                // Create the attackInfoText if it doesn't exist
-                attackInfoText = this.add.text(60, -18, '', textStyles.attacks);
-                button.add(attackInfoText); // Add to the button container
-                this.attackSelectionButtons[name].attackInfoText = attackInfoText;
-            }
-
-            if (!keyReferenceText) {
-                // Create the keyReferenceText if it doesn't exist
-                keyReferenceText = this.add.text(60, -37, '', textStyles.keys);
-                button.add(keyReferenceText); // Add to the button container
-                this.attackSelectionButtons[name].keyReferenceText = keyReferenceText;
-            }
-
-            // Update visibility and content based on selection
-            if (PlayerState.selectedAttacks.includes(name)) {
-                const attack = unlockedAttacksForLevel(level).find(a => a.name === name);
-                let knockbackText = attack.knockback < 1 ? 0 : attack.knockback;
-                let attackIndex = PlayerState.selectedAttacks.indexOf(name);
-                let keyReference = attackIndex === 1 ? 'KEY-2' : attackIndex === 2 ? 'KEY-3' : '';
-
-                attackInfoFrame.setVisible(true);
-                attackInfoText.setText(`knockback: ${knockbackText}\ndamage: ${attack.damage}\nspeed: ${attack.speed}`).setVisible(true);
-                keyReferenceText.setText(keyReference).setVisible(true);
-
-                if (this.attackTimeouts[name]) {
-                    clearTimeout(this.attackTimeouts[name]);
-                }
-                this.attackTimeouts[name] = setTimeout(() => {
-                    if (PlayerState.selectedAttacks.includes(name)) {
-                        let attackInfoText = this.attackSelectionButtons[name].attackInfoText;
-                        let attackInfoFrame = this.attackSelectionButtons[name].attackInfoFrame;
-                        let keyReferenceText = this.attackSelectionButtons[name].keyReferenceText;
-
-                        if (attackInfoText) {
-                            attackInfoText.setVisible(false).setText('');
-                        }
-                        if (attackInfoFrame) {
-                            attackInfoFrame.setVisible(false);
-                        }
-                        if (keyReferenceText) {
-                            keyReferenceText.setVisible(false).setText('');
-                        }
-                    }
-                }, 7000);
-            } else {
-                // If the attack is not selected, ensure elements are hidden and clear any existing timeout
-                attackInfoFrame.setVisible(false);
-                attackInfoText.setVisible(false).setText('');
-                keyReferenceText.setVisible(false).setText('');
-                if (this.attackTimeouts[name]) {
-                    clearTimeout(this.attackTimeouts[name]);
-                    delete this.attackTimeouts[name];
-                }
+            if (attack.name === 'scratch' ) return;
+    
+            if (!PlayerState.selectedAttacks.includes(attack.name) && PlayerState.skills.dancing.level >= attack.level) {
+                PlayerState.selectedAttacks[index] = attack.name;
             }
         });
     }
-
 
     createMonsterHealthBar(x, y) {
         const progressBarWidth = 80;
@@ -355,6 +255,78 @@ export class UIScene extends Phaser.Scene {
         progressFill.displayWidth = 0;
 
         return { outer: outerRect, fill: progressFill };
+    }
+
+    attackMenu() {
+        if (this.isMenuOpen) {
+            return;
+        }
+
+        this.isMenuOpen = true;
+    
+        const allAttacks = Object.values(attacks);
+
+        const menu = this.add.container(-340, this.y- 300); 
+        const menuBackground = this.add.image(0, 0, 'menu').setOrigin(0);
+        menu.add(menuBackground);
+        const titlePrefix = this.add.text(175, 55, 'ATTACKS', textStyles.mainTitle).setOrigin(0.5);
+        menu.add(titlePrefix);
+        //alpha 0 on menu
+        menu.alpha = 0;
+        
+        const closeButton = this.add.text(315, 30, 'x', textStyles.close).setInteractive().setOrigin(0.5);
+        menu.add(closeButton);
+
+        closeButton.on('pointerover', () => {
+            closeButton.setStyle({ fill: '#ff0000', stroke: '#ff0000'});
+        });
+        
+        closeButton.on('pointerout', () => {
+            closeButton.setStyle(textStyles.close);
+        });
+    
+        closeButton.on('pointerdown', () => {
+            menu.destroy();
+            this.isMenuOpen = false;
+        });
+    
+        this.input.on('pointerdown', (pointer) => {
+            if (!menu.getBounds().contains(pointer.x, pointer.y) && 
+                !this.attackMenuButton.getBounds().contains(pointer.x, pointer.y)) {
+                    menu.destroy();
+                    this.isMenuOpen = false;
+            }
+        });
+
+        this.tweens.add({
+            targets: menu,
+            alpha: 1, // Final opacity
+            //position x is 165
+            x: 50,
+            duration: 1500, // Duration of the tween in milliseconds
+            ease: 'Power2', // Easing function
+        });
+
+        allAttacks.forEach((attack, index) => {
+            const attackContainer = this.add.container(0, index * 100); // Increase the y-offset to add spacing
+
+            if (attack.level > PlayerState.skills.dancing.level) {
+                const lockedImage = this.add.image(70, 120, 'locked').setScale(1).setDepth(3).setOrigin(0.5);
+                attackContainer.add(lockedImage);
+            }
+            else {
+                const image = this.add.image(70, 120, attack.name).setScale(.5).setDepth(2).setOrigin(0.5);
+                attackContainer.add(image);
+            }
+
+            const titlePrefix = this.add.text(110, 95, attack.name.toUpperCase(), textStyles.title).setOrigin(0);
+            const damage = this.add.text(110, 125, `DMG:   ${attack.damage}`, textStyles.other).setOrigin(0);
+            const speed = this.add.text(190, 125, `SPEED:   ${attack.speed}`, textStyles.other).setOrigin(0);
+            const knockbackValue = attack.knockback < 1 ? 0 : attack.knockback;
+            const knockback = this.add.text(110, 150, `KNOCKBACK:   ${knockbackValue}`, textStyles.other).setOrigin(0);
+            attackContainer.add([titlePrefix, damage, knockback, speed]);
+            menu.add(attackContainer);
+        });
     }
 
     handleDancingLevelUp() {
@@ -373,8 +345,57 @@ export class UIScene extends Phaser.Scene {
                 this.updateKnockbackBonusDisplay();
                 this.updateExploreBonusDisplay();
                 this.updateDefenceBonusDisplay();
-                this.updateFoodBonusDisplay();
 
+
+                // Get the attacks that match the player's current level
+                const currentLevelAttacks = getAttacksForCurrentLevel(PlayerState.level);
+                const unlockedAttacks = unlockedAttacksForLevel();
+
+
+                // Check if there are any attacks for the current level
+                if (currentLevelAttacks.length > 0) {
+                    const modal = this.add.container(this.x - 165, -500); // Start off-screen
+                    const modalBackground = this.add.image(0, 0, 'modal').setOrigin(0);
+                    const modalWidth = 330; // Replace with your modal's width
+                    modal.add(modalBackground);
+                    modal.alpha = 0;
+
+                    this.tweens.add({
+                        targets: modal,
+                        y: 100, // Final position
+                        alpha: 1, // Final opacity
+                        duration: 1500, // Duration of the tween in milliseconds
+                        ease: 'Power2', // Easing function
+                    });
+                    
+                    currentLevelAttacks.forEach((attack, index) => {
+                        const attackIndex = unlockedAttacks.findIndex(unlockedAttack => unlockedAttack.name === attack.name);
+                       
+                        const frame = this.add.container(0, index * 60);
+                        const image = this.add.image(0, 0, attack.name).setScale(.5).setDepth(2).setOrigin(0.5);
+                        image.setPosition(modalWidth / 2, 50);
+                        const titlePrefix = this.add.text(30, 75, 'UNLOCKED    ' + attack.name.toUpperCase(), textStyles.title).setOrigin(0);
+                        const key = this.add.text(30, 105, `KEY:   ${attackIndex}`, textStyles.other).setOrigin(0);
+                        const damage = this.add.text(190, 105, `DMG:   ${attack.damage}`, textStyles.other).setOrigin(0);
+                        const speed = this.add.text(190, 130, `SPEED:   ${attack.speed}`, textStyles.other).setOrigin(0);
+                        const knockback = this.add.text(30, 130, `KNOCKBACK:   ${attack.knockback}`, textStyles.other).setOrigin(0);
+
+
+                        frame.add([image, titlePrefix, key, damage, knockback, speed]);
+                        modal.add(frame);
+                    });
+
+                    // Set a timer to destroy the modal after 5 seconds
+                    this.time.delayedCall(6500, () => {
+                        this.tweens.add({
+                            targets: modal,
+                            alpha: 0, // Final alpha (0 = transparent, 1 = opaque)
+                            duration: 1000, // Duration of the tween in milliseconds
+                            ease: 'Power2', // Easing function
+                            onComplete: () => modal.destroy() // Destroy the modal when the tween completes
+                        });
+                    });
+                }
                 // Create a sprite for the heal animation
                 const heal = this.add.sprite(this.x, this.y, 'heal');
                 heal.play('heal');
@@ -382,26 +403,26 @@ export class UIScene extends Phaser.Scene {
                 heal.on('animationcomplete', () => {
                     heal.destroy();
                 }, this);
-             // Add level up text
-            const levelUpText = this.add.text(this.x, this.y, 'LEVEL   UP!', textStyles.levelUpText).setOrigin(0.5);
-            this.createGradientText2(levelUpText);
+                // Add level up text
+                const levelUpText = this.add.text(this.x, this.y, 'LEVEL   UP!', textStyles.levelUpText).setOrigin(0.5);
+                this.createGradientText2(levelUpText);
                 this.tweens.add({
-                targets: [levelUpText, levelUpText.gradientSprite2],
-                y: '-=150',
-                alpha: 0, // Fade out the text
-                 duration: 6000, // Duration of 2 seconds
-                 ease: 'Power2',
-                 onComplete: () => {
-                     levelUpText.destroy(); // Destroy the text object after the tween completes
-                     //destroy the greadient sprite
+                    targets: [levelUpText, levelUpText.gradientSprite2],
+                    y: '-=150',
+                    alpha: 0, // Fade out the text
+                    duration: 6000, // Duration of 2 seconds
+                    ease: 'Power2',
+                    onComplete: () => {
+                        levelUpText.destroy(); // Destroy the text object after the tween completes
+                        //destroy the greadient sprite
                         if (levelUpText.gradientSprite2) {
                             levelUpText.gradientSprite2.destroy();
                         }
-                 }
-             });
-         }
-     });
- }
+                    }
+                });
+            }
+        });
+    }
 
     createProgressBar(x, y) {
         const progressBarWidth = 126;
@@ -436,7 +457,6 @@ export class UIScene extends Phaser.Scene {
         this.knockbackBonusIcon = this.add.image(0, 0, 'bonusknockback').setOrigin(0.5).setDepth(2);
         this.exploreBonusIcon = this.add.image(0, 0, 'bonusexplore').setOrigin(0.5).setDepth(2);
         this.defenceBonusIcon = this.add.image(0, 0, 'bonusdefence').setOrigin(0.5).setDepth(2);
-        this.foodBonusIcon = this.add.image(0, 0, 'bonusfood').setOrigin(0.5).setDepth(2);
 
         this.mainBonusContainer = this.add.container((this.x * 2) - 50, this.y - 60);
 
@@ -452,17 +472,18 @@ export class UIScene extends Phaser.Scene {
         this.knockbackBonusContainer.add(this.knockbackBonusIcon);
         this.mainBonusContainer.add(this.knockbackBonusContainer);
 
-        this.exploreBonusContainer = this.add.container(0, 330);
+        this.exploreBonusContainer = this.add.container(0, 110);
         this.exploreBonusContainer.add(this.exploreBonusIcon);
         this.mainBonusContainer.add(this.exploreBonusContainer);
 
         this.defenceBonusContainer = this.add.container(0, 220);
         this.defenceBonusContainer.add(this.defenceBonusIcon);
         this.mainBonusContainer.add(this.defenceBonusContainer);
+    }
 
-        this.foodBonusContainer = this.add.container(0, 110);
-        this.foodBonusContainer.add(this.foodBonusIcon);
-        this.mainBonusContainer.add(this.foodBonusContainer);
+    // Function to get the attacks for a specific level
+    getAttacksForLevel(level) {
+        return this.attacks.filter(attack => attack.level === level);
     }
 
     updateSkillsDisplay() {
@@ -558,17 +579,6 @@ export class UIScene extends Phaser.Scene {
         this.exploreBonusContainer.add(this.exploreBonusText);
     }
 
-    updateFoodBonusDisplay() {
-        if (this.foodBonusText) {
-            this.foodBonusText.destroy();
-            this.foodBonusContainer.remove(this.foodBonusText);
-        }
-
-        this.foodBonusText = this.add.text(0, 40, `${(PlayerState.foodBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
-
-        this.foodBonusContainer.add(this.foodBonusText);
-    }
-
     updateDefenceBonusDisplay() {
         if (this.defenceBonusText) {
             this.defenceBonusText.destroy();
@@ -620,6 +630,8 @@ export class UIScene extends Phaser.Scene {
             textObject.gradientSprite2 = gradientSprite2;
         }
     }
+
+
 
     createEnergyBar(x, y) {
 
@@ -914,7 +926,6 @@ export class UIScene extends Phaser.Scene {
             this.updateKnockbackBonusDisplay();
             this.updateExploreBonusDisplay();
             this.updateDefenceBonusDisplay();
-            this.updateFoodBonusDisplay();
             this.updateEnergyBar()
             PlayerState.JustAte = false;
         } else {

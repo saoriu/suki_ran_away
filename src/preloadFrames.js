@@ -53,11 +53,20 @@ export function preloadFrames(gameInstance) {
     this.load.image('bonusexplore', '/bonusexplore.png');
     this.load.image('bonusfood', '/bonusfood.png');
     this.load.image('stats', '/stats.png');
-//load necklace1:
-    this.load.image('necklace1', '/necklace1.png');
-    this.load.image('necklace2', '/necklace2.png');
-    //load fire sprite atlas
     this.load.atlas('fire', '/fire.png', '/fire.json');
-//load necklace2
+    this.load.image('ashes', '/ashes.png');
+    //import modal
+    this.load.image('modal', '/modal.png');
+    //attacks-menu.png
+    this.load.image('attacks-menu', '/attacks-menu.png');
+    //scratch
+    this.load.image('scratch', '/scratch.png');
+    //menu
+    this.load.image('menu', '/menu.png');
+
+    //locked
+    this.load.image('locked', '/locked.png');
+    //close
+    this.load.image('close', '/close.png');
 
 }
