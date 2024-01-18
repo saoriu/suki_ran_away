@@ -24,9 +24,6 @@ export class UIScene extends Phaser.Scene {
         this.timeFilter = this.add.graphics();
         this.energyText = null;
         this.activeChangeTexts = 0;
-        // Create the text objects
-        this.saveButtonText = this.add.text((this.x * 2) - 140, (this.y * 2) - 40, 'SAVE', textStyles.indicator).setVisible(false);
-        this.attackMenuButtonText = this.add.text(80, (this.y * 2) - 40, 'ATTACKS', textStyles.indicator).setVisible(false);
 
         this.saveButton = this.add.image((this.x * 2) - 50, (this.y * 2) - 40, 'save')
             .setInteractive()
@@ -82,6 +79,9 @@ export class UIScene extends Phaser.Scene {
             this.add.existing(this.energyText);
             this.createAttackSelectionMenu();
             this.initializeStaticElements();
+            this.saveButtonText = this.add.text((this.x * 2) - 140, (this.y * 2) - 40, 'SAVE', textStyles.indicator).setVisible(false);
+            this.attackMenuButtonText = this.add.text(80, (this.y * 2) - 40, 'ATTACKS', textStyles.indicator).setVisible(false);
+    
 
             // Create dayText with initial value
             dayText = this.add.text((this.x * 2) - 130, 30, `DAY ${PlayerState.days}`, textStyles.daysPassed);
