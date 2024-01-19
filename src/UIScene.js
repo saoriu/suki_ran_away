@@ -631,8 +631,6 @@ export class UIScene extends Phaser.Scene {
         }
     }
 
-
-
     createEnergyBar(x, y) {
 
         const progressBarWidth = 315;

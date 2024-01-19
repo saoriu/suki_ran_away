@@ -24,7 +24,7 @@ export const PlayerState = {
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
     inventory: [],
-    gameTime: 0,
+    gameTime: 10,
 };
 // In playerState.js
 export function setLevel(newLevel) {

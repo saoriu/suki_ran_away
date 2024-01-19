@@ -48,6 +48,10 @@ export class mainScene extends Phaser.Scene {
         this.fire = [];
         this.fires = [];
         this.tilePool = [];
+        this.ponds = [];
+        this.pond = [];
+        this.bush1s = [];
+        this.bush1 = [];
         this.lastRegenerateEnergyTime = 0;
         this.positionChangeThreshold = 0.05 * this.tileWidth;
         this.newpositionChangeThreshold = 1 * this.tileWidth;
@@ -486,7 +490,7 @@ export class mainScene extends Phaser.Scene {
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters);
         }
 
-        const fireProbability = 0.01 * (1 + PlayerState.exploreBonus / 100);
+        const fireProbability = 0.2 * (1 + PlayerState.exploreBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
             this.spawnFire();
@@ -496,6 +500,19 @@ export class mainScene extends Phaser.Scene {
         const randomTreeFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomTreeFloat < treeProbability) {
             this.spawnTrees();
+        }
+
+
+        const pondProbability = 0.5;
+        const randomPondFloat = Phaser.Math.FloatBetween(0, 1);
+        if (randomPondFloat < pondProbability) {
+            this.spawnPonds();
+        }
+
+        const bush1Probability = 0.99;
+        const randomBush1Float = Phaser.Math.FloatBetween(0, 1);
+        if (randomBush1Float < bush1Probability) {
+            this.spawnBush1();
         }
     }
 
@@ -667,21 +684,26 @@ export class mainScene extends Phaser.Scene {
         const x = spawnTileI * this.tileWidth;
         const y = spawnTileJ * this.tileWidth;
 
-        const fireTooClose = this.fires.some(fire => {
-            // Check if the fire object exists and is active
-            if (fire && fire.active) {
-                const dx = fire.x - x;
-                const dy = fire.y - y;
-                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
-                return distanceInTiles <= 50;
-            }
-            return false; // Return false if the fire object does not exist or is not active
-        });
-
-        // If there's already a fire too close to the new fire's location, don't spawn a new one
-        if (fireTooClose) {
+        const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
+            return objectArray.some(obj => {
+                if (obj && obj.active) {
+                    const dx = obj.x - x;
+                    const dy = obj.y - y;
+                    const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                    return distanceInTiles <= distanceThreshold;
+                }
+                return false;
+            });
+        };
+    
+        // Check if the new location is too close to existing fires, trees, ponds, or bushes
+        if (isTooCloseToOtherObjects(this.fires, 30) ||
+            isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
             return;
         }
+
 
         const fire = this.matter.add.sprite(x, y, 'fire', null, {
             label: 'fire'
@@ -804,6 +826,27 @@ export class mainScene extends Phaser.Scene {
         const x = spawnTileI * this.tileWidth;
         const y = spawnTileJ * this.tileWidth;
 
+        const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
+            return objectArray.some(obj => {
+                if (obj && obj.active) {
+                    const dx = obj.x - x;
+                    const dy = obj.y - y;
+                    const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                    return distanceInTiles <= distanceThreshold;
+                }
+                return false;
+            });
+        };
+    
+        // Check if the new location is too close to existing fires, trees, ponds, or bushes
+        if (isTooCloseToOtherObjects(this.fires, 4) ||
+            isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
+            return;
+        }
+
+
         const treeTooClose = this.trees.some(tree => {
             // Check if the tree object exists and is active
             if (tree && tree.active) {
@@ -851,7 +894,186 @@ export class mainScene extends Phaser.Scene {
         this.matter.body.setStatic(tree.body, true);
 
         this.trees.push(tree);
-        console.log("tree added")
+    }
+
+    spawnPonds() {
+        const camera = this.cameras.main;
+        const centerX = camera.midPoint.x;
+        const centerY = camera.midPoint.y;
+        const visibleStartI = Math.floor((centerX - camera.width / 2) / this.tileWidth);
+        const visibleEndI = Math.ceil((centerX + camera.width / 2) / this.tileWidth);
+        const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 3); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 3);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 3); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 3);   // extend outward by 1 tile
+
+        let spawnTileI, spawnTileJ;
+
+        // Deciding whether to spawn on the horizontal or vertical buffer area
+        if (Phaser.Math.Between(0, 1) === 0) {
+            // Horizontal buffer area (top or bottom)
+            spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+            spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
+        } else {
+            // Vertical buffer area (left or right)
+            spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+            spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+        }
+
+        // Check if the chosen tile is within the visible area
+        if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+            // If it is, return and don't spawn a fire
+            return;
+        }
+
+        const x = spawnTileI * this.tileWidth;
+        const y = spawnTileJ * this.tileWidth;
+
+        const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
+            return objectArray.some(obj => {
+                if (obj && obj.active) {
+                    const dx = obj.x - x;
+                    const dy = obj.y - y;
+                    const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                    return distanceInTiles <= distanceThreshold;
+                }
+                return false;
+            });
+        };
+    
+        // Check if the new location is too close to existing fires, trees, ponds, or bushes
+        if (isTooCloseToOtherObjects(this.fires, 4) ||
+            isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
+            return;
+        }
+
+
+        const pondTooClose = this.ponds.some(pond => {
+            if (pond && pond.active) {
+                const dx = pond.x - x;
+                const dy = pond.y - y;
+                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                return distanceInTiles <= 6;
+            }
+            return false; // Return false if the tree object does not exist or is not active
+        });
+
+        // If there's already a tree too close to the new tree's location, don't spawn a new one
+        if (pondTooClose) {
+            return;
+        }
+
+        // If there are already 2 trees in the view, don't spawn a new one
+        if (this.ponds.filter(pond => pond.active).length >= 2) {
+            return;
+        }
+
+        const pond = this.matter.add.sprite(x, y, 'pond', null, {
+            label: 'pond'
+        }).setCircle(160, 100).setDepth(1);
+
+        pond.setOrigin(0.5, 0.5);
+        pond.setPipeline('Light2D');
+        pond.play('pond');
+
+        this.matter.body.setStatic(pond.body, true);
+
+        this.ponds.push(pond);
+    }
+
+    spawnBush1() {
+        const camera = this.cameras.main;
+        const centerX = camera.midPoint.x;
+        const centerY = camera.midPoint.y;
+        const visibleStartI = Math.floor((centerX - camera.width / 2) / this.tileWidth);
+        const visibleEndI = Math.ceil((centerX + camera.width / 2) / this.tileWidth);
+        const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 3); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 3);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 3); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 3);   // extend outward by 1 tile
+
+        let spawnTileI, spawnTileJ;
+
+        // Deciding whether to spawn on the horizontal or vertical buffer area
+        if (Phaser.Math.Between(0, 1) === 0) {
+            // Horizontal buffer area (top or bottom)
+            spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+            spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
+        } else {
+            // Vertical buffer area (left or right)
+            spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+            spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+        }
+
+        // Check if the chosen tile is within the visible area
+        if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+            // If it is, return and don't spawn a fire
+            return;
+        }
+
+        const x = spawnTileI * this.tileWidth;
+        const y = spawnTileJ * this.tileWidth;
+
+        const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
+            return objectArray.some(obj => {
+                if (obj && obj.active) {
+                    const dx = obj.x - x;
+                    const dy = obj.y - y;
+                    const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                    return distanceInTiles <= distanceThreshold;
+                }
+                return false;
+            });
+        };
+    
+        // Check if the new location is too close to existing fires, trees, ponds, or bushes
+        if (isTooCloseToOtherObjects(this.fires, 3) ||
+            isTooCloseToOtherObjects(this.trees, 8) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 6) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bush1s, 6)) { // assuming a bush threshold
+            return;
+        }
+
+
+        const bush1TooClose = this.bush1s.some(bush1 => {
+            if (bush1 && bush1.active) {
+                const dx = bush1.x - x;
+                const dy = bush1.y - y;
+                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                return distanceInTiles <= 6;
+            }
+            return false; // Return false if the tree object does not exist or is not active
+        });
+
+        // If there's already a tree too close to the new tree's location, don't spawn a new one
+        if (bush1TooClose) {
+            return;
+        }
+
+        // If there are already 2 trees in the view, don't spawn a new one
+        if (this.bush1s.filter(bush1 => bush1.active).length >= 2) {
+            return;
+        }
+
+        const bush1 = this.matter.add.sprite(x, y, 'bush1', null, {
+            label: 'bush1'
+        }).setCircle(65).setDepth(2);
+
+        bush1.setOrigin(0.5, 0.5);
+        bush1.setPipeline('Light2D');
+        bush1.play('bush1');
+
+        this.matter.body.setStatic(bush1.body, true);
+
+        this.bush1s.push(bush1);
     }
 
     isMonsterAttackable(monster, attackName) {
@@ -1242,6 +1464,37 @@ export class mainScene extends Phaser.Scene {
 
                             tree.body.destroy();
                             tree.destroy();
+                        }
+                    }
+                });
+
+                this.ponds.forEach((pond, index) => {
+                    if (pond && pond.active) {
+                        const pondTileI = Math.floor(pond.x / this.tileWidth);
+                        const pondTileJ = Math.floor(pond.y / this.tileWidth);
+                        const buffer = 3; // Add a buffer of 2 tiles
+                        if (pondTileI < startI - buffer || pondTileI > endI + buffer || pondTileJ < startJ - buffer || pondTileJ > endJ + buffer) { // Check if the tree is out of view
+                            this.ponds.splice(index, 1);
+                            this.matter.world.remove(pond.body);
+
+                            pond.body.destroy();
+                            pond.destroy();
+                        }
+                    }
+                });
+
+
+                this.bush1s.forEach((bush1, index) => {
+                    if (bush1 && bush1.active) {
+                        const bush1TileI = Math.floor(bush1.x / this.tileWidth);
+                        const bush1TileJ = Math.floor(bush1.y / this.tileWidth);
+                        const buffer = 3; // Add a buffer of 2 tiles
+                        if (bush1TileI < startI - buffer || bush1TileI > endI + buffer || bush1TileJ < startJ - buffer || bush1TileJ > endJ + buffer) { // Check if the tree is out of view
+                            this.bush1s.splice(index, 1);
+                            this.matter.world.remove(bush1.body);
+
+                            bush1.body.destroy();
+                            bush1.destroy();
                         }
                     }
                 });

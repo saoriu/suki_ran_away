@@ -19,8 +19,22 @@ export function createAnims(scene, cat) {
     });
 
     scene.anims.create({
+        key: 'bush1',
+        frames: Array(2).fill().map((_, i) => ({ key: 'bush1', frame: `bush1-${i + 1}` })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
         key: 'tree',
         frames: Array(2).fill().map((_, i) => ({ key: 'tree', frame: `tree-${i + 1}` })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: 'pond',
+        frames: Array(2).fill().map((_, i) => ({ key: 'pond', frame: `pond-${i + 1}` })),
         frameRate: 3,
         repeat: -1
     });

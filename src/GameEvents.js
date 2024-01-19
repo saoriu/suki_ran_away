@@ -397,8 +397,6 @@ export class GameEvents {
 
             this.updateMonsterMovement(this.player, monster, distance); // Update monster movement based on current state
         });
-
-        //Check if monster is colliding with tree:
         
 
     }

@@ -62,5 +62,9 @@ export function preloadFrames(gameInstance) {
     this.load.image('locked', '/locked.png');
     this.load.image('close', '/close.png');
     this.load.atlas('tree', '/tree.png', '/tree.json');
+    this.load.atlas('pond', '/pond.png', '/pond.json');
+    this.load.atlas('bush1', '/bush1.png', '/bush1.json');
+
+
 
 }
