@@ -56,7 +56,7 @@ export const textStyles = {
     playerLevelText: { fontWeight:'800', fontSize: '22px', fill: '#ffffff', fontFamily: 'Ninja', }, 
     playerLevelText2: { fontWeight:'800', fontSize: '22px', fill: '#ffffff', fontFamily: 'Ninja', stroke: '#000000', strokeThickness: 2 }, 
     monsterLevelText: { fontWeight:'500', fontSize: '20px', fill: '#ffffff', fontFamily: 'bitcount-mono-single-square' },
-    energyText: { fontFamily: 'Ninja'    , fontWeight: 'bolder', fill: '#281800', fontSize: '21px' },
+    energyText: { fontFamily: 'Ninja'    , fontWeight: 'bolder', fill: '#281800', fontSize: '25px' },
     daysPassed: { fontFamily: 'Ninja', fontWeight:'800', fill: 'gold', fontSize: '25px', stroke: '#00000', strokeThickness: 5 },
     quantity: { fontSize: '17px', fill: '#000', fontFamily: 'bitcount-mono-single-square', fontWeight: '700' },
     battleUI: {

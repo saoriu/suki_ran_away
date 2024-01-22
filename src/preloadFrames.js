@@ -1,5 +1,6 @@
 export function preloadFrames(gameInstance) {
     for (let i = 1; i <= 13; i++) this.load.image(`tile${i}`, `/tile${i}.png`);
+    this.load.image('title', '/title.png');
     this.load.atlas('cat', '/cat.png', '/cat.json');
     this.load.atlas('monsters', '/monsters.png', '/monsters.json');
     this.load.atlas('treemonsters', '/treemonsters.png', '/treemonsters.json');

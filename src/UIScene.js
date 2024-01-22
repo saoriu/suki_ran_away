@@ -14,6 +14,8 @@ export class UIScene extends Phaser.Scene {
         this.attackTimeouts = {}; // Initialize this.attackTimeouts
         this.isSaving = false;
         this.selectedIndex = 0;
+        this.energyx = 415;
+        this.energyy = 70;
         this.isMenuOpen = false;
     }
 
@@ -76,10 +78,17 @@ export class UIScene extends Phaser.Scene {
             const userid = PlayerState.userid;
             let useridText = `${userid}`;
             this.userText = this.add.text(20, 85, useridText, { fontFamily: 'Ninja', fontSize: '20px', fill: 'gold', stroke: 'black', strokeThickness: 3 });
-            this.energyText = this.add.text(this.x + 182, 48, ``, textStyles.energyText);
+            this.energyText = this.add.text(this.energyx, this.energyy, ``, textStyles.energyText);
             this.add.existing(this.energyText);
             this.createAttackSelectionMenu();
+            this.energyBar = this.createEnergyBar(74, 73);
+            this.add.existing(this.energyBar.outer);
+            this.add.existing(this.energyBar.fill);
+            this.updateEnergyBar();
+            this.game.events.on('energyChanged', this.updateEnergyBar, this);
             this.initializeStaticElements();
+
+       
             this.saveButtonText = this.add.text((this.x * 2) - 140, (this.y * 2) - 40, 'SAVE', textStyles.indicator).setVisible(false);
             this.attackMenuButtonText = this.add.text(80, (this.y * 2) - 40, 'ATTACKS', textStyles.indicator).setVisible(false);
     
@@ -125,11 +134,6 @@ export class UIScene extends Phaser.Scene {
             }
         });
 
-        this.energyBar = this.createEnergyBar((this.x - 215), 50);
-        this.add.existing(this.energyBar.outer);
-        this.add.existing(this.energyBar.fill);
-        this.updateEnergyBar();
-        this.game.events.on('energyChanged', this.updateEnergyBar, this);
 
         this.input.keyboard.on('keydown', (event) => {
             switch (event.key) {
@@ -334,7 +338,7 @@ export class UIScene extends Phaser.Scene {
         this.isLevelingUp = true;
         this.tweens.add({
             targets: this.dancingBar.fill,
-            displayWidth: 126,
+            displayWidth: 140,
             duration: 500,
             ease: 'Sine.easeInOut',
             onComplete: () => {
@@ -425,12 +429,12 @@ export class UIScene extends Phaser.Scene {
     }
 
     createProgressBar(x, y) {
-        const progressBarWidth = 126;
-        const progressBarHeight = 35;
-        const outerRect = this.add.rectangle(165, 48 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x000000);
+        const progressBarWidth = 140;
+        const progressBarHeight = 15;
+        const outerRect = this.add.rectangle(228, 113 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x000000);
         outerRect.setOrigin(0, 1); // Set the origin to the bottom left corner
 
-        const progressFill = this.add.rectangle(165, 48 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x42C5E6);
+        const progressFill = this.add.rectangle(228, 113 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x42C5E6);
         progressFill.setOrigin(0, 1); // Set the origin to the bottom left corner
         progressFill.displayWidth = 0;
         outerRect.setDepth(1);
@@ -441,17 +445,13 @@ export class UIScene extends Phaser.Scene {
 
     // Initialize static elements in a separate method or in the constructor
     initializeStaticElements() {
+        this.dancingFrame = this.add.image(245, 80, 'frame').setOrigin(0.5).setDepth(2);
         this.dancingBar = this.createProgressBar(0, 0);
-
         this.skillsContainer = this.add.container(0, 0);
         this.skillsContainer.add([this.dancingBar.outer, this.dancingBar.fill]);
-
-        this.lvText = this.add.text(45, 48, `lv`, textStyles.playerLevelText2).setOrigin(0.5).setDepth(3).setScale(1, 1.1);
-        this.createGradientText(this.lvText);
-        this.xpText = this.add.text(140, 48, `XP`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3).setScale(.8, 1.1);
+        this.xpText = this.add.text(204, 110, `XP`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3).setScale(.8, 1.1);
         this.createGradientText(this.xpText);
-        this.dancingFrame = this.add.image(165, 50, 'frame').setOrigin(0.5).setDepth(2);
-        this.skillsContainer.add([this.dancingFrame, this.xpText, this.lvText]);
+        this.skillsContainer.add([this.dancingFrame, this.xpText]);
         this.attackBonusIcon = this.add.image(0, 0, 'bonusattack').setOrigin(0.5).setDepth(2);
         this.fireBonusIcon = this.add.image(0, 0, 'bonusfire').setOrigin(0.5).setDepth(2);
         this.defenceBonusIcon = this.add.image(0, 0, 'bonusdefence').setOrigin(0.5).setDepth(2);
@@ -502,7 +502,7 @@ export class UIScene extends Phaser.Scene {
         const currentXP = getSkillXP('dancing');
         const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
         const dancingXPProgress = currentXP / requiredXP;
-        const targetWidth = 126 * dancingXPProgress;
+        const targetWidth = 140 * dancingXPProgress;
 
         this.tweens.add({
             targets: this.dancingBar.fill,
@@ -511,7 +511,7 @@ export class UIScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
 
-        this.dancingText = this.add.text(82, 48, `${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3);
+        this.dancingText = this.add.text(131, 113, `${getSkillLevel('dancing')}`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3);
         this.dancingTextReady = true; // Set the flag to true here
 
         if (this.dancingTextReady) {
@@ -611,8 +611,8 @@ export class UIScene extends Phaser.Scene {
 
     createEnergyBar(x, y) {
 
-        const progressBarWidth = 315;
-        const progressBarHeight = 35;
+        const progressBarWidth = 256;
+        const progressBarHeight = 27;
         const borderOffset = 2;
         const outerRect = this.add.rectangle(x + 53, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
         outerRect.setOrigin(0, 0.5);
@@ -621,10 +621,6 @@ export class UIScene extends Phaser.Scene {
         progressFill.setOrigin(0, 0.5);
         progressFill.displayWidth = 0;
 
-        const healthBar = this.add.image(x, y, 'health-bar');
-        healthBar.setOrigin(0, 0.5);
-        healthBar.setScale(1);
-
         return { outer: outerRect, fill: progressFill };
     }
 
@@ -632,7 +628,7 @@ export class UIScene extends Phaser.Scene {
         const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
         const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
         const energyProgress = Math.max(0, PlayerState.energy / 100);
-        const targetWidth = 315 * energyProgress;
+        const targetWidth = 256 * energyProgress;
         const hue = (PlayerState.energy / 100) * 120;
         const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
 
@@ -652,7 +648,7 @@ export class UIScene extends Phaser.Scene {
             this.energyText.destroy();
             this.energyText = null;
 
-            this.energyText = this.add.text(this.x + 182, 48, `${displayedEnergy.toFixed(0)}`, textStyles.energyText).setOrigin(0.5).setDepth(3);
+            this.energyText = this.add.text(this.energyx, this.energyy, `${displayedEnergy.toFixed(0)}`, textStyles.energyText).setOrigin(0.5).setDepth(3);
 
             this.createGradientText(this.energyText);
         }

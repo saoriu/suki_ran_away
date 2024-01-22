@@ -6,11 +6,16 @@
 .main {
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 100vw;
-  gap: 50px;
+  gap: 20px;
+}
+
+.main-image {
+  width: 600px;
 }
 
 
@@ -71,10 +76,12 @@
 
 
 .secondary-text {
-  font-size: 30px;
+  font-size: 1.5em;
   font-family: 'NinjaAdventure', sans-serif;
   color: black;
   margin: 0;
+  font-weight: 500;
+  margin-bottom: 10px;
   font-style: italic;
   word-spacing: 0.25em;
 }

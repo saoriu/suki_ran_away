@@ -167,8 +167,7 @@ export default function PhaserRunner() {
             alert("This game is not supported on mobile devices! Mobile gaming is for babies and you are not a baby.")
           ) : null}
           <div className='header'>
-            <h1 className="main-text">SUKI  RAN  AWAY!</h1>
-            <h3 className="secondary-text">private demo version</h3>
+            <img className="main-image" src="/title.png" alt="Suki Ran Away" />            
           </div>
           <div className="container" style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/login.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <div className="login-container">
@@ -203,6 +202,7 @@ export default function PhaserRunner() {
           <div className='footer'>
             <div className='footer-container'>
               <div className='footer-item'>
+              <p className="secondary-text">private demo version</p>
                 <a href='https://www.saoriuchida.com/'>© 2023 Saori Uchida. All rights reserved</a>
               </div>
             </div>

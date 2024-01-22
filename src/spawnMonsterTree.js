@@ -56,7 +56,7 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
 
     // Get the frame data
     let atlasKey = 'treemonsters';
-    let frameName = `${monsterSpriteKey}-1`; // Adjust this to match your actual frame names
+    let frameName = `${monsterSpriteKey}_fall-1`; // Adjust this to match your actual frame names
     let frameData = scene.textures.getFrame(atlasKey, frameName);
     // Calculate the trimmed dimensions
     let trimmedWidth = frameData.cutWidth;
@@ -75,7 +75,6 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
     let monster = scene.matter.add.sprite(monsterX, monsterY - 150, monsterSpriteKey, null, {
         isStatic: false
     }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
-    
 
     // Continue with your existing code...
     monster.setInteractive();
@@ -95,10 +94,15 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
         duration: 1000, // Duration of the tween in milliseconds
         ease: 'Linear', // Easing function of the tween
         onStart: function () {
-            // Set the monster's velocity to 0 at the start of the tween
+            if (monsterX > treeX) {
+            monster.flipX = true;
+            }
+            monster.anims.play(`${monsterSpriteKey}_fall`, true);
             monsters[monsterKey].isTweening = true;
         },
         onComplete: function () {
+            //play landing animation here
+            monster.anims.play(`${monsterSpriteKey}_land`, true);
             monsters[monsterKey].isTweening = false;
         }
     });
@@ -150,7 +154,7 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
     allEntities.push(monsters[monsterKey].sprite);
-    monsterHealthBar.outer.setDepth(monster.sprite.depth + 5000); // Setting the depth higher to render above the monster sprite
-    monsterHealthBar.fill.setDepth(monster.sprite.depth  + 5000); // Setting the depth higher to render above the monster sprite
+    monsterHealthBar.outer.setDepth(5000); // Setting the depth higher to render above the monster sprite
+    monsterHealthBar.fill.setDepth(5000); // Setting the depth higher to render above the monster sprite
 }
 

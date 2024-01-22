@@ -357,14 +357,17 @@ createAnimation(scene, 'up', 207, 214); // Updated
     // Falcon animations
     createAnims(scene, 'falcon', 'attack', 1, 6);
     createAnims(scene, 'falcon', 'die', 1, 16);
+    createAnims(scene, 'falcon', 'fall', 1, 2);
     createAnims(scene, 'falcon', 'hurt', 1, 5);
+    createAnims(scene, 'falcon', 'land', 1, 3);
     createAnims(scene, 'falcon', '', 1, 6); // This will create an animation with key 'falcon'
     createAnims(scene, 'falcon', 'run', 1, 6);
 
-    // Parrot animations
     createAnims(scene, 'parrot', 'attack', 1, 6);
     createAnims(scene, 'parrot', 'die', 1, 16);
+    createAnims(scene, 'parrot', 'fall', 1, 2);
     createAnims(scene, 'parrot', 'hurt', 1, 5);
+    createAnims(scene, 'parrot', 'land', 1, 3);
     createAnims(scene, 'parrot', '', 1, 12); // This will create an animation with key 'parrot'
     createAnims(scene, 'parrot', 'run', 1, 6);
 

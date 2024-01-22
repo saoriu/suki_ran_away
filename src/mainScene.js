@@ -468,6 +468,8 @@ export class mainScene extends Phaser.Scene {
             if (monster.currentHealth <= 0) {
                 monster.sprite.play(`${monster.event.monster}_die`, true);
                 this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
+            } else if (monster.isTweening) {
+                monster.sprite.play(`${monster.event.monster}_fall`, true);
             } else if (monster.isHurt) {
                 monster.sprite.play(`${monster.event.monster}_hurt`, true);
                 monster.sprite.once('animationcomplete', () => {
@@ -484,9 +486,9 @@ export class mainScene extends Phaser.Scene {
                         monster.isAttacking = false;
                     }
                 }, this);
-            } else if (monster.isMoving) {
+            } else if (monster.isMoving && !monster.sprite.anims.isPlaying) {
                 monster.sprite.play(`${monster.event.monster}_run`, true);
-            } else {
+            } else if (!monster.sprite.anims.isPlaying) {
                 monster.sprite.play(`${monster.event.monster}`, true);
             }
         });
@@ -550,12 +552,24 @@ export class mainScene extends Phaser.Scene {
         });
         
         this.allEntities.forEach((entity, index) => {
-            if (entity.body && (entity.body.label === 'player' || entity.body.label === 'monster')) {
-                // Set the depth to the y-coordinate plus 50 for cat and monsters
-                entity.setDepth(entity.y + 40);
-            } else {
-                // Set the depth to the y-coordinate for everything else
-                entity.setDepth(entity.y);
+            if (entity.body) {
+                if (entity.body.label === 'player' || entity.body.label === 'monster') {
+                    if (entity.depth === null) {
+                        entity.setDepth(1);
+                    } else {
+                        entity.setDepth((entity.y + 40) / 10);
+                    }
+                } else if (entity.body.label === 'pond') {
+                    entity.setDepth((entity.y - 250) / 10);
+                } else if (entity.body.label === 'fire') {
+                    entity.setDepth((entity.y - 50) / 10);
+                } else {
+                    if (entity.depth === null) {
+                        entity.setDepth(1);
+                    } else {
+                        entity.setDepth(entity.y / 10);
+                    }
+                }
             }
         });
 
@@ -981,6 +995,8 @@ export class mainScene extends Phaser.Scene {
         fire.body.isSensor = true;
 
         this.fires.push(fire);
+        this.allEntities.push(fire);
+
 
         fire.light = this.lights.addLight(x, y, 400).setColor(0xFF4500).setIntensity(1.6);
 
@@ -1036,6 +1052,11 @@ export class mainScene extends Phaser.Scene {
                                     this.fires.splice(index, 1);
                                 }
 
+                                // Check if the allEntities array exists before removing the fire object
+                                if (this.allEntities) {
+                                    this.allEntities = this.allEntities.filter(entity => entity !== fire);
+                                }
+
                                 // Check if the add method exists before creating the ashes sprite
                                 if (this.add) {
                                     let ashesSprite = this.add.sprite(x, y, 'ashes').setDepth(2).setPipeline('Light2D');
@@ -1088,17 +1109,16 @@ export class mainScene extends Phaser.Scene {
         // Extend the timer for the closest fire
         if (closestFire && closestFire.timerEvent) {
             closestFire.endTime += 30000;
-            // Add a log sprite at the fire's position
-            const log = this.add.sprite(closestFire.x + 5, closestFire.y + 5, 'log').setDepth(10).setOrigin(0.5).setPipeline('Light2D');
+            const log = this.add.sprite(closestFire.x + 5, closestFire.y + 5, 'log').setOrigin(0.5).setDepth(1000).setPipeline('Light2D');
+            //add label log
+            log.label = 'log';
 
-            // Create a tween that shrinks the log sprite over time
             this.tweens.add({
                 targets: log,
                 scaleX: 0,
                 scaleY: 0,
                 duration: 2000, // Adjust as needed
                 onComplete: () => {
-                    // Destroy the log sprite when the tween completes
                     log.destroy();
                 }
             });
@@ -1310,6 +1330,7 @@ export class mainScene extends Phaser.Scene {
         pond.play('pond');
 
         this.ponds.push(pond);
+        this.allEntities.push(pond);
     }
 
 
@@ -1324,6 +1345,7 @@ export class mainScene extends Phaser.Scene {
         }
         return vertices;
     }
+
     createTreeVertices(x, y) {
         const vertices = [];
 
@@ -1404,17 +1426,24 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        const bush1 = this.matter.add.sprite(x, y, 'bush1', null).setCircle(65).setDepth(3);
+        const bush1 = this.matter.add.sprite(x, y, 'bush1', null);
 
-        bush1.body.label = 'bush1';
+        // Approximate an ellipse using a polygon body
+        const ellipseVertices = this.createEllipseVertices(x, y, 50, 50, 16);
+        const bush1Body = this.matter.add.fromVertices(x, y, ellipseVertices, {
+            isStatic: true
+        }, true);
 
-        bush1.setOrigin(0.5, 0.5);
+        bush1Body.label = 'bush1';
+
+        bush1.setExistingBody(bush1Body).setOrigin(0.5, 0.6);
         bush1.setPipeline('Light2D');
+        bush1.setDepth(3);
         bush1.play('bush1');
 
-        this.matter.body.setStatic(bush1.body, true);
-
         this.bush1s.push(bush1);
+        this.allEntities.push(bush1);
+
     }
 
     isMonsterAttackable(monster, attackName) {
@@ -1860,6 +1889,8 @@ export class mainScene extends Phaser.Scene {
 
                             pond.body.destroy();
                             pond.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== pond);
                         }
                     }
                 });
@@ -1876,6 +1907,9 @@ export class mainScene extends Phaser.Scene {
 
                             bush1.body.destroy();
                             bush1.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== bush1);
+
                         }
                     }
                 });
@@ -1907,6 +1941,7 @@ export class mainScene extends Phaser.Scene {
                             // Destroy the fire
                             fire.destroy();
 
+                            this.allEntities = this.allEntities.filter(entity => entity !== fire);
                         }
                     }
                 });

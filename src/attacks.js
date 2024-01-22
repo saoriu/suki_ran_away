@@ -3,7 +3,7 @@ import PlayerState from './playerState';
 export const attacks = {
     scratch: {
       name: 'scratch',
-      range: 0.5,
+      range: 0.3,
       attack: 1,
       speed: 2, // animation speed or frames per second
       knockback: 1, // how many tiles the monster is knocked back
@@ -16,7 +16,7 @@ export const attacks = {
     },
     roll: {
       name: 'roll',
-      range: 2,
+      range: 0.4,
       attack: 1,
       speed: 2, 
       knockback: 0.5, 
@@ -29,7 +29,7 @@ export const attacks = {
     },
     bite: {
       name: 'bite',
-      range: 0.5,
+      range: 0.3,
       description: 'A strong close-range attack that can leave a mark.',
       attack: 2,
       speed: 2,
@@ -44,7 +44,7 @@ export const attacks = {
     horsekick: {
       name: 'horsekick',
       description: 'A powerful kick that can knock back your opponent.',
-      range: 1,
+      range: 0.4,
       attack: 3,
       speed: 1.3,
       knockback: 8,
