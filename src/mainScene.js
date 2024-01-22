@@ -25,6 +25,7 @@ export class mainScene extends Phaser.Scene {
     constructor() {
         super({ key: 'mainScene' });
         this.tiles = {};
+        this.allEntities = [];
         this.isDashing = false;
         this.ashes = [];
         this.tileWidth = GAME_CONFIG.TILE_WIDTH;
@@ -36,7 +37,7 @@ export class mainScene extends Phaser.Scene {
         this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
-        this.POSITION_CHANGE_THRESHOLD = 0.25;
+        this.POSITION_CHANGE_THRESHOLD = 0.5;
         this.Matter = Phaser.Physics.Matter.Matter; // Ensure Matter is correctly imported/referenced
         this.lastUpdateTime = 0;
         this.lastDirection = null;
@@ -84,7 +85,6 @@ export class mainScene extends Phaser.Scene {
         catBody.mass = 1;
         this.cat.body.friction = 0;
         this.cat.body.frictionAir = 0;
-        this.cat.setDepth(5)
         this.cat.setPipeline('Light2D');
         catBody.label = 'player';
 
@@ -288,7 +288,7 @@ export class mainScene extends Phaser.Scene {
 
                     this.updateTargetMonsterKey(attackName);
 
-                    this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName);
+                    this.gameEvents.playerAttack(this.monsters, this.targetMonsterKey, attackName, this.allEntities);
                     PlayerState.isAttacking = true;
                     this.canAttack = false;
                     // Determine the attack animation based on direction
@@ -367,6 +367,8 @@ export class mainScene extends Phaser.Scene {
             }
             lastPressTime = currentTime;
         });
+
+        this.allEntities.push(this.cat);
 
         this.cat.on('animationcomplete', (animation, frame) => {
             if (animation.key === this.attackAnimationKey) {
@@ -465,6 +467,7 @@ export class mainScene extends Phaser.Scene {
 
             if (monster.currentHealth <= 0) {
                 monster.sprite.play(`${monster.event.monster}_die`, true);
+                this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
             } else if (monster.isHurt) {
                 monster.sprite.play(`${monster.event.monster}_hurt`, true);
                 monster.sprite.once('animationcomplete', () => {
@@ -545,38 +548,14 @@ export class mainScene extends Phaser.Scene {
                 this.isNearFire(fire);
             }
         });
-            Object.values(this.monsters).forEach(monster => {
-                if (!monster.sprite || !monster.sprite.body) {
-                    return;
-                }
-
-                // Find the tree with the highest 'y' value that is less than the monster's 'y' value
-                let highestTreeBelowMonster = this.trees.reduce((highestTree, currentTree) => {
-                    return (currentTree.y < monster.sprite.y + 30 && currentTree.y > highestTree.y) ? currentTree : highestTree;
-                }, {y: -Infinity});
-
-                // If no such tree is found, set the monster's depth to 1
-                if (highestTreeBelowMonster.y === -Infinity) {
-                    monster.sprite.setDepth(1);
-                } else {
-                    // Set the monster's depth based on the highest tree found
-                    monster.sprite.setDepth(highestTreeBelowMonster.depth + 1);
-                }
-
-                console.log(monster.sprite.depth + " monster depth");
-            });
         
-        this.trees.forEach((tree) => {
-            // Set the tree's depth relative to its y position
-            tree.setDepth(tree.y);
-
-            // If the cat's y value is lower than the tree's y value, increase the tree's depth
-            if (this.cat.y + 45 < tree.y) {
-                tree.setDepth(tree.depth + 1);
-            }
-            // If the cat's y value is higher than the tree's y value, decrease the tree's depth
-            else if (this.cat.y + 45 > tree.y) {
-                tree.setDepth(Math.min(this.cat.depth - 1, tree.depth));
+        this.allEntities.forEach((entity, index) => {
+            if (entity.body && (entity.body.label === 'player' || entity.body.label === 'monster')) {
+                // Set the depth to the y-coordinate plus 50 for cat and monsters
+                entity.setDepth(entity.y + 40);
+            } else {
+                // Set the depth to the y-coordinate for everything else
+                entity.setDepth(entity.y);
             }
         });
 
@@ -666,7 +645,7 @@ export class mainScene extends Phaser.Scene {
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
 
         if (randomFloat < spawnProbability) {
-            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters);
+            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
     }
 
@@ -693,8 +672,6 @@ export class mainScene extends Phaser.Scene {
         const randomY = tree.y + 50 + Math.random() * 30;
 
         if (randomValue < logDropProbability) {
-            spawnMonsterTree(tree.x, tree.y, this, this.tileWidth, this.monsters);
-
             this.dropLog(randomX, randomY);
         } else {
             // Calculate the remaining probability after considering the log drop.
@@ -717,7 +694,7 @@ export class mainScene extends Phaser.Scene {
                     }
                 }, 10000);
             } else {
-                spawnMonsterTree(tree.x, tree.y, this, this.tileWidth, this.monsters);
+                spawnMonsterTree(tree.x, tree.y, this, this.tileWidth, this.monsters, this.allEntities);
             }
         }
         
@@ -772,7 +749,7 @@ export class mainScene extends Phaser.Scene {
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
 
         if (randomFloat < spawnProbability) {
-            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters);
+            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
         const fireProbability = 0.15 * (1 + PlayerState.exploreBonus / 100);
@@ -1229,6 +1206,8 @@ export class mainScene extends Phaser.Scene {
 
 
         this.trees.push(tree);
+        this.allEntities.push(tree);
+
     }
 
     spawnPonds() {
@@ -1667,9 +1646,16 @@ export class mainScene extends Phaser.Scene {
         this.targetMonsterKey = null;
         this.lastClickedMonsterKey = null;
 
-        // Clear this.monsters and inventory
-        Object.values(this.monsters).forEach(monster => this.gameEvents.endBattleForMonster(monster));
+        Object.values(this.monsters).forEach(monster => {
+            this.gameEvents.endBattleForMonster(monster, null);
+
+            // Remove the current monster from allEntities
+            this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
+        });
+
+        // Reset this.monsters
         this.monsters = {};
+
         // In mainScene.js
         let uiScene = this.scene.get('UIScene');
         uiScene.clearInventory();
@@ -1821,7 +1807,8 @@ export class mainScene extends Phaser.Scene {
                         const monsterTileI = Math.floor(monster.sprite.x / this.tileWidth);
                         const monsterTileJ = Math.floor(monster.sprite.y / this.tileWidth);
                         if (monsterTileI === i && monsterTileJ === j) {
-                            scene.gameEvents.cleanUpMonster(monster);
+                            scene.gameEvents.cleanUpMonster(monster, null, this.allEntities);
+                            this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
                         }
                     }
                 });
@@ -1855,6 +1842,9 @@ export class mainScene extends Phaser.Scene {
 
                             tree.body.destroy();
                             tree.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== tree);
+
                         }
                     }
                 });

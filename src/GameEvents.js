@@ -75,6 +75,9 @@ export class GameEvents {
 
             targetMonster.healthBar.outer.setVisible(true);
             targetMonster.healthBar.fill.setVisible(true);
+            //depths
+            targetMonster.healthBar.outer.setDepth(targetMonster.sprite.depth + 2000);
+            targetMonster.healthBar.fill.setDepth(targetMonster.sprite.depth + 2000);
 
             // Update the last energy update time
             PlayerState.lastEnergyUpdate = Date.now();
@@ -149,7 +152,7 @@ export class GameEvents {
                             stroke: '#ffffff',
                             strokeThickness: 6,
                         }
-                        ).setDepth(targetMonster.sprite.depth + 5).setOrigin(0.5, 0); // Set depth to monster's depth + 5                
+                        ).setDepth(targetMonster.sprite.depth + 2000).setOrigin(0.5, 0); // Set depth to monster's depth + 5                
                 
                         // Attach damage text to the monster for tracking
                     targetMonster.damageText = changeText;
@@ -182,7 +185,7 @@ export class GameEvents {
                         stroke: '#ffffff',
                         strokeThickness: 6,
                     }
-                    ).setDepth(targetMonster.sprite.depth + 5).setOrigin(0.5, 0); // Set depth to monster's depth + 5            
+                    ).setDepth(targetMonster.sprite.depth + 2000).setOrigin(0.5, 0); // Set depth to monster's depth + 5            
                 // Attach miss text to the monster for tracking
                 targetMonster.damageText = missText;
             

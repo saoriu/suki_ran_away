@@ -3,7 +3,7 @@ import { eventOptions } from './eventOptions.js';
 import { PlayerState } from './playerState.js';
 
 
-export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
+export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEntities) {
     // At the start of the spawnMonsterTree function
 
     for (const key in monsters) {
@@ -149,7 +149,8 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
     };
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
-    monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
-    monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite
+    allEntities.push(monsters[monsterKey].sprite);
+    monsterHealthBar.outer.setDepth(monster.sprite.depth + 5000); // Setting the depth higher to render above the monster sprite
+    monsterHealthBar.fill.setDepth(monster.sprite.depth  + 5000); // Setting the depth higher to render above the monster sprite
 }
 

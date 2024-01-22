@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { eventOptions } from './eventOptions.js';
 import { PlayerState } from './playerState.js';
 
-export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters) {
+export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, allEntities) {
       // At the start of the spawnMonsters function
 
     for (const key in monsters) {
@@ -170,6 +170,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       wanderArea: 12 * tileWidth,
       currentHealth: modifiedLevel,
     };
+
+    allEntities.push(monsters[monsterKey].sprite);
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
     monster.setDepth(3);
