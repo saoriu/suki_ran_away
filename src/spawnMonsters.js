@@ -40,16 +40,19 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     }
 
     function chooseMonster(eventOptions, chosenRarity) {
-      let filteredOptions = eventOptions.filter(option => option.monsterChance === chosenRarity);
-      if ( PlayerState.gameTime >= 21 ||  PlayerState.gameTime <= 3) {
+      let filteredOptions = eventOptions
+        .filter(option => option.monsterChance === chosenRarity)
+        .filter(option => !option.specialEvent); // Exclude monsters with specialEvent set to true
+
+      if (PlayerState.gameTime >= 21 || PlayerState.gameTime <= 3) {
         const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
         if (aggressiveOptions.length > 0) {
           filteredOptions = aggressiveOptions;
         }
       }
-    
+
       if (filteredOptions.length === 0) return null; // Return null if no monsters match the chosen rarity
-    
+
       const index = Phaser.Math.Between(0, filteredOptions.length - 1);
       return filteredOptions[index];
     }
@@ -123,6 +126,8 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     monsterBody.mass = monsterMass;
     monsterBody.friction = 1;
     monsterBody.frictionAir = 0.1;
+    monsterBody.label = 'monster';
+
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
     function createHealthBar(scene, x, y) {
@@ -155,6 +160,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
       isAggressive:  chosenMonster.isAggressive,
       inReach: false,
       event: chosenMonster,
+      isColliding: false, 
       healthBar: {
         outer: monsterHealthBar.outer,
         fill: monsterHealthBar.fill

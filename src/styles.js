@@ -35,6 +35,13 @@ export const textStyles = {
       fontSize: '16px',
       fill: '#000000',
     },
+    fire: {
+      fontFamily: 'Ninja',
+      fontSize: '20px',
+      fill: '#ff4500', // Orange-red color to match the fire
+      stroke: '#ff0000', // Red stroke for visibility against the fire
+      strokeThickness: 2
+    },
     close: {
       fontFamily: 'Ninja',
       fontWeight: '400',

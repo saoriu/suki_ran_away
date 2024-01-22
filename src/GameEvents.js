@@ -97,26 +97,26 @@ export class GameEvents {
                 setTimeout(() => {
                     if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
                         if (targetMonster.currentHealth > 0 && selectedAttack.knockback) {
-                        const knockbackDistance = (selectedAttack.knockback * (1 + PlayerState.knockbackBonus/100)) * this.tileWidth;
-                        const directionX = targetMonster.sprite.x - this.player.x;
-                        const directionY = targetMonster.sprite.y - this.player.y;
-                        const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
-                        const normalizedDirectionX = directionX / magnitude;
-                        const normalizedDirectionY = directionY / magnitude;
-                
-                        const newMonsterX = targetMonster.sprite.x + normalizedDirectionX * knockbackDistance;
-                        const newMonsterY = targetMonster.sprite.y + normalizedDirectionY * knockbackDistance;
-                
-                        // Set a constant speed for the knockback movement
-                        const knockbackSpeed = 300; // Pixels per second, adjust as needed
-                
+                            const knockbackDistance = (selectedAttack.knockback) * this.tileWidth;
+                            const directionX = targetMonster.sprite.x - this.player.x;
+                            const directionY = targetMonster.sprite.y - this.player.y;
+                            const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
+                            const normalizedDirectionX = directionX / magnitude;
+                            const normalizedDirectionY = directionY / magnitude;
+
+                            const newMonsterX = targetMonster.sprite.x + normalizedDirectionX * knockbackDistance;
+                            const newMonsterY = targetMonster.sprite.y + normalizedDirectionY * knockbackDistance;
+
+                            // Set a constant speed for the knockback movement
+                            const knockbackSpeed = 300; // Pixels per second, adjust as needed
+
                             // Calculate the duration based on distance and speed
                             const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000; // Convert to milliseconds
 
                             if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
                                 targetMonster.isBeingKnockedBack = true; // Set the flag to true when the knockback starts
-
-                                this.scene.tweens.add({
+                                // Create the knockback tween and store it in monsterObj.tween
+                                targetMonster.tween = this.scene.tweens.add({
                                     targets: targetMonster.sprite,
                                     x: newMonsterX,
                                     y: newMonsterY,
@@ -124,17 +124,23 @@ export class GameEvents {
                                     ease: 'Power1',
                                     onComplete: () => {
                                         targetMonster.isBeingKnockedBack = false; // Reset the flag to false when the knockback completes
+                                    },
+                                    onStop: () => {
+                                        //set isbeingknockedback after 100ms
+                                        setTimeout(() => {
+                                            targetMonster.isBeingKnockedBack = false;
+                                        }
+                                        , 200);
                                     }
                                 });
                             }
-                            
                         }
-                }
+                    }
 
-                if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
-                    const changeText = this.scene.add.text(
-                        -40,
-                       0,
+                    if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
+                        const changeText = this.scene.add.text(
+                            -40,
+                            0,
                         `${Math.abs(playerRoll).toFixed(0)}`,
                         {
                             fontFamily: 'Ninja',
@@ -267,13 +273,16 @@ export class GameEvents {
                     const knockbackSpeed = 300;
                     const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000;
     
-                    this.scene.tweens.add({
+                    this.player.tween = this.scene.tweens.add({
                         targets: this.player,
                         x: newPlayerX,
                         y: newPlayerY,
                         duration: knockbackDuration,
                         ease: 'Power1',
                         onComplete: () => {
+                            PlayerState.isBeingKnockedBack = false;
+                        },
+                        onStop: () => {
                             PlayerState.isBeingKnockedBack = false;
                         }
                     });
@@ -309,6 +318,9 @@ export class GameEvents {
         this.scene.time.delayedCall(300, () => {
             const newItem = new Item(this.scene, x, y, itemDropped.toLowerCase(), item);
             this.scene.items.push(newItem);
+
+            //show the item
+            newItem.show();
         });
     }
 
@@ -386,7 +398,7 @@ export class GameEvents {
                 monster.damageText.x = monster.sprite.x;
                 monster.damageText.y = monster.sprite.y - 20;
             }
-            
+
 
             const distance = this.calculateDistance(this.player, monster); // Calculate distance between player and monster
 
@@ -432,12 +444,14 @@ export class GameEvents {
                 // Flip the monster sprite based on the direction of movement
                 monster.sprite.setFlipX(velocity.x < 0);
             } else if (!monster.isAggressive) {
-                if (!monster.destination) {
+                if (!monster.destination || monster.isColliding) {
                     // Generate a random point within the wander area
                     const x = monster.spawnPoint.x + (Math.random() - 0.5) * monster.wanderArea;
                     const y = monster.spawnPoint.y + (Math.random() - 0.5) * monster.wanderArea;
                     monster.destination = { x, y };
+                    monster.isColliding = false;
                 }
+
 
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPoint(monster.destination, monster);
                 const velocity = {

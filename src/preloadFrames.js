@@ -2,6 +2,11 @@ export function preloadFrames(gameInstance) {
     for (let i = 1; i <= 13; i++) this.load.image(`tile${i}`, `/tile${i}.png`);
     this.load.atlas('cat', '/cat.png', '/cat.json');
     this.load.atlas('monsters', '/monsters.png', '/monsters.json');
+    this.load.atlas('treemonsters', '/treemonsters.png', '/treemonsters.json');
+    this.load.atlas('tree', '/tree.png', '/tree.json');
+    this.load.atlas('pond', '/pond.png', '/pond.json');
+    this.load.atlas('bush1', '/bush1.png', '/bush1.json');
+    this.load.image('tree-down', '/tree-down.png');
     this.load.image('frame', '/frame.png');
     this.load.image('apple', '/apple.png');
     this.load.image('cotton', '/cotton.png');
@@ -50,7 +55,7 @@ export function preloadFrames(gameInstance) {
     this.load.image('bonusluck', '/bonusluck.png');
     this.load.image('bonusdefence', '/bonusdefence.png');
     this.load.image('bonusknockback', '/bonusknockback.png');
-    this.load.image('bonusexplore', '/bonusexplore.png');
+    this.load.image('bonusfire', '/bonusfire.png');
     this.load.image('bonusfood', '/bonusfood.png');
     this.load.image('stats', '/stats.png');
     this.load.atlas('fire', '/fire.png', '/fire.json');
@@ -61,10 +66,8 @@ export function preloadFrames(gameInstance) {
     this.load.image('menu', '/menu.png');
     this.load.image('locked', '/locked.png');
     this.load.image('close', '/close.png');
-    this.load.atlas('tree', '/tree.png', '/tree.json');
-    this.load.atlas('pond', '/pond.png', '/pond.json');
-    this.load.atlas('bush1', '/bush1.png', '/bush1.json');
-
+    this.load.image('log', '/log.png');
+    this.load.image('bonustrees', '/bonustrees.png');
 
 
 }

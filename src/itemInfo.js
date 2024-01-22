@@ -14,6 +14,12 @@ export const itemInfo = {
             defenceBonus: 1,
         },
     },
+    'Log': {
+        itemId: '0010',
+        description: 'A sturdy piece of wood. Not consumable but useful in crafting.',
+        itemName: 'Log',
+        itemConsumable: false,
+    },
     'Raspberry': {
         itemId: '0002',
         description: 'A small fruit that is surprisingly energizing.',

@@ -19,6 +19,7 @@ export class UIScene extends Phaser.Scene {
 
     create() {
 
+        this.mainScene = this.scene.get('mainScene');
         this.x = this.cameras.main.width / 2;
         this.y = this.cameras.main.height / 2;
         this.timeFilter = this.add.graphics();
@@ -90,10 +91,9 @@ export class UIScene extends Phaser.Scene {
 
             // Set the depth of the container to ensure it's rendered above other elements
             this.updateSkillsDisplay();
-            this.updateEnergyBonusDisplay();
             this.updateAttackBonusDisplay();
-            this.updateKnockbackBonusDisplay();
-            this.updateExploreBonusDisplay();
+            this.updateFireBonusDisplay();
+            this.updateTreesBonusDisplay();
             this.updateDefenceBonusDisplay();
         });
 
@@ -168,6 +168,7 @@ export class UIScene extends Phaser.Scene {
                     break;
             }
         });
+
     }
 
     async saveGame() {
@@ -340,10 +341,9 @@ export class UIScene extends Phaser.Scene {
                 this.dancingBar.fill.displayWidth = 0;
                 this.isLevelingUp = false;
                 this.updateSkillsDisplay();
-                this.updateEnergyBonusDisplay();
                 this.updateAttackBonusDisplay();
-                this.updateKnockbackBonusDisplay();
-                this.updateExploreBonusDisplay();
+                this.updateFireBonusDisplay();
+                this.updateTreesBonusDisplay();
                 this.updateDefenceBonusDisplay();
 
 
@@ -452,33 +452,29 @@ export class UIScene extends Phaser.Scene {
         this.createGradientText(this.xpText);
         this.dancingFrame = this.add.image(165, 50, 'frame').setOrigin(0.5).setDepth(2);
         this.skillsContainer.add([this.dancingFrame, this.xpText, this.lvText]);
-        this.energyBonusIcon = this.add.image(0, 0, 'bonusenergy').setOrigin(0.5).setDepth(2);
         this.attackBonusIcon = this.add.image(0, 0, 'bonusattack').setOrigin(0.5).setDepth(2);
-        this.knockbackBonusIcon = this.add.image(0, 0, 'bonusknockback').setOrigin(0.5).setDepth(2);
-        this.exploreBonusIcon = this.add.image(0, 0, 'bonusexplore').setOrigin(0.5).setDepth(2);
+        this.fireBonusIcon = this.add.image(0, 0, 'bonusfire').setOrigin(0.5).setDepth(2);
         this.defenceBonusIcon = this.add.image(0, 0, 'bonusdefence').setOrigin(0.5).setDepth(2);
+        this.treesBonusIcon = this.add.image(0, 0, 'bonustrees').setOrigin(0.5).setDepth(2);
 
         this.mainBonusContainer = this.add.container((this.x * 2) - 50, this.y - 60);
-
-        this.energyBonusContainer = this.add.container(0, 0);
-        this.energyBonusContainer.add(this.energyBonusIcon);
-        this.mainBonusContainer.add(this.energyBonusContainer);
 
         this.attackBonusContainer = this.add.container(0, -110);
         this.attackBonusContainer.add(this.attackBonusIcon);
         this.mainBonusContainer.add(this.attackBonusContainer);
 
-        this.knockbackBonusContainer = this.add.container(0, -220);
-        this.knockbackBonusContainer.add(this.knockbackBonusIcon);
-        this.mainBonusContainer.add(this.knockbackBonusContainer);
-
-        this.exploreBonusContainer = this.add.container(0, 110);
-        this.exploreBonusContainer.add(this.exploreBonusIcon);
-        this.mainBonusContainer.add(this.exploreBonusContainer);
-
-        this.defenceBonusContainer = this.add.container(0, 220);
+        this.defenceBonusContainer = this.add.container(0, 0);
         this.defenceBonusContainer.add(this.defenceBonusIcon);
         this.mainBonusContainer.add(this.defenceBonusContainer);
+
+        this.fireBonusContainer = this.add.container(0, 110);
+        this.fireBonusContainer.add(this.fireBonusIcon);
+        this.mainBonusContainer.add(this.fireBonusContainer);
+
+        this.treesBonusContainer = this.add.container(0, 220);
+        this.treesBonusContainer.add(this.treesBonusIcon);
+        this.mainBonusContainer.add(this.treesBonusContainer);
+
     }
 
     // Function to get the attacks for a specific level
@@ -528,23 +524,6 @@ export class UIScene extends Phaser.Scene {
         this.createAttackSelectionMenu();
     }
 
-
-
-
-    updateEnergyBonusDisplay() {
-        // If the energyBonusText already exists, destroy it
-        if (this.energyBonusText) {
-            this.energyBonusText.destroy();
-            this.energyBonusContainer.remove(this.energyBonusText);
-        }
-
-        // Create new text for the energy bonus
-        this.energyBonusText = this.add.text(0, 40, `${(PlayerState.energyBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
-
-        // Add the energyBonusText to the skillsContainer
-        this.energyBonusContainer.add(this.energyBonusText);
-    }
-
     updateAttackBonusDisplay() {
         if (this.attackBonusText) {
             this.attackBonusText.destroy();
@@ -556,27 +535,26 @@ export class UIScene extends Phaser.Scene {
         this.attackBonusContainer.add(this.attackBonusText);
     }
 
-
-    updateKnockbackBonusDisplay() {
-        if (this.knockbackBonusText) {
-            this.knockbackBonusText.destroy();
-            this.knockbackBonusContainer.remove(this.knockbackBonusText);
+    updateTreesBonusDisplay() {
+        if (this.treesBonusText) {
+            this.treesBonusText.destroy();
+            this.treesBonusContainer.remove(this.treesBonusText);
         }
 
-        this.knockbackBonusText = this.add.text(0, 40, `${(PlayerState.knockbackBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+        this.treesBonusText = this.add.text(0, 40, `${(PlayerState.treesBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
 
-        this.knockbackBonusContainer.add(this.knockbackBonusText);
+        this.treesBonusContainer.add(this.treesBonusText);
     }
 
-    updateExploreBonusDisplay() {
-        if (this.exploreBonusText) {
-            this.exploreBonusText.destroy();
-            this.exploreBonusContainer.remove(this.exploreBonusText);
+    updateFireBonusDisplay() {
+        if (this.fireBonusText) {
+            this.fireBonusText.destroy();
+            this.fireBonusContainer.remove(this.fireBonusText);
         }
 
-        this.exploreBonusText = this.add.text(0, 40, `${(PlayerState.exploreBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
+        this.fireBonusText = this.add.text(0, 40, `${(PlayerState.fireBonus / 100)}`, textStyles.playerBonus).setOrigin(0.5).setDepth(3).setScale(0.9, 1);
 
-        this.exploreBonusContainer.add(this.exploreBonusText);
+        this.fireBonusContainer.add(this.fireBonusText);
     }
 
     updateDefenceBonusDisplay() {
@@ -791,7 +769,7 @@ export class UIScene extends Phaser.Scene {
             // Display the 'select.png' icon over the selected slot
             if (index === this.selectedIndex) {
                 // Add a semi-transparent rectangle behind the selected item
-                const highlight = this.add.rectangle(x, y, 55, 55, 0xffffff, 0.75);
+                const highlight = this.add.rectangle(x, y + 1, 55, 55, 0xffffff, 0.75);
                 this.inventoryContainer.add(highlight);
             }
 
@@ -821,7 +799,7 @@ export class UIScene extends Phaser.Scene {
             }
 
             if (index === this.selectedIndex) {
-                const selectIcon = this.add.image(x, y, 'select').setOrigin(0.5);
+                const selectIcon = this.add.image(x, y + 1, 'select').setOrigin(0.5);
                 this.inventoryContainer.add(selectIcon);
             }
         });
@@ -863,7 +841,7 @@ export class UIScene extends Phaser.Scene {
             // Display the 'select.png' icon over the selected slot
             if (index === this.selectedIndex) {
                 // Add a semi-transparent rectangle behind the selected item
-                const highlight = this.add.rectangle(x, y, 55, 55, 0xffffff, 0.75);
+                const highlight = this.add.rectangle(x, y + 1, 55, 55, 0xffffff, 0.75);
                 this.inventoryContainer.add(highlight);
             }
 
@@ -883,7 +861,7 @@ export class UIScene extends Phaser.Scene {
             }
 
             if (index === this.selectedIndex) {
-                const selectIcon = this.add.image(x, y, 'select').setOrigin(0.5);
+                const selectIcon = this.add.image(x, y + 1, 'select').setOrigin(0.5);
                 this.inventoryContainer.add(selectIcon);
             }
         });
@@ -919,14 +897,14 @@ export class UIScene extends Phaser.Scene {
 
             this.destroyItem(itemName);
             this.updateInventoryDisplay(); // Update the inventory display
-            this.updateEnergyBonusDisplay();
             this.updateAttackBonusDisplay();
-            this.updateKnockbackBonusDisplay();
-            this.updateExploreBonusDisplay();
+            this.updateFireBonusDisplay();
+            this.updateTreesBonusDisplay();
             this.updateDefenceBonusDisplay();
             this.updateEnergyBar()
             PlayerState.JustAte = false;
         } else {
+            this.destroyItem(itemName);
         }
     }
 
@@ -943,14 +921,14 @@ export class UIScene extends Phaser.Scene {
         } else {
         }
     }
-
     useItem(itemName) {
-        const item = itemInfo[itemName];
+        const item = itemInfo[itemName.charAt(0).toUpperCase() + itemName.slice(1)];
         if (item) {
-            if (item.itemConsumable) {
+            if (itemName.toLowerCase() === 'log' &&  PlayerState.isNearFire) {
+                this.mainScene.useLogOnFire(this.fire);
                 this.consumeItem(itemName);
-            } else {
-                // Implement other item use cases here
+            } else if (item.itemConsumable) {
+                this.consumeItem(itemName);
             }
             this.updateInventoryDisplay(); // Update the inventory display
         } else {

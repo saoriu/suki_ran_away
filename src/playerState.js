@@ -13,13 +13,16 @@ export const PlayerState = {
     isEating: false,
     isHurt: false,
     JustAte: false,
+    isNearFire: false,
     isAttacking: false,
-    energyBonus: 0, //energy regeneration boost
+    collidingWithTree: false,
     attackBonus: 0, //rare attack moves boost
     luckBonus: 0, //chance to get a rare item from a monster
-    exploreBonus: 0, //chance to get an event
+    fireBonus: 0, //chance to get an event
     defenceBonus: 0, //chance to lower monster damage
-    knockbackBonus: 0, //knockback distance
+    treesBonus: 0, //chance to get more wood
+    fishBonus: 0, //chance to get more fish
+    bushBonus: 0, //chance to get more berries
     foodBonus: 0, //food extra heal rate
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],

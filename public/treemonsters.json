@@ -1,0 +1,1784 @@
+{
+	"textures": [
+		{
+			"image": "treemonsters.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 490,
+				"h": 1124
+			},
+			"scale": 4,
+			"frames": [
+				{
+					"filename": "falcon_attack-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_attack-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 106,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_attack-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 134,
+						"h": 42
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 134,
+						"h": 42
+					},
+					"frame": {
+						"x": 212,
+						"y": 0,
+						"w": 134,
+						"h": 42
+					}
+				},
+				{
+					"filename": "falcon_attack-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 130,
+						"h": 42
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 130,
+						"h": 42
+					},
+					"frame": {
+						"x": 346,
+						"y": 0,
+						"w": 130,
+						"h": 42
+					}
+				},
+				{
+					"filename": "falcon_attack-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 46
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 46
+					},
+					"frame": {
+						"x": 0,
+						"y": 70,
+						"w": 118,
+						"h": 46
+					}
+				},
+				{
+					"filename": "falcon_attack-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 58
+					},
+					"frame": {
+						"x": 118,
+						"y": 70,
+						"w": 118,
+						"h": 58
+					}
+				},
+				{
+					"filename": "falcon_die-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 236,
+						"y": 70,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_die-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 342,
+						"y": 70,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_die-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 58
+					},
+					"frame": {
+						"x": 0,
+						"y": 140,
+						"w": 118,
+						"h": 58
+					}
+				},
+				{
+					"filename": "falcon_die-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 38
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 38
+					},
+					"frame": {
+						"x": 118,
+						"y": 140,
+						"w": 118,
+						"h": 38
+					}
+				},
+				{
+					"filename": "falcon_die-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 236,
+						"y": 140,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 38
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 38
+					},
+					"frame": {
+						"x": 354,
+						"y": 140,
+						"w": 118,
+						"h": 38
+					}
+				},
+				{
+					"filename": "falcon_die-7",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 0,
+						"y": 198,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-8",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 118,
+						"y": 198,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-9",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 236,
+						"y": 198,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-10",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 354,
+						"y": 198,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-11",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 0,
+						"y": 224,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-12",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 118,
+						"y": 224,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-13",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 236,
+						"y": 224,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-14",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 354,
+						"y": 224,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-15",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 0,
+						"y": 250,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_die-16",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 26
+					},
+					"frame": {
+						"x": 118,
+						"y": 250,
+						"w": 118,
+						"h": 26
+					}
+				},
+				{
+					"filename": "falcon_hurt-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 236,
+						"y": 250,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_hurt-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 342,
+						"y": 250,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_hurt-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 0,
+						"y": 320,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_hurt-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 106,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 106,
+						"h": 70
+					},
+					"frame": {
+						"x": 106,
+						"y": 320,
+						"w": 106,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_hurt-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 58
+					},
+					"frame": {
+						"x": 212,
+						"y": 320,
+						"w": 118,
+						"h": 58
+					}
+				},
+				{
+					"filename": "falcon-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 74
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 74
+					},
+					"frame": {
+						"x": 330,
+						"y": 320,
+						"w": 94,
+						"h": 74
+					}
+				},
+				{
+					"filename": "falcon-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 78
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 78
+					},
+					"frame": {
+						"x": 0,
+						"y": 394,
+						"w": 94,
+						"h": 78
+					}
+				},
+				{
+					"filename": "falcon-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 74
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 74
+					},
+					"frame": {
+						"x": 94,
+						"y": 394,
+						"w": 94,
+						"h": 74
+					}
+				},
+				{
+					"filename": "falcon-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 70
+					},
+					"frame": {
+						"x": 188,
+						"y": 394,
+						"w": 94,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 66
+					},
+					"frame": {
+						"x": 282,
+						"y": 394,
+						"w": 94,
+						"h": 66
+					}
+				},
+				{
+					"filename": "falcon-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 70
+					},
+					"frame": {
+						"x": 376,
+						"y": 394,
+						"w": 94,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_run-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 70
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 70
+					},
+					"frame": {
+						"x": 0,
+						"y": 472,
+						"w": 118,
+						"h": 70
+					}
+				},
+				{
+					"filename": "falcon_run-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 66
+					},
+					"frame": {
+						"x": 118,
+						"y": 472,
+						"w": 118,
+						"h": 66
+					}
+				},
+				{
+					"filename": "falcon_run-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 42
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 42
+					},
+					"frame": {
+						"x": 236,
+						"y": 472,
+						"w": 118,
+						"h": 42
+					}
+				},
+				{
+					"filename": "falcon_run-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 58
+					},
+					"frame": {
+						"x": 354,
+						"y": 472,
+						"w": 118,
+						"h": 58
+					}
+				},
+				{
+					"filename": "falcon_run-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 46
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 46
+					},
+					"frame": {
+						"x": 0,
+						"y": 542,
+						"w": 118,
+						"h": 46
+					}
+				},
+				{
+					"filename": "falcon_run-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 58
+					},
+					"frame": {
+						"x": 118,
+						"y": 542,
+						"w": 118,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_attack-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 58
+					},
+					"frame": {
+						"x": 236,
+						"y": 542,
+						"w": 94,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_attack-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 90,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 90,
+						"h": 58
+					},
+					"frame": {
+						"x": 330,
+						"y": 542,
+						"w": 90,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_attack-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 122,
+						"h": 42
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 122,
+						"h": 42
+					},
+					"frame": {
+						"x": 0,
+						"y": 600,
+						"w": 122,
+						"h": 42
+					}
+				},
+				{
+					"filename": "parrot_attack-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 118,
+						"h": 42
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 118,
+						"h": 42
+					},
+					"frame": {
+						"x": 122,
+						"y": 600,
+						"w": 118,
+						"h": 42
+					}
+				},
+				{
+					"filename": "parrot_attack-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 46
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 46
+					},
+					"frame": {
+						"x": 240,
+						"y": 600,
+						"w": 110,
+						"h": 46
+					}
+				},
+				{
+					"filename": "parrot_attack-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 58
+					},
+					"frame": {
+						"x": 350,
+						"y": 600,
+						"w": 110,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_die-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 90,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 90,
+						"h": 58
+					},
+					"frame": {
+						"x": 0,
+						"y": 658,
+						"w": 90,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_die-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 58
+					},
+					"frame": {
+						"x": 90,
+						"y": 658,
+						"w": 94,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_die-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 54
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 54
+					},
+					"frame": {
+						"x": 184,
+						"y": 658,
+						"w": 110,
+						"h": 54
+					}
+				},
+				{
+					"filename": "parrot_die-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 34
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 34
+					},
+					"frame": {
+						"x": 294,
+						"y": 658,
+						"w": 110,
+						"h": 34
+					}
+				},
+				{
+					"filename": "parrot_die-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 0,
+						"y": 716,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 30
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 30
+					},
+					"frame": {
+						"x": 110,
+						"y": 716,
+						"w": 110,
+						"h": 30
+					}
+				},
+				{
+					"filename": "parrot_die-7",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 220,
+						"y": 716,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-8",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 330,
+						"y": 716,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-9",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 0,
+						"y": 746,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-10",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 110,
+						"y": 746,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-11",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 220,
+						"y": 746,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-12",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 330,
+						"y": 746,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-13",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 0,
+						"y": 772,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-14",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 110,
+						"y": 772,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-15",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 220,
+						"y": 772,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_die-16",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 26
+					},
+					"frame": {
+						"x": 330,
+						"y": 772,
+						"w": 110,
+						"h": 26
+					}
+				},
+				{
+					"filename": "parrot_hurt-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 90,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 90,
+						"h": 58
+					},
+					"frame": {
+						"x": 0,
+						"y": 798,
+						"w": 90,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_hurt-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 58
+					},
+					"frame": {
+						"x": 90,
+						"y": 798,
+						"w": 94,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_hurt-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 90,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 90,
+						"h": 58
+					},
+					"frame": {
+						"x": 184,
+						"y": 798,
+						"w": 90,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_hurt-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 58
+					},
+					"frame": {
+						"x": 274,
+						"y": 798,
+						"w": 94,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_hurt-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 58
+					},
+					"frame": {
+						"x": 368,
+						"y": 798,
+						"w": 110,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 62
+					},
+					"frame": {
+						"x": 0,
+						"y": 856,
+						"w": 98,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 66
+					},
+					"frame": {
+						"x": 98,
+						"y": 856,
+						"w": 98,
+						"h": 66
+					}
+				},
+				{
+					"filename": "parrot-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 62
+					},
+					"frame": {
+						"x": 196,
+						"y": 856,
+						"w": 98,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 58
+					},
+					"frame": {
+						"x": 294,
+						"y": 856,
+						"w": 98,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 62
+					},
+					"frame": {
+						"x": 392,
+						"y": 856,
+						"w": 98,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 66
+					},
+					"frame": {
+						"x": 0,
+						"y": 922,
+						"w": 98,
+						"h": 66
+					}
+				},
+				{
+					"filename": "parrot-7",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 62
+					},
+					"frame": {
+						"x": 98,
+						"y": 922,
+						"w": 98,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot-8",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 58
+					},
+					"frame": {
+						"x": 196,
+						"y": 922,
+						"w": 98,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot-9",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 62
+					},
+					"frame": {
+						"x": 294,
+						"y": 922,
+						"w": 94,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot-10",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 66
+					},
+					"frame": {
+						"x": 388,
+						"y": 922,
+						"w": 94,
+						"h": 66
+					}
+				},
+				{
+					"filename": "parrot-11",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 62
+					},
+					"frame": {
+						"x": 0,
+						"y": 988,
+						"w": 94,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot-12",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 94,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 94,
+						"h": 58
+					},
+					"frame": {
+						"x": 94,
+						"y": 988,
+						"w": 94,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_run-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 78
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 78
+					},
+					"frame": {
+						"x": 188,
+						"y": 988,
+						"w": 110,
+						"h": 78
+					}
+				},
+				{
+					"filename": "parrot_run-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 62
+					},
+					"frame": {
+						"x": 298,
+						"y": 988,
+						"w": 110,
+						"h": 62
+					}
+				},
+				{
+					"filename": "parrot_run-3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 42
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 42
+					},
+					"frame": {
+						"x": 0,
+						"y": 1066,
+						"w": 110,
+						"h": 42
+					}
+				},
+				{
+					"filename": "parrot_run-4",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 58
+					},
+					"frame": {
+						"x": 110,
+						"y": 1066,
+						"w": 110,
+						"h": 58
+					}
+				},
+				{
+					"filename": "parrot_run-5",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 46
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 46
+					},
+					"frame": {
+						"x": 220,
+						"y": 1066,
+						"w": 110,
+						"h": 46
+					}
+				},
+				{
+					"filename": "parrot_run-6",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 110,
+						"h": 58
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 110,
+						"h": 58
+					},
+					"frame": {
+						"x": 330,
+						"y": 1066,
+						"w": 110,
+						"h": 58
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:3d6ec94994a61199206dd1768ba41ed9:ba8da7e8a76a941d7e7a91b6b92c9827:151aae5c55ea36b8c2ae3d0b69c741a0$"
+	}
+}

@@ -9,7 +9,7 @@ export function regenerateEnergy(scene) {
     return; // Do not regenerate if damaged recently
     }
 
-    const energyRegenRate = 1 * (1 + PlayerState.energyBonus / 100);
+    const energyRegenRate = 1;
 
     // Regenerate energy at a fixed rate of 1 energy unit per second, times the energy bonus
     PlayerState.energy = Math.min(PlayerState.energy + energyRegenRate, 100); // Cap energy at 100

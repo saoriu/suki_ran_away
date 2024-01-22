@@ -10,6 +10,7 @@ export function createAnims(scene, cat) {
             repeat: 0
         });
     }
+    
 
     scene.anims.create({
         key: 'fire',
@@ -111,9 +112,7 @@ createAnimation(scene, 'sit-forward', 191, 198); // Updated
 createAnimation(scene, 'sit', 199, 206); // Updated
 createAnimation(scene, 'up', 207, 214); // Updated
 
-    
 
-    // Panda animations
     scene.anims.create({
         key: 'panda_attack',
         frames: Array(8).fill().map((_, i) => ({ key: 'monsters', frame: `panda_attack-${i + 1}` })),
@@ -338,7 +337,37 @@ createAnimation(scene, 'up', 207, 214); // Updated
         repeat: 0
     });
 
-    //fox anims
+    function createAnims(scene, creature, action, start, end) {
+        const frames = [];
+        for(let i = start; i <= end; i++) {
+            // The frame key includes the index
+            const frameKey = action ? `${creature}_${action}-${i}` : `${creature}-${i}`;
+            frames.push({ key: 'treemonsters', frame: frameKey });
+        }
+        // The animation key does not include the index
+        const animKey = action ? `${creature}_${action}` : creature;
+        scene.anims.create({
+            key: animKey,
+            frames: frames,
+            frameRate: 10,
+            repeat: 0
+        });
+    }
+
+    // Falcon animations
+    createAnims(scene, 'falcon', 'attack', 1, 6);
+    createAnims(scene, 'falcon', 'die', 1, 16);
+    createAnims(scene, 'falcon', 'hurt', 1, 5);
+    createAnims(scene, 'falcon', '', 1, 6); // This will create an animation with key 'falcon'
+    createAnims(scene, 'falcon', 'run', 1, 6);
+
+    // Parrot animations
+    createAnims(scene, 'parrot', 'attack', 1, 6);
+    createAnims(scene, 'parrot', 'die', 1, 16);
+    createAnims(scene, 'parrot', 'hurt', 1, 5);
+    createAnims(scene, 'parrot', '', 1, 12); // This will create an animation with key 'parrot'
+    createAnims(scene, 'parrot', 'run', 1, 6);
+
     scene.anims.create({
         key: 'fox',
         frames: Array(8).fill().map((_, i) => ({ key: 'monsters', frame: `fox_idle-${i + 1}` })),

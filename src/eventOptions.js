@@ -2,6 +2,7 @@ export const eventOptions = [
   {
     event: 'monster1',
     description: 'A cute lil creature.',
+    specialEvent: false,
     monster: 'bunny',
     isAggressive: false,
     attackRange: 0.25,
@@ -20,6 +21,7 @@ export const eventOptions = [
   {
     event: 'monster3',
     description: 'Cute but fierce.',
+    specialEvent: false,
     monster: 'panda',
     attackRange: 0.25,
     isAggressive: false,
@@ -37,6 +39,7 @@ export const eventOptions = [
   },
   {
     event: 'monster7',
+    specialEvent: false,
     description: 'Cute but nasty.',
     monster: 'raccoon',
     attackRange: 0.25,
@@ -58,6 +61,7 @@ export const eventOptions = [
     description: 'A very interestinig creature, wonder what it drops.',
     monster: 'dragonfly',
     attackRange: 0.25,
+    specialEvent: false,
     isAggressive: true,
     level: 10,
     damage: 15,
@@ -73,6 +77,7 @@ export const eventOptions = [
   },
   {
     event: 'monster5',
+    specialEvent: false,
     monster: 'chicken',
     attackRange: 0.25,
     description: 'She may have something useful.',
@@ -92,6 +97,7 @@ export const eventOptions = [
   {
     event: 'monster6',
     monster: 'turtle',
+    specialEvent: false,
     attackRange: 0.25,
     description: 'Its a hard life.',
     damage: 0,
@@ -111,6 +117,7 @@ export const eventOptions = [
     event: 'monster8',
     monster: 'fox',
     attackRange: 0.25,
+    specialEvent: false,
     isAggressive: true,
     description: 'A shiny coat and a sharp bite.',
     damage: 20,
@@ -123,6 +130,44 @@ export const eventOptions = [
       ultrarare: ['Silk']
     },
     skill: 'attacking',
+    monsterChance: 'ultrarare'
+  },
+  {
+    event: 'monster9',
+    monster: 'falcon',
+    attackRange: 0.25,
+    isAggressive: true,
+    description: 'Sharp talons and a sharp bite.',
+    damage: 10,
+    level: 15,
+    speed: 3,
+    monsterMass: 2.1,
+    possibleOutcomes: {
+      common: ['Milk', 'Egg', 'Flour'],
+      rare: ['Ruby', 'Gold'],
+      ultrarare: ['Silk']
+    },
+    skill: 'attacking',
+    specialEvent: true,
+    monsterChance: 'common'
+  },
+  {
+    event: 'monster10',
+    monster: 'parrot',
+    attackRange: 0.25,
+    isAggressive: true,
+    description: 'Beautiful and deadly.',
+    damage: 15,
+    level: 40,
+    speed: 2.9,
+    monsterMass: 2.1,
+    possibleOutcomes: {
+      common: ['Milk', 'Egg', 'Flour'],
+      rare: ['Ruby', 'Gold'],
+      ultrarare: ['Silk']
+    },
+    skill: 'attacking',
+    specialEvent: true,
     monsterChance: 'ultrarare'
   },
 ].map(option => {
