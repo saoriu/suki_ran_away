@@ -9,6 +9,7 @@ export function handleItemPickup(cat) {
             if (Phaser.Geom.Intersects.RectangleToRectangle(cat.getBounds(), item.sprite.getBounds())) {
                 if (addToInventory.call(this, item.config)) {
                     item.sprite.destroy();
+                    this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
                     return false;
                 } else {
                 }

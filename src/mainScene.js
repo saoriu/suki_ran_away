@@ -550,29 +550,56 @@ export class mainScene extends Phaser.Scene {
                 this.isNearFire(fire);
             }
         });
-        
-        this.allEntities.forEach((entity, index) => {
+        // Step 1: Calculate all depths
+        this.allEntities.forEach((entity) => {
             if (entity.body) {
-                if (entity.body.label === 'player' || entity.body.label === 'monster') {
-                    if (entity.depth === null) {
-                        entity.setDepth(1);
-                    } else {
-                        entity.setDepth((entity.y + 40) / 10);
-                    }
-                } else if (entity.body.label === 'pond') {
-                    entity.setDepth((entity.y - 250) / 10);
-                } else if (entity.body.label === 'fire') {
-                    entity.setDepth((entity.y - 50) / 10);
+                if (entity.y === null) {
+                    entity.setDepth(2);
                 } else {
-                    if (entity.depth === null) {
-                        entity.setDepth(1);
+                    if (entity.body.label === 'player' || entity.body.label === 'monster') {
+                        if (entity.depth === null) {
+                            entity.setDepth(1);
+                        } else {
+                            entity.setDepth((entity.y + 40) / 10);
+                        }
+                    } else if (entity.body.label === 'pond') {
+                        entity.setDepth((entity.y - 250) / 10);
+                    } else if (entity.body.label === 'fire') {
+                        entity.setDepth((entity.y - 50) / 10);
                     } else {
-                        entity.setDepth(entity.y / 10);
+                        if (entity.depth === null) {
+                            entity.setDepth(1);
+                        } else {
+                            entity.setDepth(entity.y / 10);
+                        }
                     }
                 }
             }
         });
 
+        // Step 2: Find the minimum depth
+        let minDepth = Math.min(...this.allEntities.map(entity => entity.depth));
+
+        // Step 3: If the minimum depth is less than 0, add its absolute value to all depths
+        if (minDepth < 0) {
+            this.allEntities.forEach((entity) => {
+                entity.setDepth(entity.depth + Math.abs(minDepth));
+            });
+        }
+
+        // Step 4: If the depth is 0, set it to 1
+        this.allEntities.forEach((entity) => {
+            if (entity.depth === 0) {
+                entity.setDepth(1);
+            }
+        });
+
+        // Log the final depths
+        this.allEntities.forEach((entity) => {
+            if (entity.body) {
+                console.log(`Entity label: ${entity.body.label}, y: ${entity.y}, depth: ${entity.depth}`);
+            }
+        });
         Object.values(this.monsters).forEach(monster => {
             if (!monster.sprite || !monster.sprite.body) {
                 return;
@@ -1109,7 +1136,7 @@ export class mainScene extends Phaser.Scene {
         // Extend the timer for the closest fire
         if (closestFire && closestFire.timerEvent) {
             closestFire.endTime += 30000;
-            const log = this.add.sprite(closestFire.x + 5, closestFire.y + 5, 'log').setOrigin(0.5).setDepth(1000).setPipeline('Light2D');
+            const log = this.add.sprite(closestFire.x + 5, closestFire.y + 5, 'log').setOrigin(0.5).setPipeline('Light2D');
             //add label log
             log.label = 'log';
 
@@ -1826,6 +1853,7 @@ export class mainScene extends Phaser.Scene {
                         if (itemTileI === i && itemTileJ === j) {
                             item.sprite.destroy(); // Destroy the sprite, not the wrapper object
                             this.items.splice(index, 1);
+                            this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
                         }
                     }
                 });

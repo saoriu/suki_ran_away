@@ -77,7 +77,7 @@ export class UIScene extends Phaser.Scene {
             this.updateInventoryDisplay();
             const userid = PlayerState.userid;
             let useridText = `${userid}`;
-            this.userText = this.add.text(20, 85, useridText, { fontFamily: 'Ninja', fontSize: '20px', fill: 'gold', stroke: 'black', strokeThickness: 3 });
+            this.userText = this.add.text(125, 18, useridText, { fontFamily: 'Ninja', fontSize: '20px', fill: 'gold', stroke: 'black', strokeThickness: 3 });
             this.energyText = this.add.text(this.energyx, this.energyy, ``, textStyles.energyText);
             this.add.existing(this.energyText);
             this.createAttackSelectionMenu();
