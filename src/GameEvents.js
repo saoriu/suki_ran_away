@@ -149,8 +149,7 @@ export class GameEvents {
                             stroke: '#ffffff',
                             strokeThickness: 6,
                         }
-                    ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
-                
+                        ).setDepth(targetMonster.sprite.depth + 5).setOrigin(0.5, 0); // Set depth to monster's depth + 5                
                 
                         // Attach damage text to the monster for tracking
                     targetMonster.damageText = changeText;
@@ -183,8 +182,7 @@ export class GameEvents {
                         stroke: '#ffffff',
                         strokeThickness: 6,
                     }
-                    ).setDepth(5).setOrigin(0.5, 0); // Set origin to center
-            
+                    ).setDepth(targetMonster.sprite.depth + 5).setOrigin(0.5, 0); // Set depth to monster's depth + 5            
                 // Attach miss text to the monster for tracking
                 targetMonster.damageText = missText;
             
@@ -258,34 +256,38 @@ export class GameEvents {
 
                 if (monsterRoll > 0) {
                     PlayerState.isHurt = true;
-                    PlayerState.isBeingKnockedBack = true;
-    
-                    const knockbackDistance = (monsterRoll / 10) * this.tileWidth;
-                    const directionX = this.player.x - targetMonster.sprite.x;
-                    const directionY = this.player.y - targetMonster.sprite.y;
-                    const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
-                    const normalizedDirectionX = directionX / magnitude;
-                    const normalizedDirectionY = directionY / magnitude;
-    
-                    const newPlayerX = this.player.x + normalizedDirectionX * knockbackDistance;
-                    const newPlayerY = this.player.y + normalizedDirectionY * knockbackDistance;
-    
-                    const knockbackSpeed = 300;
-                    const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000;
-    
-                    this.player.tween = this.scene.tweens.add({
-                        targets: this.player,
-                        x: newPlayerX,
-                        y: newPlayerY,
-                        duration: knockbackDuration,
-                        ease: 'Power1',
-                        onComplete: () => {
-                            PlayerState.isBeingKnockedBack = false;
-                        },
-                        onStop: () => {
-                            PlayerState.isBeingKnockedBack = false;
-                        }
-                    });
+
+                    //only knockback if isbeingknockedback is false
+                    if (!PlayerState.isBeingKnockedBack) {
+                        const knockbackDistance = (monsterRoll / 10) * this.tileWidth;
+                        const directionX = this.player.x - targetMonster.sprite.x;
+                        const directionY = this.player.y - targetMonster.sprite.y;
+                        const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
+                        const normalizedDirectionX = directionX / magnitude;
+                        const normalizedDirectionY = directionY / magnitude;
+
+                        const newPlayerX = this.player.x + normalizedDirectionX * knockbackDistance;
+                        const newPlayerY = this.player.y + normalizedDirectionY * knockbackDistance;
+
+                        const knockbackSpeed = 300;
+                        const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000;
+
+                        this.player.tween = this.scene.tweens.add({
+                            targets: this.player,
+                            x: newPlayerX,
+                            y: newPlayerY,
+                            duration: knockbackDuration,
+                            ease: 'Power1',
+                            onComplete: () => {
+                                PlayerState.isBeingKnockedBack = false;
+                            },
+                            onStop: () => {
+                                setTimeout(() => {
+                                    PlayerState.isBeingKnockedBack = false;
+                                }, 200);
+                            }
+                        });
+                    }
                 }
 
                 if (PlayerState.energy <= 0) {
@@ -331,7 +333,6 @@ export class GameEvents {
         if (targetMonster.currentHealth <= 0) {
             targetMonster.isAggressive = false;
             targetMonster.isDead = true;
-            targetMonster.sprite.play(`${targetMonster.event.monster}_die`, true);
 
             // Listen for the animation completion
             targetMonster.sprite.once('animationcomplete', () => {
@@ -430,7 +431,7 @@ export class GameEvents {
 
     updateMonsterMovement(player, monster, distance) {
         //if monster health is not 0
-        if (monster.currentHealth > 0 && !monster.isBeingKnockedBack) {
+        if (monster.currentHealth > 0 && !monster.isBeingKnockedBack && !monster.isTweening) {
             if (monster.isAggressive && !monster.canReach) {
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
                 const velocity = {

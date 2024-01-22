@@ -36,7 +36,7 @@ export class mainScene extends Phaser.Scene {
         this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
-        this.POSITION_CHANGE_THRESHOLD = 0.1;
+        this.POSITION_CHANGE_THRESHOLD = 0.25;
         this.Matter = Phaser.Physics.Matter.Matter; // Ensure Matter is correctly imported/referenced
         this.lastUpdateTime = 0;
         this.lastDirection = null;
@@ -173,6 +173,48 @@ export class mainScene extends Phaser.Scene {
                 }
             });
         });
+
+        this.matter.world.on('collisionactive', (event) => {
+            event.pairs.forEach(pair => {
+                const { bodyA, bodyB } = pair;
+
+                const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
+                const isTree = bodyA.parent.label === 'tree' || bodyB.parent.label === 'tree';
+                const isPond = bodyA.parent.label === 'pond' || bodyB.parent.label === 'pond';
+                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+
+                if (isPlayer && (isTree || isPond || isBush1)) {
+                    let playerBody = bodyA.label === 'player' ? bodyA : bodyB;
+
+                    if (playerBody) {
+                        PlayerState.isBeingKnockedBack = true;
+                        if (this.player && this.player.tween) {
+                            this.player.tween.stop();
+                        }
+                    }
+                }
+            });
+        });
+
+        this.matter.world.on('collisionend', (event) => {
+            event.pairs.forEach(pair => {
+                const { bodyA, bodyB } = pair;
+
+                const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
+                const isTree = bodyA.parent.label === 'tree' || bodyB.parent.label === 'tree';
+                const isPond = bodyA.parent.label === 'pond' || bodyB.parent.label === 'pond';
+                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+
+                if (isPlayer && (isTree || isPond || isBush1)) {
+                    let playerBody = bodyA.label === 'player' ? bodyA : bodyB;
+
+                    if (playerBody) {
+                        PlayerState.isBeingKnockedBack = false;
+                    }
+                }
+            });
+        });
+
 
         this.matter.world.on('collisionactive', (event) => {
             event.pairs.forEach(pair => {
@@ -503,15 +545,40 @@ export class mainScene extends Phaser.Scene {
                 this.isNearFire(fire);
             }
         });
+            Object.values(this.monsters).forEach(monster => {
+                if (!monster.sprite || !monster.sprite.body) {
+                    return;
+                }
 
+                // Find the tree with the highest 'y' value that is less than the monster's 'y' value
+                let highestTreeBelowMonster = this.trees.reduce((highestTree, currentTree) => {
+                    return (currentTree.y < monster.sprite.y + 30 && currentTree.y > highestTree.y) ? currentTree : highestTree;
+                }, {y: -Infinity});
+
+                // If no such tree is found, set the monster's depth to 1
+                if (highestTreeBelowMonster.y === -Infinity) {
+                    monster.sprite.setDepth(1);
+                } else {
+                    // Set the monster's depth based on the highest tree found
+                    monster.sprite.setDepth(highestTreeBelowMonster.depth + 1);
+                }
+
+                console.log(monster.sprite.depth + " monster depth");
+            });
+        
         this.trees.forEach((tree) => {
-            if (this.cat.y + 45 > tree.y) {
-                tree.setDepth(Math.max(this.cat.depth - 1, 1));
-            } else {
-                tree.setDepth(Math.max(tree.y, 1));
+            // Set the tree's depth relative to its y position
+            tree.setDepth(tree.y);
+
+            // If the cat's y value is lower than the tree's y value, increase the tree's depth
+            if (this.cat.y + 45 < tree.y) {
+                tree.setDepth(tree.depth + 1);
+            }
+            // If the cat's y value is higher than the tree's y value, decrease the tree's depth
+            else if (this.cat.y + 45 > tree.y) {
+                tree.setDepth(Math.min(this.cat.depth - 1, tree.depth));
             }
         });
-
 
         Object.values(this.monsters).forEach(monster => {
             if (!monster.sprite || !monster.sprite.body) {
@@ -621,11 +688,13 @@ export class mainScene extends Phaser.Scene {
 
         // Calculating the probability of dropping a log, including the treesBonus.
         const logDropProbability = 0.5 + PlayerState.treesBonus / 100;
-        
+        // Logic for dropping a log
+        const randomX = tree.x + 100 + Math.random() * 25;
+        const randomY = tree.y + 50 + Math.random() * 30;
+
         if (randomValue < logDropProbability) {
-            // Logic for dropping a log
-            const randomX = tree.x + 100 + Math.random() * 25;
-            const randomY = tree.y + 50 + Math.random() * 30;
+            spawnMonsterTree(tree.x, tree.y, this, this.tileWidth, this.monsters);
+
             this.dropLog(randomX, randomY);
         } else {
             // Calculate the remaining probability after considering the log drop.
@@ -643,10 +712,11 @@ export class mainScene extends Phaser.Scene {
                     if (tree.active) {
                         tree.setTexture('tree');
                         tree.isDepleted = false;
+                        //play tree anim
+                        tree.play('tree');
                     }
                 }, 10000);
             } else {
-                // Logic for monster spawning
                 spawnMonsterTree(tree.x, tree.y, this, this.tileWidth, this.monsters);
             }
         }
@@ -718,7 +788,7 @@ export class mainScene extends Phaser.Scene {
         }
 
 
-        const pondProbability = 0.5;
+        const pondProbability = 0.50;
         const randomPondFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomPondFloat < pondProbability) {
             this.spawnPonds();
@@ -1107,12 +1177,15 @@ export class mainScene extends Phaser.Scene {
             });
         };
 
-        // Check if the new location is too close to existing fires, trees, ponds, or bushes
+        const monstersArray = Object.values(this.monsters);
+
+        // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
         if (isTooCloseToOtherObjects(this.fires, 4) ||
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
-            return;
+            isTooCloseToOtherObjects(this.bush1s, 4) || // assuming a bush threshold
+            isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
+                return;
         }
 
         if (this.trees.filter(tree => tree.active && !tree.isDepleted).length >= 5) {
@@ -1129,7 +1202,7 @@ export class mainScene extends Phaser.Scene {
 
         const tree = this.matter.add.sprite(x, y, 'tree', null, {
             label: 'tree'
-        }).setExistingBody(treeBody).setDepth(y); // Set the depth to be proportional to the y-coordinate
+        }).setExistingBody(treeBody); // Set the depth to be proportional to the y-coordinate
 
         tree.setOrigin(0.5, 0.85);
         tree.setPipeline('Light2D');
@@ -1206,11 +1279,16 @@ export class mainScene extends Phaser.Scene {
             });
         };
 
+        const monstersArray = Object.values(this.monsters);
+
+
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 4) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
+            isTooCloseToOtherObjects(this.bush1s, 4)||
+            isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
+
             return;
         }
 
@@ -1231,7 +1309,7 @@ export class mainScene extends Phaser.Scene {
         }
 
         // If there are already 2 trees in the view, don't spawn a new one
-        if (this.ponds.filter(pond => pond.active).length >= 2) {
+        if (this.ponds.filter(pond => pond.active).length >= 5) {
             return;
         }
 
@@ -1249,6 +1327,7 @@ export class mainScene extends Phaser.Scene {
 
         pond.setExistingBody(pondBody).setOrigin(0.51, 0.47);
         pond.setPipeline('Light2D');
+        pond.setDepth(1);
         pond.play('pond');
 
         this.ponds.push(pond);
@@ -1329,10 +1408,14 @@ export class mainScene extends Phaser.Scene {
             });
         };
 
+        const monstersArray = Object.values(this.monsters);
+
+
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 3) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 5) || // assuming a pond threshold
+            isTooCloseToOtherObjects(monstersArray, 4) ||
             isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
             return;
         }
@@ -1342,7 +1425,7 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        const bush1 = this.matter.add.sprite(x, y, 'bush1', null).setCircle(65).setDepth(2);
+        const bush1 = this.matter.add.sprite(x, y, 'bush1', null).setCircle(65).setDepth(3);
 
         bush1.body.label = 'bush1';
 
@@ -1658,6 +1741,14 @@ export class mainScene extends Phaser.Scene {
                 return object.y < player.y;
             case 'down':
                 return object.y > player.y;
+            case 'upLeft':
+                return object.x < player.x && object.y < player.y;
+            case 'upRight':
+                return object.x > player.x && object.y < player.y;
+            case 'downLeft':
+                return object.x < player.x && object.y > player.y;
+            case 'downRight':
+                return object.x > player.x && object.y > player.y;    
             default:
                 return false;
         }

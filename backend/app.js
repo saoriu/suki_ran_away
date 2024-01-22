@@ -53,6 +53,7 @@ app.post('/register', async (req, res) => {
     isHurt: false,
     JustAte: false,
     isAttacking: false,
+    isBeingKnockedBack: false,
     attackBonus: 0, //rare attack moves boost
     luckBonus: 0, //chance to get a rare item from a monster
     fireBonus: 0, //chance to get an event

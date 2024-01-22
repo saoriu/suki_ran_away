@@ -11,6 +11,7 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
             delete monsters[key];
         }
     }
+    
     function chooseMonsterRarity() {
         const rarities = ['common', 'ultrarare'];
         const cumulativeProbabilities = [0.90, 1.00]; // Cumulative probabilities for the rarities
@@ -61,16 +62,20 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
     let trimmedWidth = frameData.cutWidth;
     let trimmedHeight = frameData.cutHeight;
 
-    const monsterX = treeX + trimmedWidth / 2;
+
+    //make offset a random number between 100 and 200
+    const offset = Phaser.Math.Between(100, 200);
+    const monsterX = treeX + trimmedWidth / 2 + offset ;    
     const monsterY = treeY + trimmedHeight / 2;
 
     //define monsterradius based on monster frame data
     let monsterRadius = trimmedWidth / 2;
 
     // Create the monster sprite
-    let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
+    let monster = scene.matter.add.sprite(monsterX, monsterY - 150, monsterSpriteKey, null, {
         isStatic: false
     }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
+    
 
     // Continue with your existing code...
     monster.setInteractive();
@@ -82,6 +87,21 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
     monsterBody.friction = 1;
     monsterBody.frictionAir = 0.1;
     monsterBody.label = 'monster';
+    
+    // Add the tween
+    scene.tweens.add({
+        targets: monster,
+        y: monsterY, // Final position
+        duration: 1000, // Duration of the tween in milliseconds
+        ease: 'Linear', // Easing function of the tween
+        onStart: function () {
+            // Set the monster's velocity to 0 at the start of the tween
+            monsters[monsterKey].isTweening = true;
+        },
+        onComplete: function () {
+            monsters[monsterKey].isTweening = false;
+        }
+    });
 
 
     const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
@@ -114,6 +134,7 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
         attackRange: chosenMonster.attackRange,
         level: modifiedLevel,
         isAggressive: true,
+        isTweening: true,
         inReach: false,
         event: chosenMonster,
         isColliding: false,
@@ -128,7 +149,6 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters) {
     };
 
     scene.registry.set('currentMonsterLevel', modifiedLevel);
-    monster.setDepth(3);
     monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
     monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite
 }

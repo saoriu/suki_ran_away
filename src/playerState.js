@@ -16,6 +16,7 @@ export const PlayerState = {
     isNearFire: false,
     isAttacking: false,
     collidingWithTree: false,
+    isBeingKnockedBack: false,
     attackBonus: 0, //rare attack moves boost
     luckBonus: 0, //chance to get a rare item from a monster
     fireBonus: 0, //chance to get an event
