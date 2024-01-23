@@ -116,8 +116,22 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
       isStatic: false
     }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
+// Check for overlap with other sprites
+let isOverlapping = false;
+allEntities.forEach(entity => {
+  let collision = Phaser.Physics.Matter.Matter.Query.collides(monster.body, entity.body);
+  if (collision.length > 0) {
+    isOverlapping = true;
+  }
+});
 
-    // Continue with your existing code...
+// If the monster is overlapping with another sprite, don't spawn it
+if (isOverlapping) {
+  console.log('Monster is overlapping with another sprite, not spawning');
+  monster.destroy();
+  return;
+}
+
     monster.setInteractive();
 
     const monsterBody = monster.body;

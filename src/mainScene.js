@@ -278,8 +278,8 @@ export class mainScene extends Phaser.Scene {
                         break;
                     case 'Space':
                         attackName = 'scratch';
-                            this.handleItemPickup(this.cat);
-                    break;
+                        this.handleItemPickup(this.cat);
+                        break;
                     default:
                         return; // Exit the function if a non-attack key is pressed
                 }
@@ -495,6 +495,8 @@ export class mainScene extends Phaser.Scene {
 
         this.gameEvents.update(this.monsters);
 
+
+
         Object.values(this.monsters).forEach(monsterObj => {
             if (!monsterObj || !monsterObj.sprite || !monsterObj.sprite.active || !monsterObj.healthBar) return;
 
@@ -592,6 +594,8 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
+        //delete monster if stuck inside an ibject like a tree, pond, or bush1
+
 
 
         Object.values(this.monsters).forEach(monster => {
@@ -619,6 +623,8 @@ export class mainScene extends Phaser.Scene {
             });
         });
     }
+
+
 
     fireAttack(fire) {
         if (this.scene.isFainting) return; // Skip if player is dead
@@ -658,29 +664,29 @@ export class mainScene extends Phaser.Scene {
     }
 
     // Set a flag in PlayerState when player is near fire
-    isNearFire(fire) {
-        if (!fire || !fire.active) {
-            PlayerState.isNearFire = false;
-        } else {
-            // Use the fire's body position to get the center of the sprite
-            const fireCenterX = fire.body.position.x;
-            const fireCenterY = fire.body.position.y;
+    isNearFire() {
+        PlayerState.isNearFire = false; // Reset the flag
 
-            const dx = this.cat.x - fireCenterX;
-            const dy = this.cat.y - fireCenterY;
-            const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+        this.fires.forEach((fire, index) => {
+            if (fire && fire.active) {
+                // Use the fire's body position to get the center of the sprite
+                const fireCenterX = fire.body.position.x;
+                const fireCenterY = fire.body.position.y;
 
-            PlayerState.isNearFire = distance <= 2;
-        }
+                const dx = this.cat.x - fireCenterX;
+                const dy = this.cat.y - fireCenterY;
+                const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+
+                if (distance <= 2) {
+                    PlayerState.isNearFire = true;
+                    return; // Exit the loop as soon as we find a fire the player is near
+                }
+            }
+        });
     }
-    spawnMonstersOnly(centerX, centerY, scene) {
-        
-        let monsterCount = Object.values(this.monsters).length;
 
-        if (monsterCount > 10) {
-            return;
-        }
-    
+    spawnMonstersOnly(centerX, centerY, scene) {
+
         const spawnProbability = this.calculateSpawnProbability();
 
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
@@ -725,7 +731,7 @@ export class mainScene extends Phaser.Scene {
                 tree.isDepleted = true;
                 tree.setTexture('tree-down');
                 tree.anims.stop();
-        
+
                 setTimeout(() => {
                     if (tree.active) {
                         tree.setTexture('tree');
@@ -738,10 +744,10 @@ export class mainScene extends Phaser.Scene {
                 spawnMonsterTree(tree.x, tree.y, this, this.tileWidth, this.monsters, this.allEntities);
             }
         }
-        
+
     }
 
-    
+
     dropLog(x, y) {
         const log = new Item(this, x, y, 'log', {
             name: 'log',
@@ -797,29 +803,47 @@ export class mainScene extends Phaser.Scene {
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
-        const fireProbability = 0.15 * (1 + PlayerState.exploreBonus / 100);
+        const fireProbability = 0.5 * (1 + PlayerState.exploreBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
+
             this.spawnFire();
+
         }
+
 
         const treeProbability = 0.99;
         const randomTreeFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomTreeFloat < treeProbability) {
-            this.spawnTrees();
+            //call a random number of times, between 1 and 4
+            const randomNumberOfTrees = Phaser.Math.Between(1, 6);
+            for (let i = 0; i < randomNumberOfTrees; i++) {
+
+                this.spawnTrees();
+            }
         }
 
 
         const pondProbability = 0.60;
         const randomPondFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomPondFloat < pondProbability) {
-            this.spawnPonds();
+            const randomNumberOfPonds = Phaser.Math.Between(1, 2);
+
+            for (let i = 0; i < randomNumberOfPonds; i++) {
+
+                this.spawnPonds();
+            }
         }
 
         const bush1Probability = 0.99;
         const randomBush1Float = Phaser.Math.FloatBetween(0, 1);
         if (randomBush1Float < bush1Probability) {
-            this.spawnBush1();
+            const randomNumberOfBush1s = Phaser.Math.Between(1, 3);
+
+            for (let i = 0; i < randomNumberOfBush1s; i++) {
+
+                this.spawnBush1();
+            }
         }
     }
 
@@ -1004,7 +1028,7 @@ export class mainScene extends Phaser.Scene {
         };
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 60) ||
+        if (isTooCloseToOtherObjects(this.fires, 15) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 3) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bush1s, 3)) { // assuming a bush threshold
@@ -1117,16 +1141,17 @@ export class mainScene extends Phaser.Scene {
         this.fires.forEach((fire) => {
             if (fire && fire.active) {
                 const fireBody = fire.body;
-        
+
                 const fireCenterX = fireBody.position.x;
                 const fireCenterY = fireBody.position.y;
 
                 const dx = this.cat.x - fireCenterX;
                 const dy = this.cat.y - fireCenterY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-             if (distance < closestDistance) {
+                if (distance < closestDistance) {
                     closestFire = fire;
                     closestDistance = distance;
+
                 }
             }
         });
@@ -1310,7 +1335,7 @@ export class mainScene extends Phaser.Scene {
         if (isTooCloseToOtherObjects(this.fires, 4) ||
             isTooCloseToOtherObjects(this.trees, 6) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bush1s, 4)||
+            isTooCloseToOtherObjects(this.bush1s, 4) ||
             isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
 
             return;
@@ -1376,12 +1401,12 @@ export class mainScene extends Phaser.Scene {
         // Define the points for the trapezoid shape
         vertices.push({ x: x - 20, y: y - 50 }); // Top left (short base)
         vertices.push({ x: x + 20, y: y - 50 }); // Top right (short base)
-        vertices.push({ x: x + 60, y: y  }); // Middle right
+        vertices.push({ x: x + 60, y: y }); // Middle right
         vertices.push({ x: x + 100, y: y + 10 }); // New vertex between middle right and bottom right
         vertices.push({ x: x + 100, y: y + 30 }); // Bottom right (long base)
         vertices.push({ x: x - 100, y: y + 30 }); // Bottom left (long base)
         vertices.push({ x: x - 100, y: y + 10 }); // New vertex between middle left and bottom left
-        vertices.push({ x: x - 60, y: y  }); // Middle left
+        vertices.push({ x: x - 60, y: y }); // Middle left
 
         return vertices;
     }
@@ -1493,8 +1518,10 @@ export class mainScene extends Phaser.Scene {
         if (!targetMonster || !targetMonster.sprite) return;
 
         let projectile = this.add.sprite(this.cat.x, this.cat.y, 'hairballs');
-        projectile.setDepth(5);
+        this.allEntities.push(projectile);
+        projectile.setPipeline('Light2D');
         projectile.play('hairballs');
+
 
         let targetX = targetMonster.sprite.x;
         let targetY = targetMonster.sprite.y;
@@ -1510,6 +1537,7 @@ export class mainScene extends Phaser.Scene {
             ease: 'Power2',
             onComplete: () => {
                 projectile.destroy();
+                this.allEntities.splice(this.allEntities.indexOf(projectile), 1);
             }
         });
     }
@@ -1785,7 +1813,7 @@ export class mainScene extends Phaser.Scene {
             case 'downLeft':
                 return object.x < player.x && object.y > player.y;
             case 'downRight':
-                return object.x > player.x && object.y > player.y;    
+                return object.x > player.x && object.y > player.y;
             default:
                 return false;
         }
