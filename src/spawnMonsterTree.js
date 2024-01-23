@@ -14,7 +14,7 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
     
     function chooseMonsterRarity() {
         const rarities = ['common', 'ultrarare'];
-        const cumulativeProbabilities = [0.90, 1.00]; // Cumulative probabilities for the rarities
+        const cumulativeProbabilities = [0.97, 1.00]; // Cumulative probabilities for the rarities
         const roll = Phaser.Math.FloatBetween(0, 1);
 
         for (let i = 0; i < cumulativeProbabilities.length; i++) {

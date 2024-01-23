@@ -338,7 +338,7 @@ export class UIScene extends Phaser.Scene {
         this.isLevelingUp = true;
         this.tweens.add({
             targets: this.dancingBar.fill,
-            displayWidth: 140,
+            displayWidth: 142,
             duration: 500,
             ease: 'Sine.easeInOut',
             onComplete: () => {
@@ -429,7 +429,7 @@ export class UIScene extends Phaser.Scene {
     }
 
     createProgressBar(x, y) {
-        const progressBarWidth = 140;
+        const progressBarWidth = 142;
         const progressBarHeight = 15;
         const outerRect = this.add.rectangle(228, 113 + progressBarHeight / 2, progressBarWidth, progressBarHeight, 0x000000);
         outerRect.setOrigin(0, 1); // Set the origin to the bottom left corner
@@ -445,6 +445,7 @@ export class UIScene extends Phaser.Scene {
 
     // Initialize static elements in a separate method or in the constructor
     initializeStaticElements() {
+
         this.dancingFrame = this.add.image(245, 80, 'frame').setOrigin(0.5).setDepth(2);
         this.dancingBar = this.createProgressBar(0, 0);
         this.skillsContainer = this.add.container(0, 0);
@@ -452,6 +453,21 @@ export class UIScene extends Phaser.Scene {
         this.xpText = this.add.text(204, 110, `XP`, textStyles.playerLevelText).setOrigin(0.5).setDepth(3).setScale(.8, 1.1);
         this.createGradientText(this.xpText);
         this.skillsContainer.add([this.dancingFrame, this.xpText]);
+        //play the sit animation for cat inside the skills container
+        this.cat = this.add.sprite(58, 85, 'cat').setOrigin(0.5).setScale(1);
+        //add the first frame of sit anim
+        this.cat.play('sit');
+        //add a circle masking the cat
+        // Create a graphics object
+        let graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        // Draw a circle on the graphics object
+        graphics.fillCircle(76, 70, 50);
+        // Create a mask using the graphics object
+        let mask = graphics.createGeometryMask();
+        // Apply the mask to the cat
+        this.cat.setMask(mask);
+        // Add the cat to the skillsContainer
+        this.skillsContainer.add(this.cat);
         this.attackBonusIcon = this.add.image(0, 0, 'bonusattack').setOrigin(0.5).setDepth(2);
         this.fireBonusIcon = this.add.image(0, 0, 'bonusfire').setOrigin(0.5).setDepth(2);
         this.defenceBonusIcon = this.add.image(0, 0, 'bonusdefence').setOrigin(0.5).setDepth(2);
@@ -502,7 +518,7 @@ export class UIScene extends Phaser.Scene {
         const currentXP = getSkillXP('dancing');
         const requiredXP = xpRequiredForLevel(getSkillLevel('dancing'));
         const dancingXPProgress = currentXP / requiredXP;
-        const targetWidth = 140 * dancingXPProgress;
+        const targetWidth = 142 * dancingXPProgress;
 
         this.tweens.add({
             targets: this.dancingBar.fill,
@@ -612,7 +628,7 @@ export class UIScene extends Phaser.Scene {
     createEnergyBar(x, y) {
 
         const progressBarWidth = 256;
-        const progressBarHeight = 27;
+        const progressBarHeight = 32;
         const borderOffset = 2;
         const outerRect = this.add.rectangle(x + 53, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
         outerRect.setOrigin(0, 0.5);

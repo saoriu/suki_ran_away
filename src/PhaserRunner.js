@@ -95,6 +95,8 @@ export default function PhaserRunner() {
         // Update local PlayerState with the received data
         Object.assign(PlayerState, playerState);
 
+        PlayerState.userid = userid;
+
         // In PhaserRunner.js, inside login function
         setLevel(updatePlayerLevel(PlayerState.skills));
 

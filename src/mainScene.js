@@ -37,7 +37,7 @@ export class mainScene extends Phaser.Scene {
         this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
-        this.POSITION_CHANGE_THRESHOLD = 0.5;
+        this.POSITION_CHANGE_THRESHOLD = 0.15;
         this.Matter = Phaser.Physics.Matter.Matter; // Ensure Matter is correctly imported/referenced
         this.lastUpdateTime = 0;
         this.lastDirection = null;
@@ -564,8 +564,6 @@ export class mainScene extends Phaser.Scene {
                         }
                     } else if (entity.body.label === 'pond') {
                         entity.setDepth((entity.y - 250) / 10);
-                    } else if (entity.body.label === 'fire') {
-                        entity.setDepth((entity.y - 50) / 10);
                     } else {
                         if (entity.depth === null) {
                             entity.setDepth(1);
@@ -597,7 +595,6 @@ export class mainScene extends Phaser.Scene {
         // Log the final depths
         this.allEntities.forEach((entity) => {
             if (entity.body) {
-                console.log(`Entity label: ${entity.body.label}, y: ${entity.y}, depth: ${entity.depth}`);
             }
         });
         Object.values(this.monsters).forEach(monster => {
@@ -679,8 +676,14 @@ export class mainScene extends Phaser.Scene {
             PlayerState.isNearFire = distance <= 2;
         }
     }
-
     spawnMonstersOnly(centerX, centerY, scene) {
+        
+        let monsterCount = Object.values(this.monsters).length;
+
+        if (monsterCount > 10) {
+            return;
+        }
+    
         const spawnProbability = this.calculateSpawnProbability();
 
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
@@ -707,7 +710,7 @@ export class mainScene extends Phaser.Scene {
         let randomValue = Math.random();
 
         // Calculating the probability of dropping a log, including the treesBonus.
-        const logDropProbability = 0.5 + PlayerState.treesBonus / 100;
+        const logDropProbability = 0.7 + PlayerState.treesBonus / 100;
         // Logic for dropping a log
         const randomX = tree.x + 100 + Math.random() * 25;
         const randomY = tree.y + 50 + Math.random() * 30;
@@ -718,7 +721,7 @@ export class mainScene extends Phaser.Scene {
             // Calculate the remaining probability after considering the log drop.
             const remainingProbability = 1 - logDropProbability;
             // Split the remaining probability into 3 parts, 2 parts for depleting and 1 part for monster spawning.
-            const depleteProbability = remainingProbability * (2 / 3);
+            const depleteProbability = remainingProbability * (3 / 4);
             // Adjust the check for depleting to take into account the logDropProbability
             if (randomValue < logDropProbability + depleteProbability) {
                 // Logic for tree depleting
@@ -751,6 +754,9 @@ export class mainScene extends Phaser.Scene {
 
         // Add the log to the scene
         this.add.existing(log);
+
+        //set depth to 1
+        log.sprite.setDepth(1);
 
         // Show the log and then start the tween
         log.show();
@@ -806,7 +812,7 @@ export class mainScene extends Phaser.Scene {
         }
 
 
-        const pondProbability = 0.50;
+        const pondProbability = 0.60;
         const randomPondFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomPondFloat < pondProbability) {
             this.spawnPonds();
@@ -1022,7 +1028,6 @@ export class mainScene extends Phaser.Scene {
         fire.body.isSensor = true;
 
         this.fires.push(fire);
-        this.allEntities.push(fire);
 
 
         fire.light = this.lights.addLight(x, y, 400).setColor(0xFF4500).setIntensity(1.6);
@@ -1079,11 +1084,6 @@ export class mainScene extends Phaser.Scene {
                                     this.fires.splice(index, 1);
                                 }
 
-                                // Check if the allEntities array exists before removing the fire object
-                                if (this.allEntities) {
-                                    this.allEntities = this.allEntities.filter(entity => entity !== fire);
-                                }
-
                                 // Check if the add method exists before creating the ashes sprite
                                 if (this.add) {
                                     let ashesSprite = this.add.sprite(x, y, 'ashes').setDepth(2).setPipeline('Light2D');
@@ -1136,7 +1136,7 @@ export class mainScene extends Phaser.Scene {
         // Extend the timer for the closest fire
         if (closestFire && closestFire.timerEvent) {
             closestFire.endTime += 30000;
-            const log = this.add.sprite(closestFire.x + 5, closestFire.y + 5, 'log').setOrigin(0.5).setPipeline('Light2D');
+            const log = this.add.sprite(closestFire.x + 4, closestFire.y + 25, 'log').setOrigin(0.5, 1).setDepth(2).setPipeline('Light2D');
             //add label log
             log.label = 'log';
 
@@ -1206,13 +1206,13 @@ export class mainScene extends Phaser.Scene {
         // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
         if (isTooCloseToOtherObjects(this.fires, 4) ||
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.ponds, 6) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bush1s, 4) || // assuming a bush threshold
             isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
-                return;
+            return;
         }
 
-        if (this.trees.filter(tree => tree.active && !tree.isDepleted).length >= 5) {
+        if (this.trees.filter(tree => tree.active && !tree.isDepleted).length >= 8) {
             return;
         }
 
@@ -1310,7 +1310,7 @@ export class mainScene extends Phaser.Scene {
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 4) ||
-            isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.trees, 6) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bush1s, 4)||
             isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
@@ -1353,7 +1353,6 @@ export class mainScene extends Phaser.Scene {
 
         pond.setExistingBody(pondBody).setOrigin(0.51, 0.47);
         pond.setPipeline('Light2D');
-        pond.setDepth(1);
         pond.play('pond');
 
         this.ponds.push(pond);
@@ -1441,10 +1440,10 @@ export class mainScene extends Phaser.Scene {
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 3) ||
-            isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 5) || // assuming a pond threshold
-            isTooCloseToOtherObjects(monstersArray, 4) ||
-            isTooCloseToOtherObjects(this.bush1s, 4)) { // assuming a bush threshold
+            isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
+            isTooCloseToOtherObjects(monstersArray, 3) ||
+            isTooCloseToOtherObjects(this.bush1s, 3)) { // assuming a bush threshold
             return;
         }
 
@@ -1465,7 +1464,6 @@ export class mainScene extends Phaser.Scene {
 
         bush1.setExistingBody(bush1Body).setOrigin(0.5, 0.6);
         bush1.setPipeline('Light2D');
-        bush1.setDepth(3);
         bush1.play('bush1');
 
         this.bush1s.push(bush1);
@@ -1526,7 +1524,7 @@ export class mainScene extends Phaser.Scene {
 
         //if this.isdashing is true, then the player is dashing increase speed and play attack5 animation
         if (this.isDashing) {
-            this.moveSpeed *= 1.0135
+            this.moveSpeed *= 1.0145
             //increase diagonal velocity
             this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
 
@@ -1707,10 +1705,9 @@ export class mainScene extends Phaser.Scene {
 
             // Remove the current monster from allEntities
             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
-        });
 
-        // Reset this.monsters
-        this.monsters = {};
+            this.monsters = {};
+        });
 
         // In mainScene.js
         let uiScene = this.scene.get('UIScene');
@@ -1968,8 +1965,6 @@ export class mainScene extends Phaser.Scene {
 
                             // Destroy the fire
                             fire.destroy();
-
-                            this.allEntities = this.allEntities.filter(entity => entity !== fire);
                         }
                     }
                 });
