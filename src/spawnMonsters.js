@@ -3,9 +3,9 @@ import { eventOptions } from './eventOptions.js';
 import { PlayerState } from './playerState.js';
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, allEntities) {
-      // At the start of the spawnMonsters function
+  // At the start of the spawnMonsters function
 
-    for (const key in monsters) {
+  for (const key in monsters) {
     if (!monsters[key].sprite || !monsters[key].sprite.active) {
       delete monsters[key];
     }
@@ -17,112 +17,114 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const visibleStartJ = Math.floor((centerY - camera.height / 2) / tileWidth);
   const visibleEndJ = Math.ceil((centerY + camera.height / 2) / tileWidth);
 
-    const bufferStartI = visibleStartI - (tilesBuffer + 1); // extend outward by 1 tile
-    const bufferEndI = visibleEndI + (tilesBuffer + 1);    // extend outward by 1 tile
-    const bufferStartJ = visibleStartJ - (tilesBuffer + 1); // extend outward by 1 tile
-    const bufferEndJ = visibleEndJ + (tilesBuffer + 1);    // extend outward by 1 tile
+  const bufferStartI = visibleStartI - (tilesBuffer + 1); // extend outward by 1 tile
+  const bufferEndI = visibleEndI + (tilesBuffer + 1);    // extend outward by 1 tile
+  const bufferStartJ = visibleStartJ - (tilesBuffer + 1); // extend outward by 1 tile
+  const bufferEndJ = visibleEndJ + (tilesBuffer + 1);    // extend outward by 1 tile
 
 
-    for (let i = bufferStartI; i <= bufferEndI; i++) {
-      for (let j = bufferStartJ; j <= bufferEndJ; j++) {
-        if (monsters[`${i},${j}`]) return;
+  for (let i = bufferStartI; i <= bufferEndI; i++) {
+    for (let j = bufferStartJ; j <= bufferEndJ; j++) {
+      if (monsters[`${i},${j}`]) return;
+    }
+  }
+
+  function chooseMonsterRarity() {
+    const rarities = ['common', 'uncommon', 'rare', 'ultrarare'];
+    const cumulativeProbabilities = [0.55, 0.80, 0.95, 1.00]; // Cumulative probabilities for the rarities
+    const roll = Phaser.Math.FloatBetween(0, 1);
+
+    for (let i = 0; i < cumulativeProbabilities.length; i++) {
+      if (roll <= cumulativeProbabilities[i]) return rarities[i];
+    }
+  }
+
+  function chooseMonster(eventOptions, chosenRarity) {
+    let filteredOptions = eventOptions
+      .filter(option => option.monsterChance === chosenRarity)
+      .filter(option => !option.specialEvent); // Exclude monsters with specialEvent set to true
+
+    if (PlayerState.gameTime >= 21 || PlayerState.gameTime <= 3) {
+      const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
+      if (aggressiveOptions.length > 0) {
+        filteredOptions = aggressiveOptions;
       }
     }
 
-    function chooseMonsterRarity() {
-      const rarities = ['common', 'uncommon', 'rare', 'ultrarare'];
-      const cumulativeProbabilities = [0.55, 0.80, 0.95, 1.00]; // Cumulative probabilities for the rarities
-      const roll = Phaser.Math.FloatBetween(0, 1);
-    
-      for (let i = 0; i < cumulativeProbabilities.length; i++) {
-        if (roll <= cumulativeProbabilities[i]) return rarities[i];
-      }
-    }
+    if (filteredOptions.length === 0) return null; // Return null if no monsters match the chosen rarity
 
-    function chooseMonster(eventOptions, chosenRarity) {
-      let filteredOptions = eventOptions
-        .filter(option => option.monsterChance === chosenRarity)
-        .filter(option => !option.specialEvent); // Exclude monsters with specialEvent set to true
+    const index = Phaser.Math.Between(0, filteredOptions.length - 1);
+    return filteredOptions[index];
+  }
 
-      if (PlayerState.gameTime >= 21 || PlayerState.gameTime <= 3) {
-        const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
-        if (aggressiveOptions.length > 0) {
-          filteredOptions = aggressiveOptions;
-        }
-      }
-
-      if (filteredOptions.length === 0) return null; // Return null if no monsters match the chosen rarity
-
-      const index = Phaser.Math.Between(0, filteredOptions.length - 1);
-      return filteredOptions[index];
-    }
-
-    const chosenRarity = chooseMonsterRarity();
-    const chosenMonster = chooseMonster(eventOptions, chosenRarity);
-    
-
-    if (!chosenMonster) return;
-
-    const levelVariation = Phaser.Math.Between(0, Math.ceil(PlayerState.days * 0.15) + chosenMonster.level);   
-    let damage = chosenMonster.damage;
-    const monsterMass = chosenMonster.monsterMass;
-
-    if (chosenMonster.monster !== 'turtle') {
-      damage = chosenMonster.damage + Math.ceil(PlayerState.days * 0.05);
-    } else {
-      damage = chosenMonster.damage;
-    }
-
-    const modifiedLevel = chosenMonster.level + levelVariation;
+  const chosenRarity = chooseMonsterRarity();
+  const chosenMonster = chooseMonster(eventOptions, chosenRarity);
 
 
-    // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
-    let spawnTileI, spawnTileJ;
+  if (!chosenMonster) return;
 
-    // Deciding whether to spawn on the horizontal or vertical buffer area
-    if (Phaser.Math.Between(0, 1) === 0) {
-      // Horizontal buffer area (top or bottom)
-      spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
-      spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
-    } else {
-      // Vertical buffer area (left or right)
-      spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
-      spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
-    }
+  const levelVariation = Phaser.Math.Between(0, Math.ceil(PlayerState.days * 0.15) + chosenMonster.level);
+  let damage = chosenMonster.damage;
+  const monsterMass = chosenMonster.monsterMass;
 
-    // Check if the chosen tile is within the visible area
-    if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
-      // If it is, return and don't spawn a monster
+  if (chosenMonster.monster !== 'turtle') {
+    damage = chosenMonster.damage + Math.ceil(PlayerState.days * 0.05);
+  } else {
+    damage = chosenMonster.damage;
+  }
+
+  const modifiedLevel = chosenMonster.level + levelVariation;
+
+
+  // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
+  let spawnTileI, spawnTileJ;
+
+  // Deciding whether to spawn on the horizontal or vertical buffer area
+  if (Phaser.Math.Between(0, 1) === 0) {
+    // Horizontal buffer area (top or bottom)
+    spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+    spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
+  } else {
+    // Vertical buffer area (left or right)
+    spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+    spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+  }
+
+  // Check if the chosen tile is within the visible area
+  if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+    // If it is, return and don't spawn a monster
+    return;
+  }
+  const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
+
+  // Get the frame data
+  let atlasKey = 'monsters';
+  let frameName = `${monsterSpriteKey}_idle-1`; // Adjust this to match your actual frame names
+  let frameData = scene.textures.getFrame(atlasKey, frameName);
+  // Calculate the trimmed dimensions
+  let trimmedWidth = frameData.cutWidth;
+  let trimmedHeight = frameData.cutHeight;
+
+  const monsterX = spawnTileI * tileWidth + (tileWidth - (trimmedWidth)) / 2;
+  const monsterY = spawnTileJ * tileWidth + (tileWidth - (trimmedHeight)) / 2;
+
+  let isOverlapping = false;
+  allEntities.forEach(entity => {
+    if (!entity || !entity.body) {
       return;
     }
-    const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
+    const entityWidth = entity.body.bounds.max.x - entity.body.position.x;
+    const entityHeight = entity.body.bounds.max.y - entity.body.position.y;
+    const entityLeft = entity.body.position.x - entityWidth;
+    const entityRight = entity.body.position.x + entityWidth;
+    const entityTop = entity.body.position.y - entityHeight;
+    const entityBottom = entity.body.position.y + entityHeight;
 
-    // Get the frame data
-    let atlasKey = 'monsters';
-    let frameName = `${monsterSpriteKey}_idle-1`; // Adjust this to match your actual frame names
-    let frameData = scene.textures.getFrame(atlasKey, frameName);
-    // Calculate the trimmed dimensions
-    let trimmedWidth = frameData.cutWidth;
-    let trimmedHeight = frameData.cutHeight;
-
-    const monsterX = spawnTileI * tileWidth + (tileWidth - (trimmedWidth)) / 2;
-    const monsterY = spawnTileJ * tileWidth + (tileWidth - (trimmedHeight)) / 2;
-
-    let isOverlapping = false;
-allEntities.forEach(entity => {
-  // Calculate entity boundaries
-  const entityWidth = entity.body.bounds.max.x - entity.body.position.x;
-  const entityHeight = entity.body.bounds.max.y - entity.body.position.y;
-  const entityLeft = entity.body.position.x - entityWidth;
-  const entityRight = entity.body.position.x + entityWidth;
-  const entityTop = entity.body.position.y - entityHeight;
-  const entityBottom = entity.body.position.y + entityHeight;
-
-  // Check if spawn position is within entity boundaries
-  if (monsterX >= entityLeft && monsterX <= entityRight && monsterY >= entityTop && monsterY <= entityBottom) {
-    isOverlapping = true;
-  }
-});
+    // Check if spawn position is within entity boundaries
+    if (monsterX >= entityLeft && monsterX <= entityRight && monsterY >= entityTop && monsterY <= entityBottom) {
+      isOverlapping = true;
+    }
+  });
 
   // If the spawn tile is overlapping with another entity, don't spawn the monster
   if (isOverlapping) {
@@ -141,59 +143,58 @@ allEntities.forEach(entity => {
 
   const monsterBody = monster.body;
   monsterBody.inertia = Infinity; // Prevent rotation
-    monsterBody.inverseInertia = 0;
-    monsterBody.mass = monsterMass;
-    monsterBody.friction = 1;
-    monsterBody.frictionAir = 0.1;
-    monsterBody.label = 'monster';
+  monsterBody.inverseInertia = 0;
+  monsterBody.mass = monsterMass;
+  monsterBody.friction = 1;
+  monsterBody.frictionAir = 0.1;
+  monsterBody.label = 'monster';
 
 
-    const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
-    function createHealthBar(scene, x, y) {
-      const progressBarWidth = 80;
-      const progressBarHeight = 6;
-      const borderOffset = 2;
+  const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
+  function createHealthBar(scene, x, y) {
+    const progressBarWidth = 80;
+    const progressBarHeight = 6;
+    const borderOffset = 2;
 
-      const outerRect = scene.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
-      outerRect.setOrigin(0, 0.5).setVisible(false);
+    const outerRect = scene.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
+    outerRect.setOrigin(0, 0.5).setVisible(false);
 
-      const progressFill = scene.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0xff0000);
-      progressFill.setOrigin(0, 0.5);
-      progressFill.displayWidth = progressBarWidth;
+    const progressFill = scene.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0xff0000);
+    progressFill.setOrigin(0, 0.5);
+    progressFill.displayWidth = progressBarWidth;
 
-      return { outer: outerRect, fill: progressFill };
-    }
-    const monsterHealthBar = createHealthBar(scene, monsterX, monsterY + monster.height + 55, modifiedLevel * 10);
-    monsterHealthBar.outer.setVisible(false); // Initially invisible
-    monsterHealthBar.fill.setVisible(false);  // Initially invisible
-
-    monsters[monsterKey] = {
-      name: chosenMonster.monster,
-      sprite: monster,
-      speed: chosenMonster.speed,
-      description: chosenMonster.description,
-      damage: damage,
-      key: monsterKey,
-      attackRange: chosenMonster.attackRange,
-      level: modifiedLevel,
-      isAggressive:  chosenMonster.isAggressive,
-      inReach: false,
-      event: chosenMonster,
-      isColliding: false, 
-      healthBar: {
-        outer: monsterHealthBar.outer,
-        fill: monsterHealthBar.fill
-      },
-      spawnPoint: { x: monsterX, y: monsterY },
-      maxHealth: modifiedLevel,
-      wanderArea: 12 * tileWidth,
-      currentHealth: modifiedLevel,
-    };
-
-    allEntities.push(monsters[monsterKey].sprite);
-
-    scene.registry.set('currentMonsterLevel', modifiedLevel);
-    monster.setDepth(3);
-    monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
-    monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite
+    return { outer: outerRect, fill: progressFill };
   }
+  const monsterHealthBar = createHealthBar(scene, monsterX, monsterY + monster.height + 55, modifiedLevel * 10);
+  monsterHealthBar.outer.setVisible(false); // Initially invisible
+  monsterHealthBar.fill.setVisible(false);  // Initially invisible
+
+  monsters[monsterKey] = {
+    name: chosenMonster.monster,
+    sprite: monster,
+    speed: chosenMonster.speed,
+    description: chosenMonster.description,
+    damage: damage,
+    key: monsterKey,
+    attackRange: chosenMonster.attackRange,
+    level: modifiedLevel,
+    isAggressive: chosenMonster.isAggressive,
+    inReach: false,
+    event: chosenMonster,
+    healthBar: {
+      outer: monsterHealthBar.outer,
+      fill: monsterHealthBar.fill
+    },
+    spawnPoint: { x: monsterX, y: monsterY },
+    maxHealth: modifiedLevel,
+    wanderArea: 12 * tileWidth,
+    currentHealth: modifiedLevel,
+  };
+
+  allEntities.push(monsters[monsterKey].sprite);
+
+  scene.registry.set('currentMonsterLevel', modifiedLevel);
+  monster.setDepth(3);
+  monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite
+  monsterHealthBar.fill.setDepth(5); // Setting the depth higher to render above the monster sprite
+}

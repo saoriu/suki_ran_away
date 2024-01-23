@@ -7,7 +7,7 @@ export const GAME_CONFIG = {
   UI_HEIGHT: 100,
   MOVE_SPEED: 1,
   MAX_DEPTH: 5,
-  baseProbability: 0.5, // of an event happening
+  baseProbability: 0.35, // of an event happening
   TILES_BUFFER: 1,
   regenerationInterval: 1000, // enerfy, call every 1000ms or 1s
 };

@@ -392,7 +392,7 @@ export class GameEvents {
         }
 
 
-    update(monsters) {
+    update(monsters, allEntities) {
 
 
         Object.values(monsters).forEach(monster => {
@@ -411,7 +411,7 @@ export class GameEvents {
             }
 
 
-            this.updateMonsterMovement(this.player, monster, distance); // Update monster movement based on current state
+            this.updateMonsterMovement(this.player, monster, distance, allEntities); // Update monster movement based on current state
         });
         
 
@@ -432,7 +432,7 @@ export class GameEvents {
         return monster.distance;
     }
 
-    updateMonsterMovement(player, monster, distance) {
+    updateMonsterMovement(player, monster, distance, allEntities) {
         //if monster health is not 0
         if (monster.currentHealth > 0 && !monster.isBeingKnockedBack && !monster.isTweening) {
             if (monster.isAggressive && !monster.canReach) {
@@ -448,13 +448,13 @@ export class GameEvents {
                 // Flip the monster sprite based on the direction of movement
                 monster.sprite.setFlipX(velocity.x < 0);
             } else if (!monster.isAggressive) {
-                if (!monster.destination || monster.isColliding) {
+                const currentTime = Date.now();
+                if (!monster.destination || currentTime - monster.destinationTime > 3000) {
                     const x = monster.spawnPoint.x + (Math.random() - 0.5) * monster.wanderArea;
                     const y = monster.spawnPoint.y + (Math.random() - 0.5) * monster.wanderArea;
                     monster.destination = { x, y };
-                    monster.isColliding = false;
+                    monster.destinationTime = currentTime; // Set the timestamp
                 }
-
 
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPoint(monster.destination, monster);
                 const velocity = {
@@ -477,7 +477,6 @@ export class GameEvents {
             monster.sprite.setVelocity(0, 0);
         }
     }
-
     getDirectionTowardsPoint(point, monster) {
         const dx = point.x - monster.sprite.x;
         const dy = point.y - monster.sprite.y;

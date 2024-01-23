@@ -37,7 +37,7 @@ export class mainScene extends Phaser.Scene {
         this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
-        this.POSITION_CHANGE_THRESHOLD = 0.15;
+        this.POSITION_CHANGE_THRESHOLD = 0.05;
         this.Matter = Phaser.Physics.Matter.Matter; // Ensure Matter is correctly imported/referenced
         this.lastUpdateTime = 0;
         this.lastDirection = null;
@@ -128,9 +128,6 @@ export class mainScene extends Phaser.Scene {
 
                     if (monsterBody && treeBody) {
                         let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
-                        if (targetMonster && !targetMonster.isColliding) {
-                            targetMonster.isColliding = true;
-                        }
 
                         if (targetMonster && targetMonster.tween) {
                             targetMonster.tween.stop();
@@ -145,9 +142,6 @@ export class mainScene extends Phaser.Scene {
 
                     if (monsterBody && pondBody) {
                         let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
-                        if (targetMonster && !targetMonster.isColliding) {
-                            targetMonster.isColliding = true;
-                        }
 
                         if (targetMonster && targetMonster.tween) {
                             targetMonster.tween.stop();
@@ -162,9 +156,6 @@ export class mainScene extends Phaser.Scene {
 
                     if (monsterBody && bush1Body) {
                         let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
-                        if (targetMonster && !targetMonster.isColliding) {
-                            targetMonster.isColliding = true;
-                        }
 
                         if (targetMonster && targetMonster.tween) {
                             targetMonster.tween.stop();
@@ -493,7 +484,7 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        this.gameEvents.update(this.monsters);
+        this.gameEvents.update(this.monsters, this.allEntities);
 
 
 
