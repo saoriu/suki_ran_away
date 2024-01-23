@@ -592,11 +592,8 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        // Log the final depths
-        this.allEntities.forEach((entity) => {
-            if (entity.body) {
-            }
-        });
+
+
         Object.values(this.monsters).forEach(monster => {
             if (!monster.sprite || !monster.sprite.body) {
                 return;
@@ -756,7 +753,7 @@ export class mainScene extends Phaser.Scene {
         this.add.existing(log);
 
         //set depth to 1
-        log.sprite.setDepth(1);
+        log.sprite.setDepth(0);
 
         // Show the log and then start the tween
         log.show();
@@ -772,6 +769,7 @@ export class mainScene extends Phaser.Scene {
                 this.items.push(log);
             }
         });
+
     }
 
     calculateTileType() {

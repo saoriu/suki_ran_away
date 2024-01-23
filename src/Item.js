@@ -6,7 +6,6 @@ export class Item {
         this.sprite.setInteractive();
         this.sprite.setPipeline('Light2D');
         this.sprite.setVisible(false); // Hide the sprite initially
-        this.scene.allEntities.push(this.sprite);
     }
 
     show() {
