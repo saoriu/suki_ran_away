@@ -108,34 +108,39 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     const monsterX = spawnTileI * tileWidth + (tileWidth - (trimmedWidth)) / 2;
     const monsterY = spawnTileJ * tileWidth + (tileWidth - (trimmedHeight)) / 2;
 
-    
-    //define monsterradius based on monster frame data
-    let monsterRadius = trimmedWidth / 2;
-
-    // Create the monster sprite
-    let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
-      isStatic: false
-    }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
-// Check for overlap with other sprites
-let isOverlapping = false;
+    let isOverlapping = false;
 allEntities.forEach(entity => {
-  let collision = Phaser.Physics.Matter.Matter.Query.collides(monster.body, entity.body);
-  if (collision.length > 0) {
+  // Calculate entity boundaries
+  const entityWidth = entity.body.bounds.max.x - entity.body.position.x;
+  const entityHeight = entity.body.bounds.max.y - entity.body.position.y;
+  const entityLeft = entity.body.position.x - entityWidth;
+  const entityRight = entity.body.position.x + entityWidth;
+  const entityTop = entity.body.position.y - entityHeight;
+  const entityBottom = entity.body.position.y + entityHeight;
+
+  // Check if spawn position is within entity boundaries
+  if (monsterX >= entityLeft && monsterX <= entityRight && monsterY >= entityTop && monsterY <= entityBottom) {
     isOverlapping = true;
   }
 });
 
-// If the monster is overlapping with another sprite, don't spawn it
-if (isOverlapping) {
-  console.log('Monster is overlapping with another sprite, not spawning');
-  monster.destroy();
-  return;
-}
+  // If the spawn tile is overlapping with another entity, don't spawn the monster
+  if (isOverlapping) {
+    return;
+  }
 
-    monster.setInteractive();
+  //define monsterradius based on monster frame data
+  let monsterRadius = trimmedWidth / 2;
 
-    const monsterBody = monster.body;
-    monsterBody.inertia = Infinity; // Prevent rotation
+  // Create the monster sprite
+  let monster = scene.matter.add.sprite(monsterX, monsterY, monsterSpriteKey, null, {
+    isStatic: false
+  }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
+
+  monster.setInteractive();
+
+  const monsterBody = monster.body;
+  monsterBody.inertia = Infinity; // Prevent rotation
     monsterBody.inverseInertia = 0;
     monsterBody.mass = monsterMass;
     monsterBody.friction = 1;

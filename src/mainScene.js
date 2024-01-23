@@ -1028,7 +1028,7 @@ export class mainScene extends Phaser.Scene {
         };
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 15) ||
+        if (isTooCloseToOtherObjects(this.fires, 30) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 3) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bush1s, 3)) { // assuming a bush threshold

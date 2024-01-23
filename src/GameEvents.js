@@ -449,7 +449,6 @@ export class GameEvents {
                 monster.sprite.setFlipX(velocity.x < 0);
             } else if (!monster.isAggressive) {
                 if (!monster.destination || monster.isColliding) {
-                    // Generate a random point within the wander area
                     const x = monster.spawnPoint.x + (Math.random() - 0.5) * monster.wanderArea;
                     const y = monster.spawnPoint.y + (Math.random() - 0.5) * monster.wanderArea;
                     monster.destination = { x, y };
