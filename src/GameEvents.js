@@ -256,6 +256,7 @@ export class GameEvents {
                 PlayerState.lastDamageTime = Date.now();
 
                 this._emitMonsterBattleUpdate(monsterLevel, PlayerState.energy, monsterRoll);
+                PlayerState.isUnderAttack = false;
 
                 if (monsterRoll > 0) {
                     PlayerState.isHurt = true;
@@ -294,13 +295,11 @@ export class GameEvents {
                 }
 
                 if (PlayerState.energy <= 0) {
-                    PlayerState.isUnderAttack = false;
                     PlayerState.energy = 0;
                     this.endBattleForMonster(targetMonster);
                 }
             }
         }, timeToImpact);
-
     }
 
 

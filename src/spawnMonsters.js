@@ -42,8 +42,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   function chooseMonster(eventOptions, chosenRarity) {
     let filteredOptions = eventOptions
       .filter(option => option.monsterChance === chosenRarity)
-      .filter(option => !option.specialEvent); // Exclude monsters with specialEvent set to true
-
+      .filter(option => !option.specialEvent && !option.specialEventBush);
     if (PlayerState.gameTime >= 21 || PlayerState.gameTime <= 3) {
       const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
       if (aggressiveOptions.length > 0) {
@@ -145,7 +144,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   monsterBody.inertia = Infinity; // Prevent rotation
   monsterBody.inverseInertia = 0;
   monsterBody.mass = monsterMass;
-  monsterBody.friction = 1;
+  monsterBody.friction = 5;
   monsterBody.frictionAir = 0.1;
   monsterBody.label = 'monster';
 

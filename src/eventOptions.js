@@ -66,11 +66,32 @@ export const eventOptions = [
     level: 10,
     damage: 15,
     monsterMass: 0.2,
+    specialEventBush: true,
     speed: 2.9,
     possibleOutcomes: {
       common: ['Diamond', 'Thread'],
       rare: ['Gold', 'Silk'],
       ultrarare: ['Silk']
+    },
+    skill: 'attacking',
+    monsterChance: 'common'
+  },
+  {
+    event: 'monster4',
+    description: 'An exceptional creature, wonder what it drops.',
+    monster: 'pinkfly',
+    attackRange: 0.25,
+    specialEvent: false,
+    isAggressive: true,
+    level: 17,
+    damage: 20,
+    monsterMass: 0.2,
+    specialEventBush: true,
+    speed: 2.95,
+    possibleOutcomes: {
+      common: ['Diamond', 'Thread'],
+      rare: ['Gold', 'Silk'],
+      ultrarare: ['Strawberry']
     },
     skill: 'attacking',
     monsterChance: 'ultrarare'

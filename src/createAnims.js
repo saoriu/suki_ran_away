@@ -337,6 +337,30 @@ createAnimation(scene, 'up', 207, 214); // Updated
         repeat: 0
     });
 
+    function createAnimsPink(scene, creature, action, start, end) {
+        const frames = [];
+        for(let i = start; i <= end; i++) {
+            // The frame key includes the index
+            const frameKey = action ? `${creature}_${action}-${i}` : `${creature}-${i}`;
+            frames.push({ key: 'pinkfly', frame: frameKey });
+        }
+        // The animation key does not include the index
+        const animKey = action ? `${creature}_${action}` : creature;
+        scene.anims.create({
+            key: animKey,
+            frames: frames,
+            frameRate: 10,
+            repeat: 0
+        });
+    }
+
+    createAnimsPink(scene, 'pinkfly', 'attack', 1, 7);
+    createAnimsPink(scene, 'pinkfly', 'die', 1, 8);
+    createAnimsPink(scene, 'pinkfly', 'hurt', 1, 5);
+    createAnimsPink(scene, 'pinkfly', '', 1, 6); // This will create an animation with key 'pinkfly'
+    createAnimsPink(scene, 'pinkfly', 'run', 1, 6);
+    
+
     function createAnims(scene, creature, action, start, end) {
         const frames = [];
         for(let i = start; i <= end; i++) {

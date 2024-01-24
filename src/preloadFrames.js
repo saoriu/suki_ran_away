@@ -62,6 +62,7 @@ export function preloadFrames(gameInstance) {
     this.load.atlas('fire', '/fire.png', '/fire.json');
     this.load.image('ashes', '/ashes.png');
     this.load.image('modal', '/modal.png');
+    this.load.image('bush1-down', '/bush1-down.png');
     this.load.image('attacks-menu', '/attacks-menu.png');
     this.load.image('scratch', '/scratch.png');
     this.load.image('menu', '/menu.png');
@@ -69,6 +70,7 @@ export function preloadFrames(gameInstance) {
     this.load.image('close', '/close.png');
     this.load.image('log', '/log.png');
     this.load.image('bonustrees', '/bonustrees.png');
+    this.load.atlas('pinkfly', '/pinkfly.png', '/pinkfly.json');
 
 
 }

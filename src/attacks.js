@@ -59,7 +59,7 @@ export const attacks = {
       name: 'hairball',
       description: 'A hairball that can damage opponents at a distance. Effective, but kinda nasty.',
       attack: 6,
-      range: 11,
+      range: 6,
       speed: 1.5,
       knockback: 0.5,
       damage: 2,

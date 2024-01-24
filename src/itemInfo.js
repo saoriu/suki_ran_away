@@ -5,13 +5,7 @@ export const itemInfo = {
         itemName: 'Apple',
         itemConsumable: true,
         consumeEffects: {
-            energy: 5,
-            energyBonus: 1,
-            eventChance: 1,
-            attackBonus: 1,
-            knockbackBonus: 1,
-            exploreBonus: 1,
-            defenceBonus: 1,
+            energy: 3,
         },
     },
     'Log': {
@@ -26,7 +20,7 @@ export const itemInfo = {
         itemName: 'Raspberry',
         itemConsumable: true,
         consumeEffects: {
-            energy: 5,
+            energy: 3,
                 eventChance: 1,
         },
     },
@@ -36,18 +30,17 @@ export const itemInfo = {
         itemName: 'Lemon',
         itemConsumable: true,
         consumeEffects: {
-            energy: 5,
+            energy: 2,
                 eventChance: 1,
         },
     },
-    'Strawberry': {
+   'Strawberry': {
         itemId: '0003',
         description: 'A sweet fruit, perfect for a quick energy boost.',
         itemName: 'Strawberry',
         itemConsumable: true,
         consumeEffects: {
-            energy: 6,
-                eventChance: 1,
+            energy: 2,
         },
     },
     'Peach': {
@@ -55,7 +48,7 @@ export const itemInfo = {
         description: 'A juicy fruit that provides some energy.',
         itemName: 'Peach',
         consumeEffects: {
-            energy: 7,
+            energy: 4,
                 eventChance: 1,
         },
         itemConsumable: true,
@@ -65,8 +58,7 @@ export const itemInfo = {
         description: 'A small fruit bursting with flavor. Good for a quick energy boost.',
         itemName: 'Blueberry',
         consumeEffects: {
-            energy: 8,
-                eventChance: 1,
+            energy: 3,
         },
         itemConsumable: true,
     },
@@ -76,7 +68,7 @@ export const itemInfo = {
         itemName: 'Egg',
         itemConsumable: true,
         consumeEffects: {
-            energy: 2,
+            energy: 1,
                 eventChance: 1,
         },
     },
@@ -85,7 +77,7 @@ export const itemInfo = {
         description: 'A basic ingredient for many recipes. Not consumable in its current form.',
         itemName: 'Milk',
         consumeEffects: {
-            energy: 5,
+            energy: 3,
                 eventChance: 1,
         },
         itemConsumable: true,

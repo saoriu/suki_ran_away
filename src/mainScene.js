@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { spawnMonsters } from './spawnMonsters';
 import { spawnMonsterTree } from './spawnMonsterTree';
+import { spawnMonsterBush } from './spawnMonsterBush';
 import { PlayerState } from './playerState';
 import { GAME_CONFIG } from './gameConstants.js';
 import { GameEvents } from './GameEvents';
@@ -10,6 +11,7 @@ import { preloadFrames } from './preloadFrames';
 import { createAnims } from './createAnims';
 import { attacks } from './attacks';
 import { Item } from './Item';
+import { itemInfo } from './itemInfo.js';
 import chroma from 'chroma-js';
 
 export class mainScene extends Phaser.Scene {
@@ -40,6 +42,7 @@ export class mainScene extends Phaser.Scene {
         this.POSITION_CHANGE_THRESHOLD = 0.05;
         this.Matter = Phaser.Physics.Matter.Matter; // Ensure Matter is correctly imported/referenced
         this.lastUpdateTime = 0;
+        this.lastSpawnTime2 = 0;
         this.lastDirection = null;
         this.lastPlayerX = 0;
         this.lastPlayerY = 0;
@@ -243,6 +246,42 @@ export class mainScene extends Phaser.Scene {
             });
         });
 
+        this.matter.world.on('collisionactive', (event) => {
+            event.pairs.forEach(pair => {
+                const { bodyA, bodyB } = pair;
+
+                const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
+                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+
+                if (isPlayer && isBush1) {
+                    let bush1Body = bodyA.parent.label === 'bush1' ? bodyA.parent : bodyB.parent;
+
+                    if (bush1Body) {
+                        this.collidingWithBush1 = true;
+                        this.collidingBush1 = bush1Body.gameObject; // Store the tree GameObject
+                    }
+                }
+            });
+        });
+
+        this.matter.world.on('collisionend', (event) => {
+            event.pairs.forEach(pair => {
+                const { bodyA, bodyB } = pair;
+
+                const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
+                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+
+                if (isPlayer && isBush1) {
+                    let bush1Body = bodyA.parent.label === 'bush1' ? bodyA.parent : bodyB.parent;
+
+                    if (bush1Body.gameObject === this.collidingBush1) {
+                        this.collidingWithBush1 = false;
+                        this.collidingBush1 = null;
+                    }
+                }
+            });
+        });
+
 
         this.game.events.emit('gameTime', PlayerState.gameTime);
         this.game.events.emit('daysPassed', PlayerState.days);
@@ -250,6 +289,9 @@ export class mainScene extends Phaser.Scene {
         this.input.keyboard.on('keydown-SPACE', () => {
             if (this.collidingWithTree && this.canAttack) {
                 this.chopTree(this.collidingTree);
+            }
+            if (this.collidingBush1 && this.canAttack) {
+                this.searchBush1(this.collidingBush1);
             }
         });
 
@@ -392,8 +434,13 @@ export class mainScene extends Phaser.Scene {
 
         if (time - this.lastUpdateTime > 1500) {
             this.game.events.emit('gameTime', PlayerState.gameTime);
-            this.spawnMonstersOnly(this.cat.x, this.cat.y, this);
             this.lastUpdateTime = time;
+        }
+
+        //call spawnmonstersonly every 30 seconds
+        if (time - this.lastSpawnTime2 > 30000) {
+            this.spawnMonstersOnly(this.cat.x, this.cat.y, this);
+            this.lastSpawnTime2 = time;
         }
 
         this.updateTooltip.call(this);
@@ -402,6 +449,8 @@ export class mainScene extends Phaser.Scene {
 
         if (time - this.lastRegenerateEnergyTime > 1000) { // 1000 ms = 1 second
             regenerateEnergy(this);
+            this.game.events.emit('energyChanged');
+
             this.lastRegenerateEnergyTime = time; // Update last call time
         }
 
@@ -652,6 +701,9 @@ export class mainScene extends Phaser.Scene {
                 PlayerState.energy = 0;
             }
         }
+
+        PlayerState.isUnderAttack = false;
+
     }
 
     // Set a flag in PlayerState when player is near fire
@@ -667,6 +719,7 @@ export class mainScene extends Phaser.Scene {
                 const dx = this.cat.x - fireCenterX;
                 const dy = this.cat.y - fireCenterY;
                 const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+
 
                 if (distance <= 2) {
                     PlayerState.isNearFire = true;
@@ -697,9 +750,11 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        // Flicker tree sprite
-        tree.setTint(0xffffff);
-
+        tree.setTint(0xeeeeee);
+        // Remove the tint after 1 second
+        setTimeout(() => {
+            tree.clearTint();
+        }, 500);
         // Decide to drop a log, deplete the tree, or spawn a monster
         let randomValue = Math.random();
 
@@ -720,6 +775,7 @@ export class mainScene extends Phaser.Scene {
             if (randomValue < logDropProbability + depleteProbability) {
                 // Logic for tree depleting
                 tree.isDepleted = true;
+                tree.clearTint();
                 tree.setTexture('tree-down');
                 tree.anims.stop();
 
@@ -769,6 +825,101 @@ export class mainScene extends Phaser.Scene {
 
     }
 
+    searchBush1(bush1) {
+        if (!bush1 || bush1.isDepleted) {
+            return;
+        }
+
+        // Check if the bush1 is in front of the player
+        if (!this.isObjectInFront(this.cat, bush1, this.lastDirection)) {
+            return;
+        }
+
+        bush1.setTint(0xeeeeee);  
+        setTimeout(() => {
+            bush1.clearTint();
+        }, 500);
+
+        // Decide to drop a berry, deplete the bush1, or spawn a monster
+        let randomValue = Math.random();
+
+        // Calculating the probability of dropping a berry, including the treesBonus.
+        const berryDropProbability = 0.60 + PlayerState.treesBonus / 100;
+        // Logic for dropping a berry
+        const randomX = bush1.x + 100 + Math.random() * 25;
+        const randomY = bush1.y + 50 + Math.random() * 30;
+
+        if (randomValue < berryDropProbability) {
+            this.dropStrawberry(randomX, randomY);
+        } else {
+            // Calculate the remaining probability after considering the berry drop.
+            const remainingProbability = 1 - berryDropProbability;
+            // Split the remaining probability into 3 parts, 2 parts for depleting and 1 part for monster spawning.
+            const depleteProbability = remainingProbability * (3 / 4);
+            // Adjust the check for depleting to take into account the berryDropProbability
+            if (randomValue < berryDropProbability + depleteProbability) {
+                // Logic for bush1 depleting
+                bush1.isDepleted = true;
+                bush1.clearTint();
+                bush1.setTexture('bush1-down');
+                bush1.anims.stop();
+
+                setTimeout(() => {
+                    if (bush1.active) {
+                        bush1.setTexture('bush1');
+                        bush1.isDepleted = false;
+                        bush1.play('bush1');
+                    }
+                }, 15000);
+            } else {
+                spawnMonsterBush(bush1.x, bush1.y, this, this.tileWidth, this.monsters, this.allEntities);
+            }
+        }
+    }
+
+    dropStrawberry(x, y) {
+        const randomNumber = Math.random();
+        let fruitName, fruitKey;
+
+        if (randomNumber <= 0.7) {
+            fruitName = 'Strawberry';
+            fruitKey = 'strawberry';
+        } else {
+            fruitName = 'Blueberry';
+            fruitKey = 'blueberry';
+        }
+
+        const fruitInfo = itemInfo[fruitName];
+        const item = {
+            name: fruitName,
+            quantity: 1,
+            effects: fruitInfo
+        };
+
+        const fruit = new Item(this, x - 100, y, fruitKey, item);
+
+        // Add the fruit to the scene
+        this.add.existing(fruit);
+
+        // Set depth to 1
+        fruit.sprite.setDepth(0);
+
+        // Show the fruit and then start the tween
+        fruit.show();
+
+        // Create a tween that moves the fruit downwards
+        this.tweens.add({
+            targets: fruit.sprite, // Make sure to target the sprite
+            y: y + 30, // Change this value to control how far the fruit drops
+            duration: 1000, // Change this value to control how fast the fruit drops
+            ease: 'Cubic.easeOut', // Change this to control the easing function
+            onComplete: () => {
+                // Push the fruit to the items array after the tween completes
+                this.items.push(fruit);
+            }
+        });
+    }
+    
     calculateTileType() {
         const roll = Phaser.Math.FloatBetween(0, 1);
         let tileType;
@@ -815,7 +966,7 @@ export class mainScene extends Phaser.Scene {
         }
 
 
-        const pondProbability = 0.60;
+        const pondProbability = 0.80;
         const randomPondFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomPondFloat < pondProbability) {
             const randomNumberOfPonds = Phaser.Math.Between(1, 2);
@@ -826,7 +977,7 @@ export class mainScene extends Phaser.Scene {
             }
         }
 
-        const bush1Probability = 0.99;
+        const bush1Probability = 0.80;
         const randomBush1Float = Phaser.Math.FloatBetween(0, 1);
         if (randomBush1Float < bush1Probability) {
             const randomNumberOfBush1s = Phaser.Math.Between(1, 3);
@@ -938,7 +1089,7 @@ export class mainScene extends Phaser.Scene {
         }
 
         if (PlayerState.isEating) {
-            const attackSpeedReductionFactor = 0.25;
+            const attackSpeedReductionFactor = 0.3;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
@@ -1054,7 +1205,8 @@ export class mainScene extends Phaser.Scene {
             repeat: -1
         });
 
-        this.fires.forEach((fire, index) => {
+        for (let index = this.fires.length - 1; index >= 0; index--) {
+            let fire = this.fires[index];
             if (fire && fire.active) {
                 fire.endTime = Date.now() + 15000;
 
@@ -1120,9 +1272,8 @@ export class mainScene extends Phaser.Scene {
                     },
                     loop: true
                 });
-
             }
-        });
+        }
     }
 
     useLogOnFire(player) {
@@ -1226,7 +1377,7 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        if (this.trees.filter(tree => tree.active && !tree.isDepleted).length >= 8) {
+        if (this.trees.filter(tree => tree.active && !tree.isDepleted).length >= 9) {
             return;
         }
 
@@ -1348,7 +1499,6 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        // If there are already 2 trees in the view, don't spawn a new one
         if (this.ponds.filter(pond => pond.active).length >= 5) {
             return;
         }
@@ -1401,6 +1551,7 @@ export class mainScene extends Phaser.Scene {
 
         return vertices;
     }
+
     spawnBush1() {
         const camera = this.cameras.main;
         const centerX = camera.midPoint.x;
@@ -1462,11 +1613,13 @@ export class mainScene extends Phaser.Scene {
         }
 
         // If there are already 2 trees in the view, don't spawn a new one
-        if (this.bush1s.filter(bush1 => bush1.active).length >= 2) {
+        if (this.bush1s.filter(bush1 => bush1.active).length >= 4) {
             return;
         }
 
-        const bush1 = this.matter.add.sprite(x, y, 'bush1', null);
+    const bush1 = this.matter.add.sprite(x, y, 'bush1', null, {
+        label: 'bush1'
+    });
 
         // Approximate an ellipse using a polygon body
         const ellipseVertices = this.createEllipseVertices(x, y, 50, 50, 16);
@@ -1479,6 +1632,9 @@ export class mainScene extends Phaser.Scene {
         bush1.setExistingBody(bush1Body).setOrigin(0.5, 0.6);
         bush1.setPipeline('Light2D');
         bush1.play('bush1');
+
+        bush1.isDepleted = false;
+
 
         this.bush1s.push(bush1);
         this.allEntities.push(bush1);
@@ -1722,18 +1878,22 @@ export class mainScene extends Phaser.Scene {
 
             // Remove the current monster from allEntities
             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
-
-            this.monsters = {};
         });
+
+
+
+        // Reset the monsters object
+        this.monsters = {};
 
         // In mainScene.js
         let uiScene = this.scene.get('UIScene');
         uiScene.clearInventory();
 
+        this.destroyAll(this.cat.x, this.cat.y, this);
+
         // Listen for the 'animationcomplete' event
         this.cat.on('animationcomplete', (animation) => {
             if (animation.key === 'dead') {
-                PlayerState.isUnderAttack = false;
                 this.canAttack = true;
                 PlayerState.isDead = false;
                 //emit event to update energy
@@ -1743,6 +1903,123 @@ export class mainScene extends Phaser.Scene {
             }
         }, this);
     }
+
+    destroyAll(centerX, centerY, scene) {
+        const camera = scene.cameras.main;
+
+        const startI = Math.floor((centerX - GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
+        const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
+        const startJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
+        const endJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+
+
+        Object.keys(this.tiles).forEach((key) => {
+            const [i, j] = key.split(',').map(Number);
+            if (i >= startI && i <= endI && j >= startJ && j <= endJ) {
+
+                for (let index = this.ashes.length - 1; index >= 0; index--) {
+                    let ashes = this.ashes[index];
+                    if (ashes && ashes.active) {
+                     
+                            ashes.destroy();
+                            this.ashes.splice(index, 1);
+
+                    }
+                }
+
+                for (let index = this.items.length - 1; index >= 0; index--) {
+                    let item = this.items[index];
+                    if (item && item.sprite.active) {
+                    
+                            item.sprite.destroy(); // Destroy the sprite, not the wrapper object
+                            this.items.splice(index, 1);
+                            this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
+                        }
+                }
+
+
+                for (let index = this.trees.length - 1; index >= 0; index--) {
+                    let tree = this.trees[index];
+                    if (tree && tree.active) {
+                            this.trees.splice(index, 1);
+                            this.matter.world.remove(tree.body);
+
+                            if (this.collidingTree === tree) {
+                                this.collidingTree = null;
+                            }
+
+                            tree.body.destroy();
+                            tree.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== tree);
+                    }
+                }
+
+                for (let index = this.ponds.length - 1; index >= 0; index--) {
+                    let pond = this.ponds[index];
+                    if (pond && pond.active) {
+                    
+                            this.ponds.splice(index, 1);
+                            this.matter.world.remove(pond.body);
+
+                            pond.body.destroy();
+                            pond.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== pond);
+                    }
+                }
+
+
+                for (let index = this.bush1s.length - 1; index >= 0; index--) {
+                    let bush1 = this.bush1s[index];
+                    if (bush1 && bush1.active) {
+                    
+                            this.bush1s.splice(index, 1);
+                            this.matter.world.remove(bush1.body);
+
+                            if (this.collidingBush1 === bush1) {
+                                this.collidingBush1 = null;
+                            }
+
+                            bush1.body.destroy();
+                            bush1.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== bush1);
+                    }
+                }
+
+                for (let index = this.fires.length - 1; index >= 0; index--) {
+                    let fire = this.fires[index];
+                    if (fire && fire.active) {
+                     
+                            this.tweens.killTweensOf(fire.light);
+                            // Turn off the light associated with the fire
+                            fire.light.setIntensity(0);
+
+                            // Remove the light from the LightManager's list of lights
+                            this.lights.removeLight(fire.light.x, fire.light.y);
+
+                            // Destroy the fire body
+                            this.matter.world.remove(fire.body);
+
+                            // Remove the fire from the fires array before destroying it
+                            this.fires.splice(index, 1);
+
+                            //destroy the fire body
+                            fire.body.destroy();
+
+                            fire.timerEvent.remove();
+
+                            // Destroy the fire
+                            fire.destroy();
+                    }
+                }
+            }
+        });
+    
+    }
+
+
 
     calculateDistance(player, monster) {
         if (!player || !monster || !player.body || !monster.sprite || !monster.sprite.body) {
@@ -1873,18 +2150,21 @@ export class mainScene extends Phaser.Scene {
                 });
 
 
-                Object.values(this.monsters).forEach(monster => {
+                for (let key in this.monsters) {
+                    let monster = this.monsters[key];
                     if (monster.sprite && monster.sprite.active) {
                         const monsterTileI = Math.floor(monster.sprite.x / this.tileWidth);
                         const monsterTileJ = Math.floor(monster.sprite.y / this.tileWidth);
                         if (monsterTileI === i && monsterTileJ === j) {
                             scene.gameEvents.cleanUpMonster(monster, null, this.allEntities);
                             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
+                            delete this.monsters[key];
                         }
                     }
-                });
+                }
 
-                this.ashes.forEach((ashes, index) => {
+                for (let index = this.ashes.length - 1; index >= 0; index--) {
+                    let ashes = this.ashes[index];
                     if (ashes && ashes.active) {
                         const ashesTileI = Math.floor(ashes.x / this.tileWidth);
                         const ashesTileJ = Math.floor(ashes.y / this.tileWidth);
@@ -1893,20 +2173,19 @@ export class mainScene extends Phaser.Scene {
                             this.ashes.splice(index, 1);
                         }
                     }
-                });
+                }
 
 
-                this.trees.forEach((tree, index) => {
+                for (let index = this.trees.length - 1; index >= 0; index--) {
+                    let tree = this.trees[index];
                     if (tree && tree.active) {
                         const treeTileI = Math.floor(tree.x / this.tileWidth);
                         const treeTileJ = Math.floor(tree.y / this.tileWidth);
                         const buffer = 5; // Add a buffer of 2 tiles
                         if (treeTileI < startI - buffer || treeTileI > endI + buffer || treeTileJ < startJ - buffer || treeTileJ > endJ + buffer) { // Check if the tree is out of view
                             this.trees.splice(index, 1);
-
                             this.matter.world.remove(tree.body);
 
-                            // If the tree being destroyed is the same as collidingTree, set collidingTree to null
                             if (this.collidingTree === tree) {
                                 this.collidingTree = null;
                             }
@@ -1915,12 +2194,12 @@ export class mainScene extends Phaser.Scene {
                             tree.destroy();
 
                             this.allEntities = this.allEntities.filter(entity => entity !== tree);
-
                         }
                     }
-                });
+                }
 
-                this.ponds.forEach((pond, index) => {
+                for (let index = this.ponds.length - 1; index >= 0; index--) {
+                    let pond = this.ponds[index];
                     if (pond && pond.active) {
                         const pondTileI = Math.floor(pond.x / this.tileWidth);
                         const pondTileJ = Math.floor(pond.y / this.tileWidth);
@@ -1935,10 +2214,11 @@ export class mainScene extends Phaser.Scene {
                             this.allEntities = this.allEntities.filter(entity => entity !== pond);
                         }
                     }
-                });
+                }
 
 
-                this.bush1s.forEach((bush1, index) => {
+                for (let index = this.bush1s.length - 1; index >= 0; index--) {
+                    let bush1 = this.bush1s[index];
                     if (bush1 && bush1.active) {
                         const bush1TileI = Math.floor(bush1.x / this.tileWidth);
                         const bush1TileJ = Math.floor(bush1.y / this.tileWidth);
@@ -1947,17 +2227,20 @@ export class mainScene extends Phaser.Scene {
                             this.bush1s.splice(index, 1);
                             this.matter.world.remove(bush1.body);
 
+                            if (this.collidingBush1 === bush1) {
+                                this.collidingBush1 = null;
+                            }
+
                             bush1.body.destroy();
                             bush1.destroy();
 
                             this.allEntities = this.allEntities.filter(entity => entity !== bush1);
-
                         }
                     }
-                });
+                }
 
-
-                this.fires.forEach((fire, index) => {
+                for (let index = this.fires.length - 1; index >= 0; index--) {
+                    let fire = this.fires[index];
                     if (fire && fire.active) {
                         const fireTileI = Math.floor(fire.x / this.tileWidth);
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
@@ -1984,7 +2267,7 @@ export class mainScene extends Phaser.Scene {
                             fire.destroy();
                         }
                     }
-                });
+                }
             }
         });
     }
