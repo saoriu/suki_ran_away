@@ -415,9 +415,14 @@ export class mainScene extends Phaser.Scene {
                 if (monster && monster.sprite && monster.sprite.active) {
                     const monsterBody = monster.sprite.body;
                     if (monsterBody && this.Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
-                        //clear the target monster key
-                        this.targetMonsterKey = null;
-                        this.attemptToTargetMonster.bind(this)(monster.key);
+                        // Clear tint from previously clicked monster
+                        if (this.lastClickedMonsterKey && this.monsters[this.lastClickedMonsterKey]) {
+                            this.monsters[this.lastClickedMonsterKey].sprite.clearTint();
+                        }
+
+                        // Set the new clicked monster and apply tint
+                        this.lastClickedMonsterKey = monster.key;
+                        this.monsters[this.lastClickedMonsterKey].sprite.setTint(0xff0000); // Red tint
                     }
                 }
             });
@@ -754,7 +759,7 @@ export class mainScene extends Phaser.Scene {
         // Remove the tint after 1 second
         setTimeout(() => {
             tree.clearTint();
-        }, 500);
+        }, 200);
         // Decide to drop a log, deplete the tree, or spawn a monster
         let randomValue = Math.random();
 
@@ -838,7 +843,7 @@ export class mainScene extends Phaser.Scene {
         bush1.setTint(0xeeeeee);  
         setTimeout(() => {
             bush1.clearTint();
-        }, 500);
+        }, 200);
 
         // Decide to drop a berry, deplete the bush1, or spawn a monster
         let randomValue = Math.random();
@@ -1099,21 +1104,32 @@ export class mainScene extends Phaser.Scene {
     }
 
     updateTargetMonsterKey(attackName) {
+        // Clear tint from all monsters
+        Object.values(this.monsters).forEach(monster => {
+            if (monster && monster.sprite) {
+                monster.sprite.clearTint();
+            }
+        });
+    
         // If a monster has been clicked, check if it's attackable
         if (this.lastClickedMonsterKey) {
             const clickedMonster = this.monsters[this.lastClickedMonsterKey];
             if (clickedMonster && this.isMonsterAttackable(clickedMonster, attackName)) {
+                // Set the new target and apply tint
                 this.targetMonsterKey = this.lastClickedMonsterKey;
+                this.monsters[this.targetMonsterKey].sprite.setTint(0xff0000); // Red tint
                 return;
             }
         }
-
+    
         // If the clicked monster is not attackable or if no monster has been clicked,
         // find another attackable monster
         if (this.targetMonsterKey === null) {
             for (const [key, monster] of Object.entries(this.monsters)) {
                 if (this.isMonsterAttackable(monster, attackName)) {
+                    // Set the new target and apply tint
                     this.targetMonsterKey = key;
+                    this.monsters[this.targetMonsterKey].sprite.setTint(0xff0000); // Red tint
                     break;
                 }
             }

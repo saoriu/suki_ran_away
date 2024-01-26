@@ -1,4 +1,5 @@
 export function preloadFrames(gameInstance) {
+    this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
     for (let i = 1; i <= 13; i++) this.load.image(`tile${i}`, `/tile${i}.png`);
     this.load.image('title', '/title.png');
     this.load.atlas('cat', '/cat.png', '/cat.json');
