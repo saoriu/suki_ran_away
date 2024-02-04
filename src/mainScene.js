@@ -417,18 +417,18 @@ export class mainScene extends Phaser.Scene {
                         }
                         this.lastClickedMonsterKey = monster.key;
                         if (monster.sprite.body) {
-                        this.postFxPlugin.add(monster.sprite, {
-                            thickness: 2,
-                            outlineColor: 0xff8a50
-                        });
-    
-                        // Cascade 2nd outline
-                        this.postFxPlugin.add(monster.sprite, {
-                            thickness: 5,
-                            outlineColor: 0xc41c00
-                        });
+                            this.postFxPlugin.add(monster.sprite, {
+                                thickness: 2,
+                                outlineColor: 0xff8a50
+                            });
+
+                            // Cascade 2nd outline
+                            this.postFxPlugin.add(monster.sprite, {
+                                thickness: 4,
+                                outlineColor: 0xc41c00
+                            });
+                        }
                     }
-                }
                 }
             });
         });
@@ -759,10 +759,20 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        tree.setTint(0xeeeeee);
+        this.postFxPlugin.add(tree, {
+            thickness: 2,
+            outlineColor: 0xffff99
+        });
+
+        // Cascade 2nd outline
+        this.postFxPlugin.add(tree, {
+            thickness: 4,
+            outlineColor: 0xeeeeee
+        });
         // Remove the tint after 1 second
         setTimeout(() => {
-            tree.clearTint();
+            this.postFxPlugin.remove(tree);
+
         }, 200);
         // Decide to drop a log, deplete the tree, or spawn a monster
         let randomValue = Math.random();
@@ -844,9 +854,20 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        bush1.setTint(0xeeeeee);  
+
+        this.postFxPlugin.add(bush1, {
+            thickness: 2,
+            outlineColor: 0xffff99
+        });
+
+        // Cascade 2nd outline
+        this.postFxPlugin.add(bush1, {
+            thickness: 4,
+            outlineColor: 0xeeeeee
+        });
         setTimeout(() => {
-            bush1.clearTint();
+            this.postFxPlugin.remove(bush1);
+
         }, 200);
 
         // Decide to drop a berry, deplete the bush1, or spawn a monster
@@ -928,7 +949,7 @@ export class mainScene extends Phaser.Scene {
             }
         });
     }
-    
+
     calculateTileType() {
         const roll = Phaser.Math.FloatBetween(0, 1);
         let tileType;
@@ -1113,7 +1134,7 @@ export class mainScene extends Phaser.Scene {
                 this.postFxPlugin.remove(monster.sprite);
             }
         });
-    
+
         // If a monster has been clicked, check if it's attackable
         if (this.lastClickedMonsterKey) {
             const clickedMonster = this.monsters[this.lastClickedMonsterKey];
@@ -1130,7 +1151,7 @@ export class mainScene extends Phaser.Scene {
 
                 // Cascade 2nd outline
                 this.postFxPlugin.add(clickedMonster.sprite, {
-                    thickness: 5,
+                    thickness: 4,
                     outlineColor: 0xc41c00
                 });
 
@@ -1157,7 +1178,7 @@ export class mainScene extends Phaser.Scene {
 
                     // Cascade 2nd outline
                     this.postFxPlugin.add(monster.sprite, {
-                        thickness: 5,
+                        thickness: 4,
                         outlineColor: 0xc41c00
                     });
 
@@ -1171,7 +1192,7 @@ export class mainScene extends Phaser.Scene {
     }
 
     //function to randomly spawn a fire on the map using the fire animation
-    spawnFire() { 
+    spawnFire() {
         const camera = this.cameras.main;
         const centerX = camera.midPoint.x;
         const centerY = camera.midPoint.y;
@@ -1667,9 +1688,9 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-    const bush1 = this.matter.add.sprite(x, y, 'bush1', null, {
-        label: 'bush1'
-    });
+        const bush1 = this.matter.add.sprite(x, y, 'bush1', null, {
+            label: 'bush1'
+        });
 
         // Approximate an ellipse using a polygon body
         const ellipseVertices = this.createEllipseVertices(x, y, 50, 50, 16);
@@ -1970,9 +1991,9 @@ export class mainScene extends Phaser.Scene {
                 for (let index = this.ashes.length - 1; index >= 0; index--) {
                     let ashes = this.ashes[index];
                     if (ashes && ashes.active) {
-                     
-                            ashes.destroy();
-                            this.ashes.splice(index, 1);
+
+                        ashes.destroy();
+                        this.ashes.splice(index, 1);
 
                     }
                 }
@@ -1980,42 +2001,42 @@ export class mainScene extends Phaser.Scene {
                 for (let index = this.items.length - 1; index >= 0; index--) {
                     let item = this.items[index];
                     if (item && item.sprite.active) {
-                    
-                            item.sprite.destroy(); // Destroy the sprite, not the wrapper object
-                            this.items.splice(index, 1);
-                            this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
-                        }
+
+                        item.sprite.destroy(); // Destroy the sprite, not the wrapper object
+                        this.items.splice(index, 1);
+                        this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
+                    }
                 }
 
 
                 for (let index = this.trees.length - 1; index >= 0; index--) {
                     let tree = this.trees[index];
                     if (tree && tree.active) {
-                            this.trees.splice(index, 1);
-                            this.matter.world.remove(tree.body);
+                        this.trees.splice(index, 1);
+                        this.matter.world.remove(tree.body);
 
-                            if (this.collidingTree === tree) {
-                                this.collidingTree = null;
-                            }
+                        if (this.collidingTree === tree) {
+                            this.collidingTree = null;
+                        }
 
-                            tree.body.destroy();
-                            tree.destroy();
+                        tree.body.destroy();
+                        tree.destroy();
 
-                            this.allEntities = this.allEntities.filter(entity => entity !== tree);
+                        this.allEntities = this.allEntities.filter(entity => entity !== tree);
                     }
                 }
 
                 for (let index = this.ponds.length - 1; index >= 0; index--) {
                     let pond = this.ponds[index];
                     if (pond && pond.active) {
-                    
-                            this.ponds.splice(index, 1);
-                            this.matter.world.remove(pond.body);
 
-                            pond.body.destroy();
-                            pond.destroy();
+                        this.ponds.splice(index, 1);
+                        this.matter.world.remove(pond.body);
 
-                            this.allEntities = this.allEntities.filter(entity => entity !== pond);
+                        pond.body.destroy();
+                        pond.destroy();
+
+                        this.allEntities = this.allEntities.filter(entity => entity !== pond);
                     }
                 }
 
@@ -2023,50 +2044,50 @@ export class mainScene extends Phaser.Scene {
                 for (let index = this.bush1s.length - 1; index >= 0; index--) {
                     let bush1 = this.bush1s[index];
                     if (bush1 && bush1.active) {
-                    
-                            this.bush1s.splice(index, 1);
-                            this.matter.world.remove(bush1.body);
 
-                            if (this.collidingBush1 === bush1) {
-                                this.collidingBush1 = null;
-                            }
+                        this.bush1s.splice(index, 1);
+                        this.matter.world.remove(bush1.body);
 
-                            bush1.body.destroy();
-                            bush1.destroy();
+                        if (this.collidingBush1 === bush1) {
+                            this.collidingBush1 = null;
+                        }
 
-                            this.allEntities = this.allEntities.filter(entity => entity !== bush1);
+                        bush1.body.destroy();
+                        bush1.destroy();
+
+                        this.allEntities = this.allEntities.filter(entity => entity !== bush1);
                     }
                 }
 
                 for (let index = this.fires.length - 1; index >= 0; index--) {
                     let fire = this.fires[index];
                     if (fire && fire.active) {
-                     
-                            this.tweens.killTweensOf(fire.light);
-                            // Turn off the light associated with the fire
-                            fire.light.setIntensity(0);
 
-                            // Remove the light from the LightManager's list of lights
-                            this.lights.removeLight(fire.light.x, fire.light.y);
+                        this.tweens.killTweensOf(fire.light);
+                        // Turn off the light associated with the fire
+                        fire.light.setIntensity(0);
 
-                            // Destroy the fire body
-                            this.matter.world.remove(fire.body);
+                        // Remove the light from the LightManager's list of lights
+                        this.lights.removeLight(fire.light.x, fire.light.y);
 
-                            // Remove the fire from the fires array before destroying it
-                            this.fires.splice(index, 1);
+                        // Destroy the fire body
+                        this.matter.world.remove(fire.body);
 
-                            //destroy the fire body
-                            fire.body.destroy();
+                        // Remove the fire from the fires array before destroying it
+                        this.fires.splice(index, 1);
 
-                            fire.timerEvent.remove();
+                        //destroy the fire body
+                        fire.body.destroy();
 
-                            // Destroy the fire
-                            fire.destroy();
+                        fire.timerEvent.remove();
+
+                        // Destroy the fire
+                        fire.destroy();
                     }
                 }
             }
         });
-    
+
     }
 
 
