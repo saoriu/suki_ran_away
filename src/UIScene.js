@@ -205,13 +205,14 @@ export class UIScene extends Phaser.Scene {
             this.isSaveTextVisible = true; // Set isSaveTextVisible to true when the save confirmation is displayed
 
             await updatePlayerState(userid, PlayerState, token);
+            console.log(PlayerState.trees.length + 'trees');
 
             // Remove "Saving..." text
             savingText.destroy();
 
             // Display "Game saved successfully" text
             const savedText = this.add.text(this.x, this.y - 100, 'GAME   SAVED !', textStyles.save).setOrigin(0.5);
-
+            
             // Remove "Game saved successfully" text after 3 seconds
             this.time.delayedCall(3000, () => {
                 savedText.destroy();

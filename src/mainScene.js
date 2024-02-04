@@ -7,7 +7,6 @@ import { GAME_CONFIG } from './gameConstants.js';
 import { GameEvents } from './GameEvents';
 import { regenerateEnergy } from './Energy';
 import * as Inventory from './Inventory';
-import { preloadFrames } from './preloadFrames';
 import { createAnims } from './createAnims';
 import { attacks } from './attacks';
 import { Item } from './Item';
@@ -63,12 +62,6 @@ export class mainScene extends Phaser.Scene {
 
     }
 
-
-    preload() {
-        const boundPreloadFrames = preloadFrames.bind(this);
-        boundPreloadFrames();
-    }
-
     create() {
         const camera = this.cameras.main;
         this.lights.enable();
@@ -90,6 +83,9 @@ export class mainScene extends Phaser.Scene {
         this.cat.body.frictionAir = 0;
         this.cat.setPipeline('Light2D');
         catBody.label = 'player';
+
+        this.postFxPlugin = this.plugins.get('rexoutlinepipelineplugin');
+
 
         this.targetMonsterKey = null;
 
@@ -417,13 +413,22 @@ export class mainScene extends Phaser.Scene {
                     if (monsterBody && this.Matter.Bounds.contains(monsterBody.bounds, { x: pointer.worldX, y: pointer.worldY })) {
                         // Clear tint from previously clicked monster
                         if (this.lastClickedMonsterKey && this.monsters[this.lastClickedMonsterKey]) {
-                            this.monsters[this.lastClickedMonsterKey].sprite.clearTint();
+                            this.postFxPlugin.remove(this.monsters[this.lastClickedMonsterKey].sprite);
                         }
-
-                        // Set the new clicked monster and apply tint
                         this.lastClickedMonsterKey = monster.key;
-                        this.monsters[this.lastClickedMonsterKey].sprite.setTint(0xff0000); // Red tint
+                        if (monster.sprite.body) {
+                        this.postFxPlugin.add(monster.sprite, {
+                            thickness: 2,
+                            outlineColor: 0xff8a50
+                        });
+    
+                        // Cascade 2nd outline
+                        this.postFxPlugin.add(monster.sprite, {
+                            thickness: 5,
+                            outlineColor: 0xc41c00
+                        });
                     }
+                }
                 }
             });
         });
@@ -539,7 +544,6 @@ export class mainScene extends Phaser.Scene {
         });
 
         this.gameEvents.update(this.monsters, this.allEntities);
-
 
 
         Object.values(this.monsters).forEach(monsterObj => {
@@ -950,7 +954,7 @@ export class mainScene extends Phaser.Scene {
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
-        const fireProbability = 0.5 * (1 + PlayerState.exploreBonus / 100);
+        const fireProbability = 0.25 * (1 + PlayerState.fireBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
 
@@ -1104,10 +1108,9 @@ export class mainScene extends Phaser.Scene {
     }
 
     updateTargetMonsterKey(attackName) {
-        // Clear tint from all monsters
         Object.values(this.monsters).forEach(monster => {
             if (monster && monster.sprite) {
-                monster.sprite.clearTint();
+                this.postFxPlugin.remove(monster.sprite);
             }
         });
     
@@ -1115,21 +1118,52 @@ export class mainScene extends Phaser.Scene {
         if (this.lastClickedMonsterKey) {
             const clickedMonster = this.monsters[this.lastClickedMonsterKey];
             if (clickedMonster && this.isMonsterAttackable(clickedMonster, attackName)) {
+                // Clear tint from previously clicked monster
+                if (this.lastClickedMonsterKey && this.monsters[this.lastClickedMonsterKey]) {
+                    this.postFxPlugin.remove(this.monsters[this.lastClickedMonsterKey].sprite);
+                }
+                this.lastClickedMonsterKey = clickedMonster.key;
+                this.postFxPlugin.add(clickedMonster.sprite, {
+                    thickness: 2,
+                    outlineColor: 0xff8a50
+                });
+
+                // Cascade 2nd outline
+                this.postFxPlugin.add(clickedMonster.sprite, {
+                    thickness: 5,
+                    outlineColor: 0xc41c00
+                });
+
                 // Set the new target and apply tint
                 this.targetMonsterKey = this.lastClickedMonsterKey;
-                this.monsters[this.targetMonsterKey].sprite.setTint(0xff0000); // Red tint
                 return;
             }
         }
-    
+
         // If the clicked monster is not attackable or if no monster has been clicked,
         // find another attackable monster
         if (this.targetMonsterKey === null) {
             for (const [key, monster] of Object.entries(this.monsters)) {
                 if (this.isMonsterAttackable(monster, attackName)) {
+                    // Clear tint from previously clicked monster
+                    if (this.lastClickedMonsterKey && this.monsters[this.lastClickedMonsterKey]) {
+                        this.postFxPlugin.remove(this.monsters[this.lastClickedMonsterKey].sprite);
+                    }
+                    this.lastClickedMonsterKey = key;
+                    this.postFxPlugin.add(monster.sprite, {
+                        thickness: 2,
+                        outlineColor: 0xff8a50
+                    });
+
+                    // Cascade 2nd outline
+                    this.postFxPlugin.add(monster.sprite, {
+                        thickness: 5,
+                        outlineColor: 0xc41c00
+                    });
+
+
                     // Set the new target and apply tint
                     this.targetMonsterKey = key;
-                    this.monsters[this.targetMonsterKey].sprite.setTint(0xff0000); // Red tint
                     break;
                 }
             }
@@ -1137,7 +1171,7 @@ export class mainScene extends Phaser.Scene {
     }
 
     //function to randomly spawn a fire on the map using the fire animation
-    spawnFire() {
+    spawnFire() { 
         const camera = this.cameras.main;
         const centerX = camera.midPoint.x;
         const centerY = camera.midPoint.y;

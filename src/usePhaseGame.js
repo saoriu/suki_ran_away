@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Phaser from 'phaser';
+import { PreloadScene } from './PreloadScene'; // Import PreloadScene
 import { mainScene } from './mainScene';
 import { GAME_CONFIG } from './gameConstants.js';
 import { UIScene } from './UIScene';
@@ -35,7 +36,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                         { key: 'lightsPlugin', plugin: Phaser.GameObjects.LightsPlugin, mapping: 'lights' }
                     ]
                 },
-                scene: [mainScene, UIScene], // Start only with AuthScene
+                scene: [PreloadScene, mainScene, UIScene], // Start only with AuthScene
             };
 
             gameRef.current = new Phaser.Game(config);

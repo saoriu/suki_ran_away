@@ -25,6 +25,14 @@ export const PlayerState = {
     fishBonus: 0, //chance to get more fish
     bushBonus: 0, //chance to get more berries
     foodBonus: 0, //food extra heal rate
+    tree: [],
+    trees: [],
+    fire: [],
+    fires: [],
+    ponds: [],
+    pond: [],
+    bush1s: [],
+    bush1: [],
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
     inventory: [],

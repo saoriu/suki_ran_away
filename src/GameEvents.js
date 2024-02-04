@@ -294,7 +294,7 @@ export class GameEvents {
                     }
                 }
 
-                if (PlayerState.energy <= 0) {
+                if (PlayerState.energy < 1) {
                     PlayerState.energy = 0;
                     this.endBattleForMonster(targetMonster);
                 }
