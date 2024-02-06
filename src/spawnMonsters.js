@@ -43,11 +43,14 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     let filteredOptions = eventOptions
       .filter(option => option.monsterChance === chosenRarity)
       .filter(option => !option.specialEvent && !option.specialEventBush);
+    
     if (PlayerState.gameTime >= 21 || PlayerState.gameTime <= 3) {
       const aggressiveOptions = filteredOptions.filter(option => option.isAggressive);
       if (aggressiveOptions.length > 0) {
         filteredOptions = aggressiveOptions;
       }
+    } else {
+      filteredOptions = filteredOptions.filter(option => !option.isAggressive);
     }
 
     if (filteredOptions.length === 0) return null; // Return null if no monsters match the chosen rarity

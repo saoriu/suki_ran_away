@@ -136,47 +136,45 @@ export class UIScene extends Phaser.Scene {
 
 
         this.input.keyboard.on('keydown', (event) => {
-            switch (event.key) {
-                case 'q':
-                    if (this.selectedIndex !== undefined) {
-                        this.selectedIndex--; // If an index is already selected, move selection to the left
-                        if (this.selectedIndex < 0) {
-                            this.selectedIndex = PlayerState.inventory.length - 1; // Wrap around to the end if index goes below 0
+            if (event.code.startsWith('Digit') || event.code === 'Minus') {
+                let index;
+                if (event.code === 'Digit0') {
+                    index = 9; // 0 key corresponds to the 10th item
+                } else if (event.code === 'Minus') {
+                    index = 10; // '-' key corresponds to the 11th item
+                } else {
+                    const digit = parseInt(event.code.replace('Digit', ''), 10);
+                    index = digit - 1; // Other number keys correspond to their respective items
+                }
+
+                if (index < PlayerState.inventory.length) {
+                    if (this.selectedIndex === index) {
+                        // If the pressed key corresponds to the currently selected index, use the item
+                        const selectedItem = PlayerState.inventory[this.selectedIndex];
+                        if (selectedItem) {
+                            this.useItem(selectedItem.name);
                         }
                     } else {
-                        this.selectedIndex = 0; // If no index is selected, focus on the first item in the inventory
+                        // Otherwise, select the item
+                        this.selectedIndex = index;
+                        this.handleInventorySelection();
                     }
-                    this.handleInventorySelection();
-                    break;
-                case 'w':
-                    if (this.selectedIndex !== undefined) {
-                        this.selectedIndex++; // If an index is already selected, move selection to the right
-                        if (this.selectedIndex >= PlayerState.inventory.length) {
-                            this.selectedIndex = 0; // Wrap around to the start if index goes above the inventory length
-                        }
-                    } else {
-                        this.selectedIndex = 0; // If no index is selected, focus on the first item in the inventory
-                    }
-                    this.handleInventorySelection();
-                    break;
-                case 's':
-                    this.saveGame();
-                    break;
-                case 'e':
-                    const selectedItem = PlayerState.inventory[this.selectedIndex];
-                    if (selectedItem) {
-                        this.useItem(selectedItem.name);
-                    }
-                    break;
-                default:
-                    break;
+                }
+            } else {
+                switch (event.key) {
+                    case 's':
+                        this.saveGame();
+                        break;
+                    default:
+                        break;
+                }
             }
         });
-
     }
 
     async saveGame() {
-        if (PlayerState.isUnderAttack && !this.isSaveTextVisible) {
+        const now = Date.now();
+        if (now - PlayerState.lastDamageTime < 3000 && !this.isSaveTextVisible) {
             if (!this.isUnderAttackTextVisible) {
                 this.isUnderAttackTextVisible = true;
                 const blockSaveText = this.add.text(this.x, this.y - 100, "CAN'T   SAVE   UNDER   ATTACK!", textStyles.saveblock).setOrigin(0.5);
@@ -359,7 +357,7 @@ export class UIScene extends Phaser.Scene {
 
                 // Check if there are any attacks for the current level
                 if (currentLevelAttacks.length > 0) {
-                    const modal = this.add.container(this.x - 165, -500); // Start off-screen
+                    const modal = this.add.container(this.x - 165, this.y * 2 + 100); // Start off-screen
                     const modalBackground = this.add.image(0, 0, 'modal').setOrigin(0);
                     const modalWidth = 330; // Replace with your modal's width
                     modal.add(modalBackground);
@@ -367,7 +365,7 @@ export class UIScene extends Phaser.Scene {
 
                     this.tweens.add({
                         targets: modal,
-                        y: 100, // Final position
+                        y: this.y + 100, // Final position
                         alpha: 1, // Final opacity
                         duration: 1500, // Duration of the tween in milliseconds
                         ease: 'Power2', // Easing function
@@ -841,8 +839,30 @@ export class UIScene extends Phaser.Scene {
             const x = xOffset + index * 56.5; // x increments by the index, starting from xOffset
             const y = 3; // y is a fixed value
 
-            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5).setDepth(1);
+            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive({ draggable: true }).setScale(1).setOrigin(0.5).setDepth(1);
             const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(2);
+
+            sprite.on('drag', (pointer, dragX, dragY) => {
+                sprite.x = dragX; // Update the sprite's x position as it's being dragged
+                sprite.y = dragY; // Update the sprite's y position as it's being dragged
+            });
+    
+            sprite.on('dragend', (pointer, dragX, dragY) => {
+                const dropIndex = Math.round((dragX - xOffset) / 56.5); // Calculate the index of the slot where the sprite was dropped
+                if (dropIndex >= 0 && dropIndex < inventory.length) {
+                    // If the drop index is valid, swap the items in the inventory array
+                    const temp = inventory[index];
+                    inventory[index] = inventory[dropIndex];
+                    inventory[dropIndex] = temp;
+    
+                    this.updateInventoryDisplay(); // Update the inventory display
+                } else {
+                    // If the drop index is not valid, return the sprite to its original position
+                    sprite.x = x;
+                    sprite.y = y;
+                }
+            });
+
             zone.on('pointerdown', (pointer) => {
                 this.selectedIndex = index;
                 if (pointer.leftButtonDown()) {

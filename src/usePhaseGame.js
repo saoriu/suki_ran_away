@@ -39,6 +39,13 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 scene: [PreloadScene, mainScene, UIScene], // Start only with AuthScene
             };
 
+            // Check if gameRef.current is not null and is an instance of Phaser.Game
+            if (gameRef.current && gameRef.current instanceof Phaser.Game) {
+                // Destroy the game instance, including all plugins
+                gameRef.current.destroy(true);
+            }
+
+            // Create a new game instance
             gameRef.current = new Phaser.Game(config);
             window.game = gameRef.current;
 

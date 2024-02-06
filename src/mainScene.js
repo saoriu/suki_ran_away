@@ -296,13 +296,13 @@ export class mainScene extends Phaser.Scene {
                 let attackName;
 
                 switch (event.code) {
-                    case 'Digit1':
+                    case 'KeyZ':
                         attackName = PlayerState.selectedAttacks[1] || 'scratch';
                         break;
-                    case 'Digit2':
+                    case 'KeyX':
                         attackName = PlayerState.selectedAttacks[2] || 'scratch';
                         break;
-                    case 'Digit3':
+                    case 'KeyC':
                         attackName = PlayerState.selectedAttacks[3] || 'scratch';
                         break;
                     case 'Space':
@@ -435,7 +435,7 @@ export class mainScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        PlayerState.gameTime += delta / 12000;
+        PlayerState.gameTime += delta / 20000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
@@ -503,7 +503,29 @@ export class mainScene extends Phaser.Scene {
             this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
         }
 
-        //Monster animations
+        let treesCopy = [...this.trees];
+        treesCopy.forEach((tree) => {
+            if (tree && tree.active && !tree.isDepleted) {
+                let catBounds = this.cat.getBounds();
+                let treeBounds = tree.getBounds();
+
+                // Check if the cat's x-coordinate is within the tree's x-coordinates
+                let isXOverlapping = this.cat.x - 30 >= treeBounds.left && this.cat.x + 30 <= treeBounds.right;
+                let isYOverlapping = this.cat.y >= treeBounds.top && this.cat.y <= treeBounds.bottom;
+
+                if (Phaser.Geom.Intersects.RectangleToRectangle(catBounds, treeBounds) && isXOverlapping && isYOverlapping) {
+                    if (this.cat.y + 90 < tree.y) {
+                        tree.alpha = 0.5;
+                    } else {
+                        tree.alpha = 1;
+                    }
+                } else {
+                    tree.alpha = 1; // Reset alpha to 1 when there is no intersection
+                }
+            }
+        });
+
+        //Monster animations here
         Object.values(this.monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return;
             const deltaX = Math.abs(monster.sprite.body.positionPrev.x - monster.sprite.body.position.x);
@@ -603,6 +625,10 @@ export class mainScene extends Phaser.Scene {
         });
         // Step 1: Calculate all depths
         this.allEntities.forEach((entity) => {
+            if (entity.label === 'log') {
+                let treeDepth = entity.parentTree.depth; // Changed this line
+                entity.setDepth(treeDepth);
+            } else
             if (entity.body) {
                 if (entity.y === null) {
                     entity.setDepth(2);
@@ -778,13 +804,13 @@ export class mainScene extends Phaser.Scene {
         let randomValue = Math.random();
 
         // Calculating the probability of dropping a log, including the treesBonus.
-        const logDropProbability = 0.7 + PlayerState.treesBonus / 100;
+        const logDropProbability = 0.75 + PlayerState.treesBonus / 100;
         // Logic for dropping a log
-        const randomX = tree.x + 100 + Math.random() * 25;
-        const randomY = tree.y + 50 + Math.random() * 30;
+        const randomX = tree.x + 25 + Math.random() * -75;
+        const randomY = tree.y - 50 + Math.random() * 20;
 
         if (randomValue < logDropProbability) {
-            this.dropLog(randomX, randomY);
+            this.dropLog(randomX, randomY, tree); // Add 'tree' as an argument
         } else {
             // Calculate the remaining probability after considering the log drop.
             const remainingProbability = 1 - logDropProbability;
@@ -814,34 +840,40 @@ export class mainScene extends Phaser.Scene {
     }
 
 
-    dropLog(x, y) {
+    dropLog(x, y, tree) {
         const log = new Item(this, x, y, 'log', {
             name: 'log',
             quantity: 1,
             effects: {} // Replace with actual effects if any
         });
 
-        // Add the log to the scene
-        this.add.existing(log);
+        log.sprite.label = 'log';
+        log.sprite.parentTree = tree; // Add this line
 
-        //set depth to 1
-        log.sprite.setDepth(0);
+        this.add.existing(log);
 
         // Show the log and then start the tween
         log.show();
 
+        // Add the log to allEntities as it is dropping
+        this.allEntities.push(log.sprite);
+
         // Create a tween that moves the log downwards
         this.tweens.add({
             targets: log.sprite, // Make sure to target the sprite
-            y: y + 50, // Change this value to control how far the log drops
+            y: y + 150, // Change this value to control how far the log drops
             duration: 1000, // Change this value to control how fast the log drops
-            ease: 'Cubic.easeOut', // Change this to control the easing function
+            ease: 'Phaser.Math.Easing.Quadratic.In', // Add this line            
             onComplete: () => {
                 // Push the log to the items array after the tween completes
                 this.items.push(log);
+
+                // Remove the log from allEntities once it drops
+                this.allEntities = this.allEntities.filter(entity => entity !== log.sprite);
+
+                log.sprite.setDepth(0);
             }
         });
-
     }
 
     searchBush1(bush1) {
@@ -874,7 +906,7 @@ export class mainScene extends Phaser.Scene {
         let randomValue = Math.random();
 
         // Calculating the probability of dropping a berry, including the treesBonus.
-        const berryDropProbability = 0.60 + PlayerState.treesBonus / 100;
+        const berryDropProbability = 0.75 + PlayerState.treesBonus / 100;
         // Logic for dropping a berry
         const randomX = bush1.x + 100 + Math.random() * 25;
         const randomY = bush1.y + 50 + Math.random() * 30;
@@ -1373,8 +1405,6 @@ export class mainScene extends Phaser.Scene {
         if (closestFire && closestFire.timerEvent) {
             closestFire.endTime += 30000;
             const log = this.add.sprite(closestFire.x + 4, closestFire.y + 25, 'log').setOrigin(0.5, 1).setDepth(2).setPipeline('Light2D');
-            //add label log
-            log.label = 'log';
 
             this.tweens.add({
                 targets: log,
