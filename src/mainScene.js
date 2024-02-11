@@ -13,6 +13,7 @@ import { Item } from './Item';
 import { itemInfo } from './itemInfo.js';
 import chroma from 'chroma-js';
 
+
 export class mainScene extends Phaser.Scene {
 
     _emitMonsterBattleUpdate(monsterLevel, playerEnergy,) {
@@ -59,6 +60,10 @@ export class mainScene extends Phaser.Scene {
         this.lastRegenerateEnergyTime = 0;
         this.positionChangeThreshold = 0.05 * this.tileWidth;
         this.newpositionChangeThreshold = 1 * this.tileWidth;
+        this.intersections = [];
+        this.slices = [];
+        this.graphics = null;
+
 
     }
 
@@ -83,9 +88,15 @@ export class mainScene extends Phaser.Scene {
         this.cat.body.frictionAir = 0;
         this.cat.setPipeline('Light2D');
         catBody.label = 'player';
-
         this.postFxPlugin = this.plugins.get('rexoutlinepipelineplugin');
 
+        this.catShadow = this.add.sprite(0, 0, 'sit');
+        this.catShadow.setTint(0x000000); // Color the shadow sprite black
+        this.catShadow.alpha = 0.2; // Make the shadow sprite semi-transparent
+        this.catShadow.setPipeline('Light2D');
+        this.catShadow.depth = 1; // Position the shadow sprite behind the original sprite
+        //set to multiply blend mode
+        this.catShadow.setBlendMode(Phaser.BlendModes.MULTIPLY);
 
         this.targetMonsterKey = null;
 
@@ -369,6 +380,7 @@ export class mainScene extends Phaser.Scene {
 
                     // Start the new animation
                     this.cat.play(this.attackAnimationKey, true);
+                    this.catShadow.play(this.attackAnimationKey, true);
                 }
             }
         });
@@ -418,13 +430,13 @@ export class mainScene extends Phaser.Scene {
                         this.lastClickedMonsterKey = monster.key;
                         if (monster.sprite.body) {
                             this.postFxPlugin.add(monster.sprite, {
-                                thickness: 2,
+                                thickness: 1,
                                 outlineColor: 0xff8a50
                             });
 
                             // Cascade 2nd outline
                             this.postFxPlugin.add(monster.sprite, {
-                                thickness: 4,
+                                thickness: 2,
                                 outlineColor: 0xc41c00
                             });
                         }
@@ -442,12 +454,8 @@ export class mainScene extends Phaser.Scene {
             this.game.events.emit('daysPassed', PlayerState.days);
         }
 
-        if (time - this.lastUpdateTime > 1500) {
-            this.game.events.emit('gameTime', PlayerState.gameTime);
-            this.lastUpdateTime = time;
-        }
+        this.game.events.emit('gameTime', PlayerState.gameTime);
 
-        //call spawnmonstersonly every 30 seconds
         if (time - this.lastSpawnTime2 > 30000) {
             this.spawnMonstersOnly(this.cat.x, this.cat.y, this);
             this.lastSpawnTime2 = time;
@@ -468,6 +476,7 @@ export class mainScene extends Phaser.Scene {
             this.handlePlayerDeath.call(this);
         }
 
+
         if (Math.abs(this.cat.x - this.lastPlayerX) > this.positionChangeThreshold ||
             Math.abs(this.cat.y - this.lastPlayerY) > this.positionChangeThreshold) {
             this.createTilesAround(this.cat.x, this.cat.y, this);
@@ -483,24 +492,29 @@ export class mainScene extends Phaser.Scene {
             this.newlastPlayerY = this.cat.y;
         }
 
-        //Check if player is within monster attack range
         Object.values(this.monsters).forEach(monster => {
+            if (!monster || !monster.sprite || !monster.sprite.active) return;
+
             const distance = this.calculateDistance(this.cat, monster);
-            if (distance <= monster.attackRange) {
+            const playerOnRight = this.cat.x > monster.sprite.x;
+            const playerOnLeft = this.cat.x < monster.sprite.x;
+
+
+            if (distance <= monster.attackRange && ((monster.monsterFacingRight && playerOnRight) || (!monster.monsterFacingRight && playerOnLeft))) {
                 monster.canReach = true;
             } else {
                 monster.canReach = false;
             }
         });
-
-
-
         if (PlayerState.isAttacking && this.targetMonsterKey) {
             this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            this.catShadow.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+
         }
 
         else if (PlayerState.isAttacking && !PlayerState.isDead) {
             this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            this.catShadow.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
         }
 
         let treesCopy = [...this.trees];
@@ -516,11 +530,15 @@ export class mainScene extends Phaser.Scene {
                 if (Phaser.Geom.Intersects.RectangleToRectangle(catBounds, treeBounds) && isXOverlapping && isYOverlapping) {
                     if (this.cat.y + 90 < tree.y) {
                         tree.alpha = 0.5;
+                        tree.shadow.alpha = 0;
                     } else {
                         tree.alpha = 1;
+                        tree.shadow.alpha = this.getAlphaFromTime(PlayerState.gameTime);
                     }
                 } else {
                     tree.alpha = 1; // Reset alpha to 1 when there is no intersection
+                    tree.shadow.alpha = this.getAlphaFromTime(PlayerState.gameTime);
+
                 }
             }
         });
@@ -531,28 +549,37 @@ export class mainScene extends Phaser.Scene {
             const deltaX = Math.abs(monster.sprite.body.positionPrev.x - monster.sprite.body.position.x);
             const deltaY = Math.abs(monster.sprite.body.positionPrev.y - monster.sprite.body.position.y);
 
+
             if (deltaX > this.POSITION_CHANGE_THRESHOLD || deltaY > this.POSITION_CHANGE_THRESHOLD) {
                 monster.isMoving = true;
             } else {
                 monster.isMoving = false;
             }
 
+
             if (monster.currentHealth <= 0) {
                 monster.sprite.play(`${monster.event.monster}_die`, true);
+                monster.monsterShadow.play(`${monster.event.monster}_die`, true);
                 this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
             } else if (monster.isTweening) {
                 monster.sprite.play(`${monster.event.monster}_fall`, true);
+                monster.monsterShadow.play(`${monster.event.monster}_fall`, true);
             } else if (monster.isHurt) {
                 monster.sprite.play(`${monster.event.monster}_hurt`, true);
+                monster.monsterShadow.play(`${monster.event.monster}_hurt`, true);
                 monster.sprite.once('animationcomplete', () => {
                     if (monster.sprite && monster.sprite.active) {
                         monster.isHurt = false;
                         monster.sprite.play(`${monster.event.monster}`, true);
+                        monster.monsterShadow.play(`${monster.event.monster}`, true);
                     }
                 }, this);
-            } else if (monster.isAttacking && monster.canReach) {
+            } else if (monster.isAttacking && monster.canReach && monster.attackComplete) {
+                monster.attackComplete = false;
                 this.gameEvents.monsterAttack(this.monsters, monster.key);
                 monster.sprite.play(`${monster.event.monster}_attack`, true);
+                monster.monsterShadow.play(`${monster.event.monster}_attack`, true);
+
                 monster.sprite.once('animationcomplete', (animation) => {
                     if (animation.key === `${monster.event.monster}_attack`) {
                         monster.isAttacking = false;
@@ -560,8 +587,10 @@ export class mainScene extends Phaser.Scene {
                 }, this);
             } else if (monster.isMoving && !monster.sprite.anims.isPlaying) {
                 monster.sprite.play(`${monster.event.monster}_run`, true);
+                monster.monsterShadow.play(`${monster.event.monster}_run`, true);
             } else if (!monster.sprite.anims.isPlaying) {
                 monster.sprite.play(`${monster.event.monster}`, true);
+                monster.monsterShadow.play(`${monster.event.monster}`, true);
             }
         });
 
@@ -626,9 +655,26 @@ export class mainScene extends Phaser.Scene {
         // Step 1: Calculate all depths
         this.allEntities.forEach((entity) => {
             if (entity.label === 'log') {
-                let treeDepth = entity.parentTree.depth; // Changed this line
+                let treeDepth = entity.parentTree.depth;
                 entity.setDepth(treeDepth);
-            } else
+            } else if (entity.label === 'fruit') {
+                let bushDepth = entity.parentBush.depth;
+                entity.setDepth(bushDepth);
+            } else if (entity.label === 'treeShadow') {
+                if (entity.depth === null) {
+                    entity.setDepth(1);
+                } else {
+                    entity.setDepth((entity.y - 20) / 10);
+                }
+            }
+            else if (entity.label === 'bush1Shadow') {
+                //bush1 shadow depth should be less than the bush1 depth
+                if (entity.depth === null) {
+                    entity.setDepth(1);
+                } else {
+                    entity.setDepth((entity.y - 20) / 10);
+                }
+            }
             if (entity.body) {
                 if (entity.y === null) {
                     entity.setDepth(2);
@@ -644,13 +690,14 @@ export class mainScene extends Phaser.Scene {
                     } else {
                         if (entity.depth === null) {
                             entity.setDepth(1);
-                        } else {
+                        } else { //trees and other entities
                             entity.setDepth(entity.y / 10);
                         }
                     }
                 }
             }
         });
+
 
         // Step 2: Find the minimum depth
         let minDepth = Math.min(...this.allEntities.map(entity => entity.depth));
@@ -780,7 +827,6 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        // Check if the tree is in front of the player
         if (!this.isObjectInFront(this.cat, tree, this.lastDirection)) {
             return;
         }
@@ -820,6 +866,7 @@ export class mainScene extends Phaser.Scene {
             if (randomValue < logDropProbability + depleteProbability) {
                 // Logic for tree depleting
                 tree.isDepleted = true;
+                tree.shadow.destroy();
                 tree.clearTint();
                 tree.setTexture('tree-down');
                 tree.anims.stop();
@@ -828,8 +875,22 @@ export class mainScene extends Phaser.Scene {
                     if (tree.active) {
                         tree.setTexture('tree');
                         tree.isDepleted = false;
-                        //play tree anim
+                        const treeShadow = this.add.sprite(tree.x, tree.y - 10, 'tree');
+                        let originalWidth = treeShadow.width;
+                        let originalHeight = treeShadow.height;
+                        let newHeight = originalHeight - 85;
+                
+                        treeShadow.setOrigin(0.5, 0.85);
+                        treeShadow.setTint(0x000000); // Color the shadow sprite black
+                        treeShadow.setPipeline('Light2D');
+                        treeShadow.setCrop(0, 0, originalWidth, newHeight);
+                        treeShadow.label = 'treeShadow';
+                        treeShadow.parentTree = tree;
+                        treeShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+                
+                        tree.shadow = treeShadow; // Store the shadow sprite as a property of the tree
                         tree.play('tree');
+                        treeShadow.play('tree');
                     }
                 }, 10000);
             } else {
@@ -886,7 +947,6 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-
         this.postFxPlugin.add(bush1, {
             thickness: 2,
             outlineColor: 0xffff99
@@ -909,10 +969,10 @@ export class mainScene extends Phaser.Scene {
         const berryDropProbability = 0.75 + PlayerState.treesBonus / 100;
         // Logic for dropping a berry
         const randomX = bush1.x + 100 + Math.random() * 25;
-        const randomY = bush1.y + 50 + Math.random() * 30;
+        const randomY = bush1.y + 10 + Math.random() * 20;
 
         if (randomValue < berryDropProbability) {
-            this.dropStrawberry(randomX, randomY);
+            this.dropStrawberry(randomX, randomY, bush1);
         } else {
             // Calculate the remaining probability after considering the berry drop.
             const remainingProbability = 1 - berryDropProbability;
@@ -923,6 +983,7 @@ export class mainScene extends Phaser.Scene {
                 // Logic for bush1 depleting
                 bush1.isDepleted = true;
                 bush1.clearTint();
+                bush1.shadow.destroy();
                 bush1.setTexture('bush1-down');
                 bush1.anims.stop();
 
@@ -930,6 +991,19 @@ export class mainScene extends Phaser.Scene {
                     if (bush1.active) {
                         bush1.setTexture('bush1');
                         bush1.isDepleted = false;
+
+                        const bush1Shadow = this.add.sprite(bush1.x, bush1.y, 'bush1');
+
+                        bush1Shadow.setOrigin(0.5, 0.6);
+                        bush1Shadow.setTint(0x000000); // Color the shadow sprite black
+                        bush1Shadow.setPipeline('Light2D');
+                        bush1Shadow.label = 'bush1Shadow';
+                        bush1Shadow.parentBush1 = bush1;
+                        bush1Shadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+
+                        bush1.shadow = bush1Shadow; // Store the shadow sprite as a property of the tree
+
+                        bush1Shadow.play('bush1');
                         bush1.play('bush1');
                     }
                 }, 15000);
@@ -939,7 +1013,7 @@ export class mainScene extends Phaser.Scene {
         }
     }
 
-    dropStrawberry(x, y) {
+    dropStrawberry(x, y, bush1) {
         const randomNumber = Math.random();
         let fruitName, fruitKey;
 
@@ -960,11 +1034,13 @@ export class mainScene extends Phaser.Scene {
 
         const fruit = new Item(this, x - 100, y, fruitKey, item);
 
+        fruit.sprite.label = 'fruit';
+        fruit.sprite.parentBush = bush1; // Add this line
+
+        this.allEntities.push(fruit.sprite);
+
         // Add the fruit to the scene
         this.add.existing(fruit);
-
-        // Set depth to 1
-        fruit.sprite.setDepth(0);
 
         // Show the fruit and then start the tween
         fruit.show();
@@ -972,12 +1048,14 @@ export class mainScene extends Phaser.Scene {
         // Create a tween that moves the fruit downwards
         this.tweens.add({
             targets: fruit.sprite, // Make sure to target the sprite
-            y: y + 30, // Change this value to control how far the fruit drops
+            y: y + 70, // Change this value to control how far the fruit drops
             duration: 1000, // Change this value to control how fast the fruit drops
             ease: 'Cubic.easeOut', // Change this to control the easing function
             onComplete: () => {
                 // Push the fruit to the items array after the tween completes
                 this.items.push(fruit);
+                this.allEntities = this.allEntities.filter(entity => entity !== fruit.sprite);
+                fruit.sprite.setDepth(0);
             }
         });
     }
@@ -1285,14 +1363,28 @@ export class mainScene extends Phaser.Scene {
             label: 'fire'
         }).setCircle(70).setDepth(2);
 
+
+        const fireShadow = this.add.sprite(fire.x, fire.y, 'fire');
+        fireShadow.setTint(0x000000); // Set the tint to orange
+        fireShadow.setOrigin(0.5, 0.5);            
+        fireShadow.setPipeline('Light2D');
+        fireShadow.setDepth(1);
+        fireShadow.label = 'fireShadow';
+        fireShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+
+        fire.shadow = fireShadow; // Store the shadow sprite as a property of the tree
+
         fire.setOrigin(0.5, 0.5);
         fire.setPipeline('Light2D');
         fire.play('fire');
+        fireShadow.play('fire');
 
         this.matter.body.setStatic(fire.body, true);
 
         //this matter worls is sensor so the player can walk through it
         fire.body.isSensor = true;
+
+
 
         this.fires.push(fire);
 
@@ -1335,6 +1427,11 @@ export class mainScene extends Phaser.Scene {
                                 // Check if the matter world exists before removing the fire body
                                 if (this.matter && this.matter.world) {
                                     this.matter.world.remove(fire.body);
+                                }
+
+                                //if fire shadow exists, remove it
+                                if (fire.shadow) {
+                                    fire.shadow.destroy();
                                 }
 
                                 // Check if the fire body exists before destroying it
@@ -1428,10 +1525,10 @@ export class mainScene extends Phaser.Scene {
         const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
         const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
 
-        const bufferStartI = visibleStartI - (this.tilesBuffer + 5); // extend outward by 1 tile
-        const bufferEndI = visibleEndI + (this.tilesBuffer + 5);    // extend outward by 1 tile
-        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 5); // extend outward by 1 tile
-        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 5);   // extend outward by 1 tile
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 8); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 8);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 8); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 8);   // extend outward by 1 tile
 
         let spawnTileI, spawnTileJ;
 
@@ -1496,8 +1593,27 @@ export class mainScene extends Phaser.Scene {
 
         tree.setOrigin(0.5, 0.85);
         tree.setPipeline('Light2D');
+
+        tree.isDepleted = false;
+        const treeShadow = this.add.sprite(tree.x, tree.y - 10, 'tree');
+        let originalWidth = treeShadow.width;
+        let originalHeight = treeShadow.height;
+        let newHeight = originalHeight - 85;
+
+        treeShadow.setOrigin(0.5, 0.85);
+        treeShadow.setTint(0x000000); // Color the shadow sprite black
+        treeShadow.setPipeline('Light2D');
+        treeShadow.setCrop(0, 0, originalWidth, newHeight);
+        treeShadow.label = 'treeShadow';
+        treeShadow.parentTree = tree;
+        treeShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+
+        tree.shadow = treeShadow; // Store the shadow sprite as a property of the tree
+
+
         if (!tree.isDepleted) {
             tree.play('tree');
+            treeShadow.play('tree');
         }
         // Set friction and frictionAir to 0 on the tree body and all its parts
         tree.body.friction = 0;
@@ -1512,15 +1628,10 @@ export class mainScene extends Phaser.Scene {
         for (let part of tree.body.parts) {
             part.restitution = 0;
         }
-
-        tree.chopCount = 0;
-        tree.isDepleted = false;
-
-
-
+      
         this.trees.push(tree);
+        this.allEntities.push(treeShadow);
         this.allEntities.push(tree);
-
     }
 
     spawnPonds() {
@@ -1730,14 +1841,27 @@ export class mainScene extends Phaser.Scene {
 
         bush1Body.label = 'bush1';
 
+        const bush1Shadow = this.add.sprite(bush1.x, bush1.y, 'bush1');
+
+        bush1Shadow.setOrigin(0.5, 0.6);
+        bush1Shadow.setTint(0x000000); // Color the shadow sprite black
+        bush1Shadow.setPipeline('Light2D');
+        bush1Shadow.label = 'bush1Shadow';
+        bush1Shadow.parentBush1 = bush1;
+        bush1Shadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+
+        bush1.shadow = bush1Shadow; // Store the shadow sprite as a property of the tree
+
         bush1.setExistingBody(bush1Body).setOrigin(0.5, 0.6);
         bush1.setPipeline('Light2D');
         bush1.play('bush1');
+        bush1Shadow.play('bush1');
 
         bush1.isDepleted = false;
 
 
         this.bush1s.push(bush1);
+        this.allEntities.push(bush1Shadow);
         this.allEntities.push(bush1);
 
     }
@@ -1824,6 +1948,7 @@ export class mainScene extends Phaser.Scene {
             }
 
             this.cat.play(this.attackAnimationKey, true);
+            this.catShadow.play(this.attackAnimationKey, true);
 
             // After the animation is complete, set this.isDashing to false and reset the speed
             this.cat.on('animationcomplete', () => {
@@ -1854,6 +1979,7 @@ export class mainScene extends Phaser.Scene {
             }, 200);
         }
 
+
         if (PlayerState.isAttacking && !PlayerState.isEating) {
             // Adjust the flip of the character without interrupting the animation
             const shouldFlip = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
@@ -1865,6 +1991,7 @@ export class mainScene extends Phaser.Scene {
 
         if (PlayerState.isEating) {
             this.cat.play('eat', true);
+            this.catShadow.play('eat', true);
             this.cat.on('animationcomplete', () => {
                 PlayerState.isEating = false;
             }, this);
@@ -1877,47 +2004,86 @@ export class mainScene extends Phaser.Scene {
             switch (this.lastDirection) {
                 case 'up':
                     this.cat.play('sit-back', true);
+                    this.catShadow.play('sit-back', true);
                     break;
                 case 'down':
                     this.cat.play('sit-forward', true);
+                    this.catShadow.play('sit-forward', true);
                     break;
                 default:
                     this.cat.play('sit', true);
+                    this.catShadow.play('sit', true);
                     break;
             }
         } else
             // Handle movement animations
             if (this.lastDirection === 'left') {
                 this.cat.play('run', true);
+                this.catShadow.play('run', true);
                 this.cat.flipX = true; // flip when moving left
+                this.catShadow.flipX = true;
             } else if (this.lastDirection === 'right') {
                 this.cat.play('run', true);
+                this.catShadow.play('run', true);
                 this.cat.flipX = false; // don't flip when moving right
+                this.catShadow.flipX = false;
             } else if (this.lastDirection === 'up') {
                 this.cat.play('up', true);
+                this.catShadow.play('up', true);
             } else if (this.lastDirection === 'down') {
                 this.cat.play('down', true);
+                this.catShadow.play('down', true);
             }
             else if (this.lastDirection === 'upLeft') {
                 this.cat.play('run-diagonal-back', true);
+                this.catShadow.play('run-diagonal-back', true);
                 this.cat.flipX = true;
+                this.catShadow.flipX = true;
             }
             else if (this.lastDirection === 'upRight') {
                 this.cat.play('run-diagonal-back', true);
+                this.catShadow.play('run-diagonal-back', true);
                 this.cat.flipX = false;
+                this.catShadow.flipX = false;
             }
             else if (this.lastDirection === 'downLeft') {
                 this.cat.play('run-diagonal-front', true);
+                this.catShadow.play('run-diagonal-front', true);
                 this.cat.flipX = true;
+                this.catShadow.flipX = true;
             }
             else if (this.lastDirection === 'downRight') {
                 this.cat.play('run-diagonal-front', true);
+                this.catShadow.play('run-diagonal-front', true);
                 this.cat.flipX = false;
+                this.catShadow.flipX = false;
             }
     }
 
+    lerp(start, end, t) {
+        return start * (1 - t) + end * t;
+    }
+
+    getAlphaFromTime(time) {
+        if (time >= 0 && time < 3) {
+            return this.lerp(0.1, 0.1, (time - 0) / (3 - 0));
+        } else if (time >= 3 && time < 6) {
+            return this.lerp(0.1, 0.2, (time - 3) / (6 - 3));
+        } else if (time >= 6 && time < 12) {
+            return this.lerp(0.2, 0.3, (time - 6) / (12 - 6));
+        } else if (time >= 12 && time < 18) {
+            return this.lerp(0.3, 0.2, (time - 12) / (18 - 12));
+        } else if (time >= 18 && time < 21) {
+            return this.lerp(0.2, 0.1, (time - 18) / (21 - 18));
+        } else if (time >= 21 && time <= 24) {
+            return this.lerp(0.1, 0.1, (time - 21) / (24 - 21));
+        }
+    }
+
+    
+
+
     updateTimeCircle(gameTime) {
-        // Define a color scale
         const colorScale = chroma.scale([
             '#404040', // Midnight (0)
             '#000080', // Early morning (3)
@@ -1928,14 +2094,146 @@ export class mainScene extends Phaser.Scene {
             '#404040' // Night (24)
         ]).mode('lch').domain([0, 3, 6, 12, 18, 21, 24]);
 
+        //create a color scale for the sun, based on the time of day so like sunrise to sunset:
+        const sunColorScale = chroma.scale([
+            '#FF4500', // Sunrise (6)
+            '#FF6347', // Morning (9)
+            '#FFA07A', // Midday (12)
+            '#FF6347', // Afternoon (15)
+            '#FF4500' // Sunset (18)
+        ]).mode('lch').domain([6, 9, 12, 15, 18]);
+
         // Get the color for the current game time
         let color = colorScale(gameTime).hex().substring(1);
+
+        //set ambient color to the color of the time of day
+        this.lights.setAmbientColor(parseInt(color, 16));
+
+        // Define color for sun:
+        let sunColor = sunColorScale(gameTime).hex().substring(1);
 
         // Convert the color to a number
         color = parseInt(color, 16);
 
-        // Set the ambient color
-        this.lights.setAmbientColor(color);
+        //convert the sun color to a number for the sun light so with 0x in front
+        sunColor = '0x' + sunColor;
+
+        const screenWidth = this.cameras.main.width;
+        const screenHeight = this.cameras.main.height;
+        const cameraCenterX = this.cameras.main.scrollX + screenWidth / 2;
+        const cameraScrollY = this.cameras.main.scrollY;
+        const sunLightValue = 0.72
+        const sunLightIntensity = 6;
+
+
+        // Calculate the current angle in radians
+        const angle = ((gameTime % 24) / 24) * 2 * Math.PI;
+
+        const x = cameraCenterX + Math.cos(angle) * (screenWidth / 2) * 2.4; // Amplitude for x
+        const y = cameraScrollY + screenHeight / 2 + Math.sin(angle) * (screenHeight / 2) * 1.8; // Amplitude for y
+        if (!this.sunLight) {
+            // Create a new light source with a very large radius and slightly higher intensity
+            this.sunLight = this.lights.addLight(x, y, screenWidth * sunLightValue, sunColor, sunLightIntensity); // x, y, radius, color, intensity
+            // Set the falloff property to make the light intensity constant
+            this.sunLight.falloff = [0, 0, 0];
+            //set radius to 100
+            this.sunLight.radius = screenWidth * sunLightValue;
+            // Set the ambient light level to the same value as the light intensity
+            this.lights.setAmbientColor(color);
+            this.sunLight.intensity = sunLightIntensity;
+        } else {
+            // Update the position and intensity of the existing light source
+            this.sunLight.x = x;
+            this.sunLight.y = y;
+            this.sunLight.radius = screenWidth * sunLightValue;
+            this.sunLight.falloff = [0, 0, 0];
+            // Set the ambient light level to the same value as the light intensity
+            this.lights.setAmbientColor(color);
+            this.sunLight.intensity = sunLightIntensity;
+        }
+
+        // Calculate angle from cat to ray.origin
+        let angleCat = Math.atan2(this.sunLight.y - this.cat.y, this.sunLight.x - this.cat.x);
+
+        // Define the radius of the orbit
+        let orbitRadius = 7; // Adjust this value to change the size of the orbit
+
+        // Calculate shadow position based on the cat's position and the orbit
+        let shadowPosX = -this.cat.x + orbitRadius * Math.cos(angleCat);
+        let shadowPosY = -this.cat.y + 4 + orbitRadius * Math.sin(angleCat);
+
+        // Set the position, rotation, and scale of the shadow sprite
+        this.catShadow.x = -shadowPosX;
+        this.catShadow.y = -shadowPosY;
+        this.catShadow.scaleX = 1; // Adjust the scale if needed
+        this.catShadow.scaleY = 1; // Adjust the scale if needed
+        this.catShadow.alpha = this.getAlphaFromTime(gameTime);; // Make the shadow sprite semi-transparent
+
+
+        // For the monster shadows
+        Object.values(this.monsters).forEach(monster => {
+            if (monster.monsterShadow && monster.sprite && monster.sprite.active) {
+                let angle = Math.atan2(this.sunLight.y - monster.sprite.y, this.sunLight.x - monster.sprite.x);
+                let orbitRadius = 7;
+                let shadowPosX = -monster.sprite.x + orbitRadius * Math.cos(angle);
+                let shadowPosY = -monster.sprite.y + 4 + orbitRadius * Math.sin(angle);
+
+                monster.monsterShadow.alpha = this.getAlphaFromTime(gameTime);
+                monster.monsterShadow.x = -shadowPosX;
+                monster.monsterShadow.y = -shadowPosY;
+                monster.monsterShadow.scaleX = 1;
+                monster.monsterShadow.scaleY = 1;
+            }
+        });
+
+        // For the tree shadows
+        this.trees.forEach(tree => {
+            if (tree.shadow && tree.active) {
+                let angle = Math.atan2(this.sunLight.y - tree.y, this.sunLight.x - tree.x);
+                let orbitRadius = 7;
+                let shadowPosX = -tree.x   + orbitRadius * Math.cos(angle);
+                let shadowPosY = -tree.y  + orbitRadius * Math.sin(angle);
+
+                tree.shadow.alpha = this.getAlphaFromTime(gameTime);
+                tree.shadow.x = -shadowPosX;
+                tree.shadow.y = -shadowPosY;
+                tree.shadow.scaleX = 1.01;
+                tree.shadow.scaleY = 1.035;
+            }
+        });
+
+        // For the tree shadows
+        this.fires.forEach(fire => {
+            if (fire.shadow && fire.active) {
+                let angle = Math.atan2(this.sunLight.y - fire.y, this.sunLight.x - fire.x);
+                let orbitRadius = 7;
+                let shadowPosX = -fire.x + orbitRadius * Math.cos(angle);
+                let shadowPosY = -fire.y + orbitRadius * Math.sin(angle);
+
+                fire.shadow.alpha = 0.1;
+                fire.shadow.x = -shadowPosX;
+                fire.shadow.y = -shadowPosY;
+                fire.shadow.scaleX = 1.01;
+                fire.shadow.scaleY = 1.035;
+            }
+        });
+
+        // For the bush1 shadows
+        this.bush1s.forEach(bush1 => {
+            if (bush1.shadow && bush1.active) {
+                let angle = Math.atan2(this.sunLight.y - bush1.y, this.sunLight.x - bush1.x);
+                let orbitRadius = 7;
+                let shadowPosX = -bush1.x  + orbitRadius * Math.cos(angle);
+                let shadowPosY = -bush1.y  + orbitRadius * Math.sin(angle);
+
+                bush1.shadow.alpha = this.getAlphaFromTime(gameTime);
+                bush1.shadow.x = -shadowPosX;
+                bush1.shadow.y = -shadowPosY;
+                bush1.shadow.scaleX = 1.0;
+                bush1.shadow.scaleY = 1.0;
+            }
+        });
+
     }
 
     updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
@@ -1961,6 +2259,7 @@ export class mainScene extends Phaser.Scene {
         if (this.isFainting) return; // Prevent multiple calls if already processing death
         this.cat.anims.stop(); // Stop current animations
         this.cat.play('dead', true);
+        this.catShadow.play('dead', true);
 
         PlayerState.isDead = true;
         PlayerState.isUnderAttack = false;
@@ -2048,11 +2347,12 @@ export class mainScene extends Phaser.Scene {
                         if (this.collidingTree === tree) {
                             this.collidingTree = null;
                         }
-
+                        tree.shadow.destroy();
                         tree.body.destroy();
                         tree.destroy();
 
                         this.allEntities = this.allEntities.filter(entity => entity !== tree);
+                        this.allEntities = this.allEntities.filter(entity => entity !== tree.shadow);
                     }
                 }
 
@@ -2082,10 +2382,12 @@ export class mainScene extends Phaser.Scene {
                             this.collidingBush1 = null;
                         }
 
+                        bush1.shadow.destroy();
                         bush1.body.destroy();
                         bush1.destroy();
 
                         this.allEntities = this.allEntities.filter(entity => entity !== bush1);
+                        this.allEntities = this.allEntities.filter(entity => entity !== bush1.shadow);
                     }
                 }
 
@@ -2106,6 +2408,8 @@ export class mainScene extends Phaser.Scene {
                         // Remove the fire from the fires array before destroying it
                         this.fires.splice(index, 1);
 
+                        fire.shadow.destroy();
+
                         //destroy the fire body
                         fire.body.destroy();
 
@@ -2119,8 +2423,6 @@ export class mainScene extends Phaser.Scene {
         });
 
     }
-
-
 
     calculateDistance(player, monster) {
         if (!player || !monster || !player.body || !monster.sprite || !monster.sprite.body) {
@@ -2260,6 +2562,8 @@ export class mainScene extends Phaser.Scene {
                             scene.gameEvents.cleanUpMonster(monster, null, this.allEntities);
                             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
                             delete this.monsters[key];
+                            monster.monsterShadow.destroy();
+
                         }
                     }
                 }
@@ -2282,7 +2586,7 @@ export class mainScene extends Phaser.Scene {
                     if (tree && tree.active) {
                         const treeTileI = Math.floor(tree.x / this.tileWidth);
                         const treeTileJ = Math.floor(tree.y / this.tileWidth);
-                        const buffer = 5; // Add a buffer of 2 tiles
+                        const buffer = 8; // Add a buffer of 2 tiles
                         if (treeTileI < startI - buffer || treeTileI > endI + buffer || treeTileJ < startJ - buffer || treeTileJ > endJ + buffer) { // Check if the tree is out of view
                             this.trees.splice(index, 1);
                             this.matter.world.remove(tree.body);
@@ -2293,6 +2597,7 @@ export class mainScene extends Phaser.Scene {
 
                             tree.body.destroy();
                             tree.destroy();
+                            tree.shadow.destroy();
 
                             this.allEntities = this.allEntities.filter(entity => entity !== tree);
                         }
@@ -2334,6 +2639,7 @@ export class mainScene extends Phaser.Scene {
 
                             bush1.body.destroy();
                             bush1.destroy();
+                            bush1.shadow.destroy();
 
                             this.allEntities = this.allEntities.filter(entity => entity !== bush1);
                         }
@@ -2359,6 +2665,8 @@ export class mainScene extends Phaser.Scene {
                             // Remove the fire from the fires array before destroying it
                             this.fires.splice(index, 1);
 
+                            fire.shadow.destroy();
+
                             //destroy the fire body
                             fire.body.destroy();
 
@@ -2375,4 +2683,3 @@ export class mainScene extends Phaser.Scene {
 }
 
 export default mainScene;
-

@@ -80,8 +80,14 @@ export function spawnMonsterBush(bushX, bushY, scene, tileWidth, monsters, allEn
         isStatic: false
     }).setScale(1).setCircle(monsterRadius).setPipeline('Light2D')
 
-    // Continue with your existing code...
     monster.setInteractive();
+
+
+  let monsterShadow = scene.add.sprite(monsterX + 3, monsterY + 3, monsterSpriteKey);
+  monsterShadow.setTint(0x000000); // Color the shadow sprite black
+  monsterShadow.alpha = 0.3; // Make the shadow sprite semi-transparent
+  monsterShadow.setPipeline('Light2D');
+  monsterShadow.depth = 1; // Position the shadow sprite behind the original sprite
 
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation
@@ -129,16 +135,19 @@ export function spawnMonsterBush(bushX, bushY, scene, tileWidth, monsters, allEn
     monsters[monsterKey] = {
         name: chosenMonster.monster,
         sprite: monster,
+        monsterShadow: monsterShadow,
         speed: chosenMonster.speed,
         description: chosenMonster.description,
         damage: damage,
         immuneToFire: true,
+        attackSpeed: chosenMonster.attackSpeed,
         key: monsterKey,
         attackRange: chosenMonster.attackRange,
         level: modifiedLevel,
         isAggressive: true,
         inReach: false,
         event: chosenMonster,
+        attackComplete: true,
         isColliding: false,
         healthBar: {
             outer: monsterHealthBar.outer,

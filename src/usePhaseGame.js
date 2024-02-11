@@ -5,6 +5,7 @@ import { mainScene } from './mainScene';
 import { GAME_CONFIG } from './gameConstants.js';
 import { UIScene } from './UIScene';
 
+
 export function usePhaserGame(gameRef, isAuthenticated) {
     const [dimensions, setDimensions] = useState({
         width: GAME_CONFIG.CAMERA_WIDTH,
@@ -19,6 +20,9 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 parent: 'phaser-game',
                 width: dimensions.width,
                 height: dimensions.height,
+                render: {
+                    pixelArt: true,
+                },
                 fps: {
                     target: 10,
                 },
@@ -33,7 +37,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 antialias: true,
                 plugins: {
                     scene: [
-                        { key: 'lightsPlugin', plugin: Phaser.GameObjects.LightsPlugin, mapping: 'lights' }
+                        { key: 'lights', plugin: Phaser.GameObjects.LightsPlugin, mapping: 'lights' }
                     ]
                 },
                 scene: [PreloadScene, mainScene, UIScene], // Start only with AuthScene

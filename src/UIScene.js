@@ -203,7 +203,6 @@ export class UIScene extends Phaser.Scene {
             this.isSaveTextVisible = true; // Set isSaveTextVisible to true when the save confirmation is displayed
 
             await updatePlayerState(userid, PlayerState, token);
-            console.log(PlayerState.trees.length + 'trees');
 
             // Remove "Saving..." text
             savingText.destroy();
@@ -357,32 +356,34 @@ export class UIScene extends Phaser.Scene {
 
                 // Check if there are any attacks for the current level
                 if (currentLevelAttacks.length > 0) {
-                    const modal = this.add.container(this.x - 165, this.y * 2 + 100); // Start off-screen
+                    const modal = this.add.container(this.x - 165, this.y - 150); // Start off-screen
                     const modalBackground = this.add.image(0, 0, 'modal').setOrigin(0);
                     const modalWidth = 330; // Replace with your modal's width
                     modal.add(modalBackground);
+                    //set depth to 0:
+                    modalBackground.setDepth(0);
                     modal.alpha = 0;
 
                     this.tweens.add({
                         targets: modal,
-                        y: this.y + 100, // Final position
+                        y: this.y - 275, // Final position
                         alpha: 1, // Final opacity
                         duration: 1500, // Duration of the tween in milliseconds
                         ease: 'Power2', // Easing function
                     });
                     
+                    const keys = ['Z', 'Z', 'X', 'C'];
+
                     currentLevelAttacks.forEach((attack, index) => {
                         const attackIndex = unlockedAttacks.findIndex(unlockedAttack => unlockedAttack.name === attack.name);
-                       
                         const frame = this.add.container(0, index * 60);
                         const image = this.add.image(0, 0, attack.name).setScale(.5).setDepth(2).setOrigin(0.5);
                         image.setPosition(modalWidth / 2, 50);
                         const titlePrefix = this.add.text(30, 75, 'UNLOCKED    ' + attack.name.toUpperCase(), textStyles.title).setOrigin(0);
-                        const key = this.add.text(30, 105, `KEY:   ${attackIndex}`, textStyles.other).setOrigin(0);
+                        const key = this.add.text(30, 105, `KEY:   ${keys[attackIndex]}`, textStyles.other).setOrigin(0);
                         const damage = this.add.text(190, 105, `DMG:   ${attack.damage}`, textStyles.other).setOrigin(0);
                         const speed = this.add.text(190, 130, `SPEED:   ${attack.speed}`, textStyles.other).setOrigin(0);
                         const knockback = this.add.text(30, 130, `KNOCKBACK:   ${attack.knockback}`, textStyles.other).setOrigin(0);
-
 
                         frame.add([image, titlePrefix, key, damage, knockback, speed]);
                         modal.add(frame);

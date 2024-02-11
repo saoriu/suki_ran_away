@@ -226,13 +226,6 @@ export class GameEvents {
         if (!targetMonster || targetMonster.isDead) {
             return; // Skip if monster is dead or doesn't exist
         }
-        const attackCooldown = 1000; // 1 second in milliseconds
-        const currentTime = Date.now();
-
-        if (currentTime - targetMonster.lastAttackTime < attackCooldown) {
-            return; // Skip the attack if the cooldown has not elapsed
-        }
-        targetMonster.lastAttackTime = currentTime;
 
         this.currentBattleMonsterKey = {
             key: targetMonster.key,
@@ -299,6 +292,11 @@ export class GameEvents {
                     this.endBattleForMonster(targetMonster);
                 }
             }
+
+            //reset attackComplete after 500ms
+            setTimeout(() => {
+                targetMonster.attackComplete = true;
+            }, 1000);
         }, timeToImpact);
     }
 
@@ -378,6 +376,10 @@ export class GameEvents {
             targetMonster.healthBar.outer.destroy();
         }
 
+        if (targetMonster.monsterShadow) {
+            targetMonster.monsterShadow.destroy();
+        }
+
         // Reset battle flags
         targetMonsterKey = null;
         this.monsterHasAttacked = false;
@@ -446,6 +448,8 @@ export class GameEvents {
 
                 // Flip the monster sprite based on the direction of movement
                 monster.sprite.setFlipX(velocity.x < 0);
+                monster.monsterShadow.setFlipX(velocity.x < 0);
+                monster.monsterFacingRight = velocity.x >= 0;
             } else if (!monster.isAggressive) {
                 const currentTime = Date.now();
                 if (!monster.destination || currentTime - monster.destinationTime > 3000) {
@@ -466,6 +470,8 @@ export class GameEvents {
 
                 // Flip the monster sprite based on the direction of movement
                 monster.sprite.setFlipX(velocity.x < 0);
+                monster.monsterShadow.setFlipX(velocity.x < 0);
+                monster.monsterFacingRight = velocity.x >= 0;
 
                 // If the monster has reached the destination, clear the destination
                 if (Math.abs(monster.sprite.x - monster.destination.x) < monster.speed && Math.abs(monster.sprite.y - monster.destination.y) < monster.speed) {
