@@ -529,16 +529,16 @@ export class mainScene extends Phaser.Scene {
 
                 if (Phaser.Geom.Intersects.RectangleToRectangle(catBounds, treeBounds) && isXOverlapping && isYOverlapping) {
                     if (this.cat.y + 90 < tree.y) {
-                        tree.alpha = 0.5;
-                        tree.shadow.alpha = 0;
+
+                        tree.setAlpha(0.4);
+                        tree.shadow.setAlpha(0);
                     } else {
-                        tree.alpha = 1;
-                        tree.shadow.alpha = this.getAlphaFromTime(PlayerState.gameTime);
+                        tree.setAlpha(1);
+                        tree.shadow.setAlpha(this.getAlphaFromTime(PlayerState.gameTime));
                     }
                 } else {
-                    tree.alpha = 1; // Reset alpha to 1 when there is no intersection
-                    tree.shadow.alpha = this.getAlphaFromTime(PlayerState.gameTime);
-
+                    tree.setAlpha(1);
+                    tree.shadow.setAlpha(this.getAlphaFromTime(PlayerState.gameTime));
                 }
             }
         });
@@ -716,10 +716,6 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        //delete monster if stuck inside an ibject like a tree, pond, or bush1
-
-
-
         Object.values(this.monsters).forEach(monster => {
             if (!monster.sprite || !monster.sprite.body) {
                 return;
@@ -831,6 +827,8 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
+        if (this.cat.y + 90 > tree.y) {
+
         this.postFxPlugin.add(tree, {
             thickness: 2,
             outlineColor: 0xffff99
@@ -841,11 +839,15 @@ export class mainScene extends Phaser.Scene {
             thickness: 4,
             outlineColor: 0xeeeeee
         });
+
+        
+
         // Remove the tint after 1 second
         setTimeout(() => {
             this.postFxPlugin.remove(tree);
 
         }, 200);
+    }
         // Decide to drop a log, deplete the tree, or spawn a monster
         let randomValue = Math.random();
 
@@ -866,31 +868,42 @@ export class mainScene extends Phaser.Scene {
             if (randomValue < logDropProbability + depleteProbability) {
                 // Logic for tree depleting
                 tree.isDepleted = true;
+                tree.alpha = 1;
                 tree.shadow.destroy();
                 tree.clearTint();
-                tree.setTexture('tree-down');
                 tree.anims.stop();
+
+                switch (tree.originalType) {
+                    case 'tree_1':
+                        tree.setTexture('tree-down');
+                        break;
+                    case 'tree_2':
+                        tree.setTexture('tree2-down');
+                        break;
+                    case 'tree_3':
+                        tree.setTexture('tree3-down');
+                        break;
+                    default:
+                        console.error('Unknown tree type: ' + tree.originalType);
+                        break;
+                }
 
                 setTimeout(() => {
                     if (tree.active) {
-                        tree.setTexture('tree');
+                        tree.setTexture(tree.originalType);
                         tree.isDepleted = false;
-                        const treeShadow = this.add.sprite(tree.x, tree.y - 10, 'tree');
-                        let originalWidth = treeShadow.width;
-                        let originalHeight = treeShadow.height;
-                        let newHeight = originalHeight - 85;
-                
+                        const treeShadow = this.add.sprite(tree.x, tree.y - 10, tree.originalType);
+
                         treeShadow.setOrigin(0.5, 0.85);
                         treeShadow.setTint(0x000000); // Color the shadow sprite black
                         treeShadow.setPipeline('Light2D');
-                        treeShadow.setCrop(0, 0, originalWidth, newHeight);
                         treeShadow.label = 'treeShadow';
                         treeShadow.parentTree = tree;
                         treeShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
-                
+
                         tree.shadow = treeShadow; // Store the shadow sprite as a property of the tree
-                        tree.play('tree');
-                        treeShadow.play('tree');
+                        tree.play(tree.originalType);
+                        treeShadow.play(tree.originalType);
                     }
                 }, 10000);
             } else {
@@ -1097,11 +1110,9 @@ export class mainScene extends Phaser.Scene {
         const treeProbability = 0.99;
         const randomTreeFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomTreeFloat < treeProbability) {
-            //call a random number of times, between 1 and 4
-            const randomNumberOfTrees = Phaser.Math.Between(1, 6);
+            const randomNumberOfTrees = Phaser.Math.Between(1, 10);
             for (let i = 0; i < randomNumberOfTrees; i++) {
-
-                this.spawnTrees();
+                    this.spawnTrees();
             }
         }
 
@@ -1381,10 +1392,7 @@ export class mainScene extends Phaser.Scene {
 
         this.matter.body.setStatic(fire.body, true);
 
-        //this matter worls is sensor so the player can walk through it
         fire.body.isSensor = true;
-
-
 
         this.fires.push(fire);
 
@@ -1434,16 +1442,6 @@ export class mainScene extends Phaser.Scene {
                                     fire.shadow.destroy();
                                 }
 
-                                // Check if the fire body exists before destroying it
-                                if (fire.body) {
-                                    fire.body.destroy();
-                                }
-
-                                // Check if the fire object exists before destroying it
-                                if (fire) {
-                                    fire.destroy();
-                                }
-
                                 // Check if the fires array exists before removing the fire object
                                 if (this.fires) {
                                     this.fires.splice(index, 1);
@@ -1458,13 +1456,22 @@ export class mainScene extends Phaser.Scene {
                                         this.ashes.push(ashesSprite);
                                     }
                                 }
+                                // Check if the fire body exists before destroying it
+                                if (fire.body) {
+                                    fire.body.destroy();
+                                }
+
+                                // Check if the fire object exists before destroying it
+                                if (fire) {
+                                    fire.destroy();
+                                }
                             }
                         } else {
                             if (fire && fire.active) {
                                 const timeLeft = Math.round((fire.endTime - Date.now()) / 1000);
                                 const proportion = Math.min(timeLeft / 15, 1); // Cap the proportion at 1
 
-                                // Set the intensity proportional to the time left, capped at 1.8
+                                // Set the intensity proportional to the time left, capped at 1.7
                                 const intensity = 1.7 * proportion;
                                 fire.light.setIntensity(intensity);
                             }
@@ -1500,7 +1507,77 @@ export class mainScene extends Phaser.Scene {
 
         // Extend the timer for the closest fire
         if (closestFire && closestFire.timerEvent) {
+            closestFire.timerEvent.remove();
+
             closestFire.endTime += 30000;
+
+            closestFire.timerEvent = this.time.addEvent({
+                delay: 1000, // Check every second
+                callback: () => {
+                    if (Date.now() >= closestFire.endTime) {
+                        if (closestFire && closestFire.active) {
+                            const x = closestFire.x;
+                            const y = closestFire.y;
+
+                            // Check if the fire object has a light property
+                            if (closestFire.light) {
+                                closestFire.light.setIntensity(0);
+
+                                // Check if the lights manager exists before removing the light
+                                if (this.lights) {
+                                    this.lights.removeLight(closestFire.light.x, closestFire.light.y);
+                                }
+                            }
+
+                            // Check if the matter world exists before removing the fire body
+                            if (this.matter && this.matter.world) {
+                                this.matter.world.remove(closestFire.body);
+                            }
+
+                            //if fire shadow exists, remove it
+                            if (closestFire.shadow) {
+                                closestFire.shadow.destroy();
+                            }
+
+                            // Check if the fire body exists before destroying it
+                            if (closestFire.body) {
+                                closestFire.body.destroy();
+                            }
+
+                            // Check if the fire object exists before destroying it
+                            if (closestFire) {
+                                closestFire.destroy();
+                            }
+
+                            // Check if the fires array exists before removing the fire object
+                            if (this.fires) {
+                                this.fires = this.fires.filter(fire => fire !== closestFire);
+                            }
+
+                            // Check if the add method exists before creating the ashes sprite
+                            if (this.add) {
+                                let ashesSprite = this.add.sprite(x, y, 'ashes').setDepth(2).setPipeline('Light2D');
+
+                                // Check if the ashes array exists before adding the ashes sprite
+                                if (this.ashes) {
+                                    this.ashes.push(ashesSprite);
+                                }
+                            }
+                        }
+                    } else {
+                        if (closestFire && closestFire.active) {
+                            const timeLeft = Math.round((closestFire.endTime - Date.now()) / 1000);
+                            const proportion = Math.min(timeLeft / 15, 1); // Cap the proportion at 1
+
+                            // Set the intensity proportional to the time left, capped at 1.7
+                            const intensity = 1.7 * proportion;
+                            closestFire.light.setIntensity(intensity);
+                        }
+                    }
+                },
+                loop: true
+            });
+
             const log = this.add.sprite(closestFire.x + 4, closestFire.y + 25, 'log').setOrigin(0.5, 1).setDepth(2).setPipeline('Light2D');
 
             this.tweens.add({
@@ -1575,10 +1652,6 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
-        if (this.trees.filter(tree => tree.active && !tree.isDepleted).length >= 9) {
-            return;
-        }
-
         // Create a custom shape using a polygon body
         const treeVertices = this.createTreeVertices(x, y);
         const treeBody = this.matter.add.fromVertices(x, y, treeVertices, {
@@ -1587,23 +1660,38 @@ export class mainScene extends Phaser.Scene {
 
         treeBody.label = 'tree';
 
-        const tree = this.matter.add.sprite(x, y, 'tree', null, {
+        let treeType;
+        const randomNumber = Phaser.Math.Between(1, 100);
+
+        if (randomNumber <= 75) {
+            treeType = 'tree_1';
+        } else if (randomNumber <= 90) {
+            treeType = 'tree_2';
+        } else {
+            treeType = 'tree_3';
+        }
+
+        const tree = this.matter.add.sprite(x, y, treeType, null, {
             label: 'tree'
         }).setExistingBody(treeBody); // Set the depth to be proportional to the y-coordinate
 
-        tree.setOrigin(0.5, 0.85);
+        if (treeType === 'tree_3') {
+            tree.setOrigin(0.48, 0.85);
+        } else {
+            tree.setOrigin(0.5, 0.85);
+        }
+
         tree.setPipeline('Light2D');
 
         tree.isDepleted = false;
-        const treeShadow = this.add.sprite(tree.x, tree.y - 10, 'tree');
-        let originalWidth = treeShadow.width;
-        let originalHeight = treeShadow.height;
-        let newHeight = originalHeight - 85;
+
+        tree.originalType = treeType;
+
+        const treeShadow = this.add.sprite(tree.x, tree.y, treeType);
 
         treeShadow.setOrigin(0.5, 0.85);
         treeShadow.setTint(0x000000); // Color the shadow sprite black
         treeShadow.setPipeline('Light2D');
-        treeShadow.setCrop(0, 0, originalWidth, newHeight);
         treeShadow.label = 'treeShadow';
         treeShadow.parentTree = tree;
         treeShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
@@ -1612,8 +1700,8 @@ export class mainScene extends Phaser.Scene {
 
 
         if (!tree.isDepleted) {
-            tree.play('tree');
-            treeShadow.play('tree');
+            tree.play(treeType);
+            treeShadow.play(treeType);
         }
         // Set friction and frictionAir to 0 on the tree body and all its parts
         tree.body.friction = 0;
@@ -1752,14 +1840,14 @@ export class mainScene extends Phaser.Scene {
         const vertices = [];
 
         // Define the points for the trapezoid shape
-        vertices.push({ x: x - 20, y: y - 50 }); // Top left (short base)
-        vertices.push({ x: x + 20, y: y - 50 }); // Top right (short base)
-        vertices.push({ x: x + 60, y: y }); // Middle right
-        vertices.push({ x: x + 100, y: y + 10 }); // New vertex between middle right and bottom right
-        vertices.push({ x: x + 100, y: y + 30 }); // Bottom right (long base)
-        vertices.push({ x: x - 100, y: y + 30 }); // Bottom left (long base)
-        vertices.push({ x: x - 100, y: y + 10 }); // New vertex between middle left and bottom left
-        vertices.push({ x: x - 60, y: y }); // Middle left
+        vertices.push({ x: x - 30, y: y - 50 }); // Top left (short base)
+        vertices.push({ x: x + 30, y: y - 50 }); // Top right (short base)
+        vertices.push({ x: x + 30, y: y }); // Middle right
+        vertices.push({ x: x + 30, y: y + 10 }); // New vertex between middle right and bottom right
+        vertices.push({ x: x + 50, y: y + 30 }); // Bottom right (long base)
+        vertices.push({ x: x - 50, y: y + 30 }); // Bottom left (long base)
+        vertices.push({ x: x - 30, y: y + 10 }); // New vertex between middle left and bottom left
+        vertices.push({ x: x - 30, y: y }); // Middle left
 
         return vertices;
     }
@@ -2653,26 +2741,13 @@ export class mainScene extends Phaser.Scene {
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
                         if (fireTileI === i && fireTileJ === j) {
                             this.tweens.killTweensOf(fire.light);
-                            // Turn off the light associated with the fire
                             fire.light.setIntensity(0);
-
-                            // Remove the light from the LightManager's list of lights
                             this.lights.removeLight(fire.light.x, fire.light.y);
-
-                            // Destroy the fire body
                             this.matter.world.remove(fire.body);
-
-                            // Remove the fire from the fires array before destroying it
                             this.fires.splice(index, 1);
-
                             fire.shadow.destroy();
-
-                            //destroy the fire body
                             fire.body.destroy();
-
                             fire.timerEvent.remove();
-
-                            // Destroy the fire
                             fire.destroy();
                         }
                     }

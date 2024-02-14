@@ -27,12 +27,25 @@ export function createAnims(scene, cat) {
     });
 
     scene.anims.create({
-        key: 'tree',
-        frames: Array(2).fill().map((_, i) => ({ key: 'tree', frame: `tree-${i + 1}` })),
+        key: 'tree_1',
+        frames: ['tree_1-1', 'tree_1-2', 'tree_1-3'].map(filename => ({ key: 'trees', frame: filename })),
         frameRate: 3,
         repeat: -1
     });
 
+    scene.anims.create({
+        key: 'tree_2',
+        frames: ['tree_2-1', 'tree_2-2', 'tree_2-3'].map(filename => ({ key: 'trees', frame: filename })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: 'tree_3',
+        frames: ['tree_3-1', 'tree_3-2', 'tree_3-3'].map(filename => ({ key: 'trees', frame: filename })),
+        frameRate: 3,
+        repeat: -1
+    });
     scene.anims.create({
         key: 'pond',
         frames: Array(2).fill().map((_, i) => ({ key: 'pond', frame: `pond-${i + 1}` })),

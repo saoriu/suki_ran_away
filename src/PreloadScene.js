@@ -74,6 +74,8 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image('ashes', '/ashes.png');
         this.load.image('modal', '/modal.png');
         this.load.image('bush1-down', '/bush1-down.png');
+        this.load.image('tree2-down', '/tree2-down.png');
+        this.load.image('tree3-down', '/tree3-down.png');
         this.load.image('attacks-menu', '/attacks-menu.png');
         this.load.image('scratch', '/scratch.png');
         this.load.image('menu', '/menu.png');
@@ -82,6 +84,7 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image('log', '/log.png');
         this.load.image('bonustrees', '/bonustrees.png');
         this.load.atlas('pinkfly', '/pinkfly.png', '/pinkfly.json');
+        this.load.atlas('trees', '/trees.png', '/trees.json');
         var progressBar = this.add.graphics();
         var progressBox = this.add.graphics();
         var width = this.cameras.main.width;
