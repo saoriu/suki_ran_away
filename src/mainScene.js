@@ -55,8 +55,8 @@ export class mainScene extends Phaser.Scene {
         this.tilePool = [];
         this.ponds = [];
         this.pond = [];
-        this.bush1s = [];
-        this.bush1 = [];
+        this.bushs = [];
+        this.bush = [];
         this.lastRegenerateEnergyTime = 0;
         this.positionChangeThreshold = 0.05 * this.tileWidth;
         this.newpositionChangeThreshold = 1 * this.tileWidth;
@@ -129,7 +129,7 @@ export class mainScene extends Phaser.Scene {
                 const isMonster = bodyA.label === 'monster' || bodyB.label === 'monster';
                 const isTree = bodyA.parent.label === 'tree' || bodyB.parent.label === 'tree';
                 const isPond = bodyA.parent.label === 'pond' || bodyB.parent.label === 'pond';
-                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+                const isBush = bodyA.parent.label === 'bush' || bodyB.parent.label === 'bush';
 
                 //if monster colliding with tree
                 if (isMonster && isTree) {
@@ -159,12 +159,12 @@ export class mainScene extends Phaser.Scene {
                     }
                 }
 
-                //if monster colliding with bush1
-                if (isMonster && isBush1) {
+                //if monster colliding with bush
+                if (isMonster && isBush) {
                     let monsterBody = bodyA.label === 'monster' ? bodyA : bodyB;
-                    let bush1Body = bodyA.parent.label === 'bush1' ? bodyA.parent : bodyB.parent;
+                    let bushBody = bodyA.parent.label === 'bush' ? bodyA.parent : bodyB.parent;
 
-                    if (monsterBody && bush1Body) {
+                    if (monsterBody && bushBody) {
                         let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
 
                         if (targetMonster && targetMonster.tween) {
@@ -182,9 +182,9 @@ export class mainScene extends Phaser.Scene {
                 const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
                 const isTree = bodyA.parent.label === 'tree' || bodyB.parent.label === 'tree';
                 const isPond = bodyA.parent.label === 'pond' || bodyB.parent.label === 'pond';
-                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+                const isBush = bodyA.parent.label === 'bush' || bodyB.parent.label === 'bush';
 
-                if (isPlayer && (isTree || isPond || isBush1)) {
+                if (isPlayer && (isTree || isPond || isBush)) {
                     let playerBody = bodyA.label === 'player' ? bodyA : bodyB;
 
                     if (playerBody) {
@@ -204,9 +204,9 @@ export class mainScene extends Phaser.Scene {
                 const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
                 const isTree = bodyA.parent.label === 'tree' || bodyB.parent.label === 'tree';
                 const isPond = bodyA.parent.label === 'pond' || bodyB.parent.label === 'pond';
-                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+                const isBush = bodyA.parent.label === 'bush' || bodyB.parent.label === 'bush';
 
-                if (isPlayer && (isTree || isPond || isBush1)) {
+                if (isPlayer && (isTree || isPond || isBush)) {
                     let playerBody = bodyA.label === 'player' ? bodyA : bodyB;
 
                     if (playerBody) {
@@ -258,14 +258,14 @@ export class mainScene extends Phaser.Scene {
                 const { bodyA, bodyB } = pair;
 
                 const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
-                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+                const isBush = bodyA.parent.label === 'bush' || bodyB.parent.label === 'bush';
 
-                if (isPlayer && isBush1) {
-                    let bush1Body = bodyA.parent.label === 'bush1' ? bodyA.parent : bodyB.parent;
+                if (isPlayer && isBush) {
+                    let bushBody = bodyA.parent.label === 'bush' ? bodyA.parent : bodyB.parent;
 
-                    if (bush1Body) {
-                        this.collidingWithBush1 = true;
-                        this.collidingBush1 = bush1Body.gameObject; // Store the tree GameObject
+                    if (bushBody) {
+                        this.collidingWithBush = true;
+                        this.collidingBush = bushBody.gameObject; // Store the tree GameObject
                     }
                 }
             });
@@ -276,14 +276,14 @@ export class mainScene extends Phaser.Scene {
                 const { bodyA, bodyB } = pair;
 
                 const isPlayer = bodyA.label === 'player' || bodyB.label === 'player';
-                const isBush1 = bodyA.parent.label === 'bush1' || bodyB.parent.label === 'bush1';
+                const isBush = bodyA.parent.label === 'bush' || bodyB.parent.label === 'bush';
 
-                if (isPlayer && isBush1) {
-                    let bush1Body = bodyA.parent.label === 'bush1' ? bodyA.parent : bodyB.parent;
+                if (isPlayer && isBush) {
+                    let bushBody = bodyA.parent.label === 'bush' ? bodyA.parent : bodyB.parent;
 
-                    if (bush1Body.gameObject === this.collidingBush1) {
-                        this.collidingWithBush1 = false;
-                        this.collidingBush1 = null;
+                    if (bushBody.gameObject === this.collidingBush) {
+                        this.collidingWithBush = false;
+                        this.collidingBush = null;
                     }
                 }
             });
@@ -297,8 +297,8 @@ export class mainScene extends Phaser.Scene {
             if (this.collidingWithTree && this.canAttack) {
                 this.chopTree(this.collidingTree);
             }
-            if (this.collidingBush1 && this.canAttack) {
-                this.searchBush1(this.collidingBush1);
+            if (this.collidingBush && this.canAttack) {
+                this.searchBush(this.collidingBush);
             }
         });
 
@@ -447,7 +447,7 @@ export class mainScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        PlayerState.gameTime += delta / 20000;
+        PlayerState.gameTime += delta / 10000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
@@ -667,8 +667,8 @@ export class mainScene extends Phaser.Scene {
                     entity.setDepth((entity.y - 20) / 10);
                 }
             }
-            else if (entity.label === 'bush1Shadow') {
-                //bush1 shadow depth should be less than the bush1 depth
+            else if (entity.label === 'bushShadow') {
+                //bush shadow depth should be less than the bush depth
                 if (entity.depth === null) {
                     entity.setDepth(1);
                 } else {
@@ -950,42 +950,42 @@ export class mainScene extends Phaser.Scene {
         });
     }
 
-    searchBush1(bush1) {
-        if (!bush1 || bush1.isDepleted) {
+    searchBush(bush) {
+        if (!bush || bush.isDepleted) {
             return;
         }
 
-        // Check if the bush1 is in front of the player
-        if (!this.isObjectInFront(this.cat, bush1, this.lastDirection)) {
+        // Check if the bush is in front of the player
+        if (!this.isObjectInFront(this.cat, bush, this.lastDirection)) {
             return;
         }
 
-        this.postFxPlugin.add(bush1, {
+        this.postFxPlugin.add(bush, {
             thickness: 2,
             outlineColor: 0xffff99
         });
 
         // Cascade 2nd outline
-        this.postFxPlugin.add(bush1, {
+        this.postFxPlugin.add(bush, {
             thickness: 4,
             outlineColor: 0xeeeeee
         });
         setTimeout(() => {
-            this.postFxPlugin.remove(bush1);
+            this.postFxPlugin.remove(bush);
 
         }, 200);
 
-        // Decide to drop a berry, deplete the bush1, or spawn a monster
+        // Decide to drop a berry, deplete the bush, or spawn a monster
         let randomValue = Math.random();
 
         // Calculating the probability of dropping a berry, including the treesBonus.
         const berryDropProbability = 0.75 + PlayerState.treesBonus / 100;
         // Logic for dropping a berry
-        const randomX = bush1.x + 100 + Math.random() * 25;
-        const randomY = bush1.y + 10 + Math.random() * 20;
+        const randomX = bush.x + 100 + Math.random() * 25;
+        const randomY = bush.y + 10 + Math.random() * 20;
 
         if (randomValue < berryDropProbability) {
-            this.dropStrawberry(randomX, randomY, bush1);
+            this.dropStrawberry(randomX, randomY, bush);
         } else {
             // Calculate the remaining probability after considering the berry drop.
             const remainingProbability = 1 - berryDropProbability;
@@ -993,40 +993,40 @@ export class mainScene extends Phaser.Scene {
             const depleteProbability = remainingProbability * (3 / 4);
             // Adjust the check for depleting to take into account the berryDropProbability
             if (randomValue < berryDropProbability + depleteProbability) {
-                // Logic for bush1 depleting
-                bush1.isDepleted = true;
-                bush1.clearTint();
-                bush1.shadow.destroy();
-                bush1.setTexture('bush1-down');
-                bush1.anims.stop();
+                // Logic for bush depleting
+                bush.isDepleted = true;
+                bush.clearTint();
+                bush.shadow.destroy();
+                bush.setTexture('bush-down');
+                bush.anims.stop();
 
                 setTimeout(() => {
-                    if (bush1.active) {
-                        bush1.setTexture('bush1');
-                        bush1.isDepleted = false;
+                    if (bush.active) {
+                        bush.setTexture(bush.originalType);
+                        bush.isDepleted = false;
 
-                        const bush1Shadow = this.add.sprite(bush1.x, bush1.y, 'bush1');
+                        const bushShadow = this.add.sprite(bush.x, bush.y, bush.originalType);
 
-                        bush1Shadow.setOrigin(0.5, 0.6);
-                        bush1Shadow.setTint(0x000000); // Color the shadow sprite black
-                        bush1Shadow.setPipeline('Light2D');
-                        bush1Shadow.label = 'bush1Shadow';
-                        bush1Shadow.parentBush1 = bush1;
-                        bush1Shadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+                        bushShadow.setOrigin(0.5, 0.6);
+                        bushShadow.setTint(0x000000); // Color the shadow sprite black
+                        bushShadow.setPipeline('Light2D');
+                        bushShadow.label = 'bushShadow';
+                        bushShadow.parentBush = bush;
+                        bushShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
 
-                        bush1.shadow = bush1Shadow; // Store the shadow sprite as a property of the tree
+                        bush.shadow = bushShadow; // Store the shadow sprite as a property of the tree
 
-                        bush1Shadow.play('bush1');
-                        bush1.play('bush1');
+                        bushShadow.play(bush.originalType);
+                        bush.play(bush.originalType);
                     }
                 }, 15000);
             } else {
-                spawnMonsterBush(bush1.x, bush1.y, this, this.tileWidth, this.monsters, this.allEntities);
+                spawnMonsterBush(bush.x, bush.y, this, this.tileWidth, this.monsters, this.allEntities);
             }
         }
     }
 
-    dropStrawberry(x, y, bush1) {
+    dropStrawberry(x, y, bush) {
         const randomNumber = Math.random();
         let fruitName, fruitKey;
 
@@ -1048,7 +1048,7 @@ export class mainScene extends Phaser.Scene {
         const fruit = new Item(this, x - 100, y, fruitKey, item);
 
         fruit.sprite.label = 'fruit';
-        fruit.sprite.parentBush = bush1; // Add this line
+        fruit.sprite.parentBush = bush; // Add this line
 
         this.allEntities.push(fruit.sprite);
 
@@ -1117,7 +1117,7 @@ export class mainScene extends Phaser.Scene {
         }
 
 
-        const pondProbability = 0.80;
+        const pondProbability = 0.5;
         const randomPondFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomPondFloat < pondProbability) {
             const randomNumberOfPonds = Phaser.Math.Between(1, 2);
@@ -1128,14 +1128,14 @@ export class mainScene extends Phaser.Scene {
             }
         }
 
-        const bush1Probability = 0.80;
-        const randomBush1Float = Phaser.Math.FloatBetween(0, 1);
-        if (randomBush1Float < bush1Probability) {
-            const randomNumberOfBush1s = Phaser.Math.Between(1, 3);
+        const bushProbability = 0.80;
+        const randombushFloat = Phaser.Math.FloatBetween(0, 1);
+        if (randombushFloat < bushProbability) {
+            const randomNumberOfbushs = Phaser.Math.Between(1, 3);
 
-            for (let i = 0; i < randomNumberOfBush1s; i++) {
+            for (let i = 0; i < randomNumberOfbushs; i++) {
 
-                this.spawnBush1();
+                this.spawnbush();
             }
         }
     }
@@ -1364,8 +1364,8 @@ export class mainScene extends Phaser.Scene {
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 30) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 3) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bush1s, 3)) { // assuming a bush threshold
+            isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
             return;
         }
 
@@ -1602,10 +1602,10 @@ export class mainScene extends Phaser.Scene {
         const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
         const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
 
-        const bufferStartI = visibleStartI - (this.tilesBuffer + 8); // extend outward by 1 tile
-        const bufferEndI = visibleEndI + (this.tilesBuffer + 8);    // extend outward by 1 tile
-        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 8); // extend outward by 1 tile
-        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 8);   // extend outward by 1 tile
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 5); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 5);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 5); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 5);   // extend outward by 1 tile
 
         let spawnTileI, spawnTileJ;
 
@@ -1646,8 +1646,8 @@ export class mainScene extends Phaser.Scene {
         // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
         if (isTooCloseToOtherObjects(this.fires, 4) ||
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 6) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bush1s, 4) || // assuming a bush threshold
+            isTooCloseToOtherObjects(this.ponds, 7) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bushs, 4) || // assuming a bush threshold
             isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
             return;
         }
@@ -1721,7 +1721,7 @@ export class mainScene extends Phaser.Scene {
         this.allEntities.push(treeShadow);
         this.allEntities.push(tree);
     }
-
+    
     spawnPonds() {
         const camera = this.cameras.main;
         const centerX = camera.midPoint.x;
@@ -1731,10 +1731,10 @@ export class mainScene extends Phaser.Scene {
         const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
         const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
 
-        const bufferStartI = visibleStartI - (this.tilesBuffer + 3); // extend outward by 1 tile
-        const bufferEndI = visibleEndI + (this.tilesBuffer + 3);    // extend outward by 1 tile
-        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 3); // extend outward by 1 tile
-        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 3);   // extend outward by 1 tile
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 6); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 6);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 6); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 6);   // extend outward by 1 tile
 
         let spawnTileI, spawnTileJ;
 
@@ -1774,53 +1774,97 @@ export class mainScene extends Phaser.Scene {
 
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 4) ||
-            isTooCloseToOtherObjects(this.trees, 6) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bush1s, 4) ||
-            isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
+        if (isTooCloseToOtherObjects(this.fires, 6) ||
+            isTooCloseToOtherObjects(this.trees, 7) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 10) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.bushs, 8) ||
+            isTooCloseToOtherObjects(monstersArray, 5)) { // Pass the monsters array
 
             return;
         }
 
-
-        const pondTooClose = this.ponds.some(pond => {
-            if (pond && pond.active) {
-                const dx = pond.x - x;
-                const dy = pond.y - y;
-                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
-                return distanceInTiles <= 6;
-            }
-            return false; // Return false if the tree object does not exist or is not active
-        });
-
-        // If there's already a tree too close to the new tree's location, don't spawn a new one
-        if (pondTooClose) {
+        if (this.ponds.filter(pond => pond.active).length >= 3) {
             return;
         }
 
-        if (this.ponds.filter(pond => pond.active).length >= 5) {
-            return;
-        }
+        const pondTypes = ['pond', 'pond_2', 'pond_3'];
 
-        const pond = this.matter.add.sprite(x, y, 'pond', null, {
+        // Choose a random pond type
+        const randomPondType = Phaser.Math.RND.pick(pondTypes);
+    
+        const pond = this.matter.add.sprite(x, y, randomPondType, null, {
             label: 'pond'
         });
-
-        // Approximate an ellipse using a polygon body
-        const ellipseVertices = this.createEllipseVertices(x, y, 170, 120, 16);
-        const pondBody = this.matter.add.fromVertices(x, y, ellipseVertices, {
+        let pondVertices;
+        let originX = 0.5;
+        let originY = 0.5;
+        switch(randomPondType) {
+            case 'pond':
+                pondVertices = this.createPondVertices(randomPondType, x, y);
+                originX = 0.5;
+                originY = 0.5;
+                break;
+            case 'pond_2':
+                pondVertices = this.createPondVertices(randomPondType, x, y);
+                originX = 0.58;
+                originY = 0.5;
+                break;
+            case 'pond_3':
+                pondVertices = this.createPondVertices(randomPondType, x, y);
+                originX = 0.59;
+                originY = 0.41;
+                break;
+                default:
+                break;
+        }
+        const pondBody = this.matter.add.fromVertices(x, y, pondVertices, {
             isStatic: true
         }, true);
-
         pondBody.label = 'pond';
-
-        pond.setExistingBody(pondBody).setOrigin(0.51, 0.47);
+        pond.setExistingBody(pondBody).setOrigin(originX, originY);
         pond.setPipeline('Light2D');
-        pond.play('pond');
+        pond.play(randomPondType);
 
         this.ponds.push(pond);
         this.allEntities.push(pond);
+    }
+
+    createPondVertices(pondType, x, y) {
+        let vertices;
+        switch(pondType) {
+            case 'pond':
+                vertices = this.createEllipseVertices(x, y, 170, 120, 16);
+                break;
+            case 'pond_2':
+                // Extract the points from the SVG data
+                let svgPoints2 = "0 85.15 0 143.1 22.18 191.76 66.54 221.09 121.64 227.53 217.52 227.53 252.58 240.41 286.92 266.89 300.52 296.22 332.71 312.68 392.82 312.68 431.46 302.66 450.06 289.07 466.52 269.75 477.96 223.96 491.56 183.89 522.33 165.32 552.38 143.1 559.53 122.35 559.53 75.84 534.49 35.78 491.56 15.74 407.84 15.74 328.42 48.65 300.52 53.66 276.19 52.95 154.55 0 104.47 0 71.55 7.16 33.63 27.91 0 85.15";
+                let points2 = svgPoints2.split(' ');
+
+                // Convert the points into vertices
+                vertices = [];
+                for (let i = 0; i < points2.length; i += 2) {
+                    let px = parseFloat(points2[i]) * 1.16;
+                    let py = parseFloat(points2[i + 1]) * 1.16;
+                    vertices.push({ x: px + x, y: py + y });
+                }
+                break;
+            case 'pond_3':
+                // Extract the points from the SVG data
+                let svgPoints = "7.76 32.01 0 58.69 3.88 88.28 10.19 106.72 32.5 121.75 71.31 133.39 176.08 133.39 203.25 124.66 225.56 113.02 243.51 95.07 251.75 79.07 251.75 52.87 230.89 23.77 209.07 16.49 181.9 20.37 161.04 26.19 125.11 18.64 104.29 3.4 76.16 0 39.78 5.34 7.76 32.01";
+                let points = svgPoints.split(' ');
+
+                // Convert the points into vertices and scale by 3
+                vertices = [];
+                for (let i = 0; i < points.length; i += 2) {
+                    let px = parseFloat(points[i]) * 2; // Scale x coordinate
+                    let py = parseFloat(points[i + 1]) * 2; // Scale y coordinate
+                    vertices.push({ x: px, y: py });
+                }
+                break;
+                default:
+                    break;
+        }
+        return vertices;
     }
 
 
@@ -1852,7 +1896,7 @@ export class mainScene extends Phaser.Scene {
         return vertices;
     }
 
-    spawnBush1() {
+    spawnbush() {
         const camera = this.cameras.main;
         const centerX = camera.midPoint.x;
         const centerY = camera.midPoint.y;
@@ -1906,51 +1950,57 @@ export class mainScene extends Phaser.Scene {
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 3) ||
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 4) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.ponds, 6) || // assuming a pond threshold
             isTooCloseToOtherObjects(monstersArray, 3) ||
-            isTooCloseToOtherObjects(this.bush1s, 3)) { // assuming a bush threshold
+            isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
             return;
         }
 
         // If there are already 2 trees in the view, don't spawn a new one
-        if (this.bush1s.filter(bush1 => bush1.active).length >= 4) {
+        if (this.bushs.filter(bush => bush.active).length >= 4) {
             return;
         }
 
-        const bush1 = this.matter.add.sprite(x, y, 'bush1', null, {
-            label: 'bush1'
+        const bushTypes = ['bush_1', 'bush_2', 'bush_3'];
+
+        // Choose a random bush type
+        const randomBushType = Phaser.Math.RND.pick(bushTypes);
+    
+        const bush = this.matter.add.sprite(x, y, randomBushType, null, {
+            label: 'bush'
         });
 
         // Approximate an ellipse using a polygon body
         const ellipseVertices = this.createEllipseVertices(x, y, 50, 50, 16);
-        const bush1Body = this.matter.add.fromVertices(x, y, ellipseVertices, {
+        const bushBody = this.matter.add.fromVertices(x, y, ellipseVertices, {
             isStatic: true
         }, true);
 
-        bush1Body.label = 'bush1';
+        bushBody.label = 'bush';
 
-        const bush1Shadow = this.add.sprite(bush1.x, bush1.y, 'bush1');
+        const bushShadow = this.add.sprite(bush.x, bush.y, randomBushType);
 
-        bush1Shadow.setOrigin(0.5, 0.6);
-        bush1Shadow.setTint(0x000000); // Color the shadow sprite black
-        bush1Shadow.setPipeline('Light2D');
-        bush1Shadow.label = 'bush1Shadow';
-        bush1Shadow.parentBush1 = bush1;
-        bush1Shadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
+        bushShadow.setOrigin(0.5, 0.6);
+        bushShadow.setTint(0x000000); // Color the shadow sprite black
+        bushShadow.setPipeline('Light2D');
+        bushShadow.label = 'bushShadow';
+        bushShadow.parentBush = bush;
+        bushShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
 
-        bush1.shadow = bush1Shadow; // Store the shadow sprite as a property of the tree
+        bush.shadow = bushShadow; // Store the shadow sprite as a property of the tree
 
-        bush1.setExistingBody(bush1Body).setOrigin(0.5, 0.6);
-        bush1.setPipeline('Light2D');
-        bush1.play('bush1');
-        bush1Shadow.play('bush1');
+        bush.setExistingBody(bushBody).setOrigin(0.5, 0.6);
+        bush.setPipeline('Light2D');
+        bush.play(randomBushType);
+        bushShadow.play(randomBushType);
+        bush.originalType = randomBushType;
 
-        bush1.isDepleted = false;
+        bush.isDepleted = false;
 
 
-        this.bush1s.push(bush1);
-        this.allEntities.push(bush1Shadow);
-        this.allEntities.push(bush1);
+        this.bushs.push(bush);
+        this.allEntities.push(bushShadow);
+        this.allEntities.push(bush);
 
     }
 
@@ -2306,19 +2356,19 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        // For the bush1 shadows
-        this.bush1s.forEach(bush1 => {
-            if (bush1.shadow && bush1.active) {
-                let angle = Math.atan2(this.sunLight.y - bush1.y, this.sunLight.x - bush1.x);
+        // For the bush shadows
+        this.bushs.forEach(bush => {
+            if (bush.shadow && bush.active) {
+                let angle = Math.atan2(this.sunLight.y - bush.y, this.sunLight.x - bush.x);
                 let orbitRadius = 7;
-                let shadowPosX = -bush1.x  + orbitRadius * Math.cos(angle);
-                let shadowPosY = -bush1.y  + orbitRadius * Math.sin(angle);
+                let shadowPosX = -bush.x  + orbitRadius * Math.cos(angle);
+                let shadowPosY = -bush.y  + orbitRadius * Math.sin(angle);
 
-                bush1.shadow.alpha = this.getAlphaFromTime(gameTime);
-                bush1.shadow.x = -shadowPosX;
-                bush1.shadow.y = -shadowPosY;
-                bush1.shadow.scaleX = 1.0;
-                bush1.shadow.scaleY = 1.0;
+                bush.shadow.alpha = this.getAlphaFromTime(gameTime);
+                bush.shadow.x = -shadowPosX;
+                bush.shadow.y = -shadowPosY;
+                bush.shadow.scaleX = 1.0;
+                bush.shadow.scaleY = 1.0;
             }
         });
 
@@ -2425,7 +2475,6 @@ export class mainScene extends Phaser.Scene {
                     }
                 }
 
-
                 for (let index = this.trees.length - 1; index >= 0; index--) {
                     let tree = this.trees[index];
                     if (tree && tree.active) {
@@ -2459,23 +2508,23 @@ export class mainScene extends Phaser.Scene {
                 }
 
 
-                for (let index = this.bush1s.length - 1; index >= 0; index--) {
-                    let bush1 = this.bush1s[index];
-                    if (bush1 && bush1.active) {
+                for (let index = this.bushs.length - 1; index >= 0; index--) {
+                    let bush = this.bushs[index];
+                    if (bush && bush.active) {
 
-                        this.bush1s.splice(index, 1);
-                        this.matter.world.remove(bush1.body);
+                        this.bushs.splice(index, 1);
+                        this.matter.world.remove(bush.body);
 
-                        if (this.collidingBush1 === bush1) {
-                            this.collidingBush1 = null;
+                        if (this.collidingBush === bush) {
+                            this.collidingBush = null;
                         }
 
-                        bush1.shadow.destroy();
-                        bush1.body.destroy();
-                        bush1.destroy();
+                        bush.shadow.destroy();
+                        bush.body.destroy();
+                        bush.destroy();
 
-                        this.allEntities = this.allEntities.filter(entity => entity !== bush1);
-                        this.allEntities = this.allEntities.filter(entity => entity !== bush1.shadow);
+                        this.allEntities = this.allEntities.filter(entity => entity !== bush);
+                        this.allEntities = this.allEntities.filter(entity => entity !== bush.shadow);
                     }
                 }
 
@@ -2620,6 +2669,12 @@ export class mainScene extends Phaser.Scene {
         const endI = Math.ceil((centerX + GAME_CONFIG.CAMERA_WIDTH / 2) / this.tileWidth);
         const startJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
         const endJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
+        const buffer = {
+            fire: 1,
+            ashes: 1,
+            items: 0,
+            monsters: 2
+        };
 
         Object.keys(this.tiles).forEach((key) => {
             const [i, j] = key.split(',').map(Number);
@@ -2632,7 +2687,7 @@ export class mainScene extends Phaser.Scene {
                     if (item && item.sprite.active) {
                         const itemTileI = Math.floor(item.sprite.x / this.tileWidth);
                         const itemTileJ = Math.floor(item.sprite.y / this.tileWidth);
-                        if (itemTileI === i && itemTileJ === j) {
+                        if (itemTileI < startI - buffer.items || itemTileI > endI + buffer.items || itemTileJ < startJ - buffer.items || itemTileJ > endJ + buffer.items) {
                             item.sprite.destroy(); // Destroy the sprite, not the wrapper object
                             this.items.splice(index, 1);
                             this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
@@ -2646,12 +2701,11 @@ export class mainScene extends Phaser.Scene {
                     if (monster.sprite && monster.sprite.active) {
                         const monsterTileI = Math.floor(monster.sprite.x / this.tileWidth);
                         const monsterTileJ = Math.floor(monster.sprite.y / this.tileWidth);
-                        if (monsterTileI === i && monsterTileJ === j) {
+                        if (monsterTileI < startI - buffer.monsters || monsterTileI > endI + buffer.monsters || monsterTileJ < startJ - buffer.monsters || monsterTileJ > endJ + buffer.monsters) {
                             scene.gameEvents.cleanUpMonster(monster, null, this.allEntities);
                             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
                             delete this.monsters[key];
                             monster.monsterShadow.destroy();
-
                         }
                     }
                 }
@@ -2661,7 +2715,7 @@ export class mainScene extends Phaser.Scene {
                     if (ashes && ashes.active) {
                         const ashesTileI = Math.floor(ashes.x / this.tileWidth);
                         const ashesTileJ = Math.floor(ashes.y / this.tileWidth);
-                        if (ashesTileI === i && ashesTileJ === j) {
+                        if (ashesTileI < startI - buffer.ashes || ashesTileI > endI + buffer.ashes || ashesTileJ < startJ - buffer.ashes || ashesTileJ > endJ + buffer.ashes) {
                             ashes.destroy();
                             this.ashes.splice(index, 1);
                         }
@@ -2674,7 +2728,7 @@ export class mainScene extends Phaser.Scene {
                     if (tree && tree.active) {
                         const treeTileI = Math.floor(tree.x / this.tileWidth);
                         const treeTileJ = Math.floor(tree.y / this.tileWidth);
-                        const buffer = 8; // Add a buffer of 2 tiles
+                        const buffer = 5; // Add a buffer of 2 tiles
                         if (treeTileI < startI - buffer || treeTileI > endI + buffer || treeTileJ < startJ - buffer || treeTileJ > endJ + buffer) { // Check if the tree is out of view
                             this.trees.splice(index, 1);
                             this.matter.world.remove(tree.body);
@@ -2688,6 +2742,8 @@ export class mainScene extends Phaser.Scene {
                             tree.shadow.destroy();
 
                             this.allEntities = this.allEntities.filter(entity => entity !== tree);
+                            this.allEntities = this.allEntities.filter(entity => entity !== tree.shadow);
+
                         }
                     }
                 }
@@ -2697,7 +2753,7 @@ export class mainScene extends Phaser.Scene {
                     if (pond && pond.active) {
                         const pondTileI = Math.floor(pond.x / this.tileWidth);
                         const pondTileJ = Math.floor(pond.y / this.tileWidth);
-                        const buffer = 3; // Add a buffer of 2 tiles
+                        const buffer = 6; // Add a buffer of 2 tiles
                         if (pondTileI < startI - buffer || pondTileI > endI + buffer || pondTileJ < startJ - buffer || pondTileJ > endJ + buffer) { // Check if the tree is out of view
                             this.ponds.splice(index, 1);
                             this.matter.world.remove(pond.body);
@@ -2711,25 +2767,27 @@ export class mainScene extends Phaser.Scene {
                 }
 
 
-                for (let index = this.bush1s.length - 1; index >= 0; index--) {
-                    let bush1 = this.bush1s[index];
-                    if (bush1 && bush1.active) {
-                        const bush1TileI = Math.floor(bush1.x / this.tileWidth);
-                        const bush1TileJ = Math.floor(bush1.y / this.tileWidth);
+                for (let index = this.bushs.length - 1; index >= 0; index--) {
+                    let bush = this.bushs[index];
+                    if (bush && bush.active) {
+                        const bushTileI = Math.floor(bush.x / this.tileWidth);
+                        const bushTileJ = Math.floor(bush.y / this.tileWidth);
                         const buffer = 3; // Add a buffer of 2 tiles
-                        if (bush1TileI < startI - buffer || bush1TileI > endI + buffer || bush1TileJ < startJ - buffer || bush1TileJ > endJ + buffer) { // Check if the tree is out of view
-                            this.bush1s.splice(index, 1);
-                            this.matter.world.remove(bush1.body);
+                        if (bushTileI < startI - buffer || bushTileI > endI + buffer || bushTileJ < startJ - buffer || bushTileJ > endJ + buffer) { // Check if the tree is out of view
+                            this.bushs.splice(index, 1);
+                            this.matter.world.remove(bush.body);
 
-                            if (this.collidingBush1 === bush1) {
-                                this.collidingBush1 = null;
+                            if (this.collidingBush === bush) {
+                                this.collidingBush = null;
                             }
 
-                            bush1.body.destroy();
-                            bush1.destroy();
-                            bush1.shadow.destroy();
+                            bush.body.destroy();
+                            bush.destroy();
+                            bush.shadow.destroy();
 
-                            this.allEntities = this.allEntities.filter(entity => entity !== bush1);
+                            this.allEntities = this.allEntities.filter(entity => entity !== bush);
+                            this.allEntities = this.allEntities.filter(entity => entity !== bush.shadow);
+
                         }
                     }
                 }
@@ -2739,7 +2797,7 @@ export class mainScene extends Phaser.Scene {
                     if (fire && fire.active) {
                         const fireTileI = Math.floor(fire.x / this.tileWidth);
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
-                        if (fireTileI === i && fireTileJ === j) {
+                        if (fireTileI < startI - buffer.fire || fireTileI > endI + buffer.fire || fireTileJ < startJ - buffer.fire || fireTileJ > endJ + buffer.fire) {
                             this.tweens.killTweensOf(fire.light);
                             fire.light.setIntensity(0);
                             this.lights.removeLight(fire.light.x, fire.light.y);

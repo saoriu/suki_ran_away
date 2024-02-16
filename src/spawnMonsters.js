@@ -22,11 +22,23 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const bufferStartJ = visibleStartJ - (tilesBuffer + 1); // extend outward by 1 tile
   const bufferEndJ = visibleEndJ + (tilesBuffer + 1);    // extend outward by 1 tile
 
+  let spawnTileI, spawnTileJ;
 
-  for (let i = bufferStartI; i <= bufferEndI; i++) {
-    for (let j = bufferStartJ; j <= bufferEndJ; j++) {
-      if (monsters[`${i},${j}`]) return;
-    }
+  // Deciding whether to spawn on the horizontal or vertical buffer area
+  if (Phaser.Math.Between(0, 1) === 0) {
+    // Horizontal buffer area (top or bottom)
+    spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
+    spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
+  } else {
+    // Vertical buffer area (left or right)
+    spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
+    spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
+  }
+
+  // Check if the chosen tile is within the visible area
+  if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
+    // If it is, return and don't spawn a monster
+    return;
   }
 
   function chooseMonsterRarity() {
@@ -77,26 +89,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
   const modifiedLevel = chosenMonster.level + levelVariation;
 
-
-  // If no monster in the extended area, choose a random tile in the buffer area to potentially spawn a monster.
-  let spawnTileI, spawnTileJ;
-
-  // Deciding whether to spawn on the horizontal or vertical buffer area
-  if (Phaser.Math.Between(0, 1) === 0) {
-    // Horizontal buffer area (top or bottom)
-    spawnTileI = Phaser.Math.Between(bufferStartI, bufferEndI);
-    spawnTileJ = Phaser.Math.Between(0, 1) === 0 ? bufferStartJ : bufferEndJ;
-  } else {
-    // Vertical buffer area (left or right)
-    spawnTileJ = Phaser.Math.Between(bufferStartJ, bufferEndJ);
-    spawnTileI = Phaser.Math.Between(0, 1) === 0 ? bufferStartI : bufferEndI;
-  }
-
-  // Check if the chosen tile is within the visible area
-  if ((spawnTileI >= visibleStartI && spawnTileI <= visibleEndI) && (spawnTileJ >= visibleStartJ && spawnTileJ <= visibleEndJ)) {
-    // If it is, return and don't spawn a monster
-    return;
-  }
   const monsterSpriteKey = chosenMonster.monster; // e.g., 'raccoon'
 
   // Get the frame data
@@ -205,7 +197,6 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   };
 
   allEntities.push(monsters[monsterKey].sprite);
-
   scene.registry.set('currentMonsterLevel', modifiedLevel);
   monster.setDepth(3);
   monsterHealthBar.outer.setDepth(5); // Setting the depth higher to render above the monster sprite

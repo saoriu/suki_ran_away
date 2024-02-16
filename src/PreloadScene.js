@@ -18,7 +18,8 @@ export class PreloadScene extends Phaser.Scene {
         this.load.atlas('treemonsters', '/treemonsters.png', '/treemonsters.json');
         this.load.atlas('tree', '/tree.png', '/tree.json');
         this.load.atlas('pond', '/pond.png', '/pond.json');
-        this.load.atlas('bush1', '/bush1.png', '/bush1.json');
+        this.load.atlas('bush', '/bush.png', '/bush.json');
+        this.load.atlas('ponds', '/ponds.png', '/ponds.json');
         this.load.image('tree-down', '/tree-down.png');
         this.load.image('frame', '/frame.png');
         this.load.image('apple', '/apple.png');
@@ -73,7 +74,7 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image('stats', '/stats.png');
         this.load.image('ashes', '/ashes.png');
         this.load.image('modal', '/modal.png');
-        this.load.image('bush1-down', '/bush1-down.png');
+        this.load.image('bush-down', '/bush-down.png');
         this.load.image('tree2-down', '/tree2-down.png');
         this.load.image('tree3-down', '/tree3-down.png');
         this.load.image('attacks-menu', '/attacks-menu.png');

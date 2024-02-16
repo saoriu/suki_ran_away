@@ -20,8 +20,36 @@ export function createAnims(scene, cat) {
     });
 
     scene.anims.create({
-        key: 'bush1',
-        frames: Array(2).fill().map((_, i) => ({ key: 'bush1', frame: `bush1-${i + 1}` })),
+        key: 'pond_2',
+        frames: ['pond_2-1', 'pond_2-2', 'pond_2-3'].map(filename => ({ key: 'ponds', frame: filename })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: 'pond_3',
+        frames: ['pond_3-1', 'pond_3-2', 'pond_3-3'].map(filename => ({ key: 'ponds', frame: filename })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: 'bush_1',
+        frames: ['bush_1-1', 'bush_1-2', 'bush_1-3'].map(filename => ({ key: 'bush', frame: filename })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: 'bush_2',
+        frames: ['bush_2-1', 'bush_2-2', 'bush_2-3'].map(filename => ({ key: 'bush', frame: filename })),
+        frameRate: 3,
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: 'bush_3',
+        frames: ['bush_3-1', 'bush_3-2', 'bush_3-3'].map(filename => ({ key: 'bush', frame: filename })),
         frameRate: 3,
         repeat: -1
     });
