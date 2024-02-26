@@ -83,11 +83,12 @@ export function spawnMonsterBush(bushX, bushY, scene, tileWidth, monsters, allEn
     monster.setInteractive();
 
 
-  let monsterShadow = scene.add.sprite(monsterX + 3, monsterY + 3, monsterSpriteKey);
-  monsterShadow.setTint(0x000000); // Color the shadow sprite black
-  monsterShadow.alpha = 0.3; // Make the shadow sprite semi-transparent
-  monsterShadow.setPipeline('Light2D');
-  monsterShadow.depth = 1; // Position the shadow sprite behind the original sprite
+    let monsterShadow = scene.add.sprite(monsterX, monsterY, `${monsterSpriteKey}Shadow1`);
+    monsterShadow.alpha = 0.3; // Make the shadow sprite semi-transparent
+    monsterShadow.setPipeline('Light2D');
+    monsterShadow.blendMode = Phaser.BlendModes.MULTIPLY;
+    monsterShadow.depth = 1; // Position the shadow sprite behind the original sprite
+  
 
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation

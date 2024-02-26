@@ -85,11 +85,11 @@ export class GameEvents {
             // Calculate the monster's health and level
             let monsterHealth = targetMonster.level * 1;
             let monsterLevel = targetMonster.level;
-            const timeToImpact = 200;
+            const timeToImpact = 0;
 
 
             const selectedAttack = attacks[attackName] || attacks['scratch'];   
-            const playerRoll = Phaser.Math.Between(0, Math.floor((PlayerState.skills.dancing.level * 0.1) + (selectedAttack.damage * (1 + PlayerState.attackBonus / 100))));
+            const playerRoll = Phaser.Math.Between(1, Math.floor((PlayerState.skills.dancing.level * 0.1) + (selectedAttack.damage * (1 + PlayerState.attackBonus / 100))));
 
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
@@ -236,7 +236,7 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(0, monsterDamage * (1 - PlayerState.defenceBonus / 100));        
+        const monsterRoll = Phaser.Math.Between(1, monsterDamage * (1 - PlayerState.defenceBonus / 100));        
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 
@@ -448,7 +448,6 @@ export class GameEvents {
 
                 // Flip the monster sprite based on the direction of movement
                 monster.sprite.setFlipX(velocity.x < 0);
-                monster.monsterShadow.setFlipX(velocity.x < 0);
                 monster.monsterFacingRight = velocity.x >= 0;
             } else if (!monster.isAggressive) {
                 const currentTime = Date.now();
@@ -470,7 +469,6 @@ export class GameEvents {
 
                 // Flip the monster sprite based on the direction of movement
                 monster.sprite.setFlipX(velocity.x < 0);
-                monster.monsterShadow.setFlipX(velocity.x < 0);
                 monster.monsterFacingRight = velocity.x >= 0;
 
                 // If the monster has reached the destination, clear the destination

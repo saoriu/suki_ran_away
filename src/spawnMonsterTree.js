@@ -4,6 +4,8 @@ import { PlayerState } from './playerState.js';
 
 
 export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEntities) {
+
+    console.log(treeY)
     // At the start of the spawnMonsterTree function
 
     for (const key in monsters) {
@@ -68,6 +70,8 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
     const monsterX = treeX + trimmedWidth / 2 + offset ;    
     const monsterY = treeY + trimmedHeight / 2;
 
+    console.log(monsterX, monsterY)
+
     //define monsterradius based on monster frame data
     let monsterRadius = trimmedWidth / 2;
 
@@ -79,11 +83,13 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
     monster.setInteractive();
 
 
-  let monsterShadow = scene.add.sprite(monsterX + 3, monsterY + 3, monsterSpriteKey);
-  monsterShadow.setTint(0x000000); // Color the shadow sprite black
+  let monsterShadow = scene.add.sprite(monsterX, monsterY, `${monsterSpriteKey}Shadow1`);
+  console.log(monsterShadow)
   monsterShadow.alpha = 0.3; // Make the shadow sprite semi-transparent
   monsterShadow.setPipeline('Light2D');
+  monsterShadow.blendMode = Phaser.BlendModes.MULTIPLY;
   monsterShadow.depth = 1; // Position the shadow sprite behind the original sprite
+
 
     const monsterBody = monster.body;
     monsterBody.inertia = Infinity; // Prevent rotation

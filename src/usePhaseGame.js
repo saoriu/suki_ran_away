@@ -35,6 +35,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 },
                 autoRound: false,
                 antialias: true,
+                resolution: window.devicePixelRatio, // Add this line
                 plugins: {
                     scene: [
                         { key: 'lights', plugin: Phaser.GameObjects.LightsPlugin, mapping: 'lights' }

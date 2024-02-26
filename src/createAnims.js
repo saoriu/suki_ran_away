@@ -109,9 +109,10 @@ export function createAnims(scene, cat) {
             case 'dead':
                 return 9;
             case 'run':
+                return 9;
             case 'run-diagonal-back':
             case 'run-diagonal-front':
-                return 10;
+                return 13;
             case 'sit-back':
             case 'sit-forward':
             case 'sit':

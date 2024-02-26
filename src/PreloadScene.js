@@ -21,6 +21,8 @@ export class PreloadScene extends Phaser.Scene {
         this.load.atlas('bush', '/bush.png', '/bush.json');
         this.load.atlas('ponds', '/ponds.png', '/ponds.json');
         this.load.image('tree-down', '/tree-down.png');
+        this.load.image('collar red silverbell', '/collar red silverbell.png');
+        this.load.image('collar red gold', '/collar red gold.png');
         this.load.image('frame', '/frame.png');
         this.load.image('apple', '/apple.png');
         this.load.image('cotton', '/cotton.png');
@@ -28,9 +30,25 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image('emerald', '/emerald.png');
         this.load.image('gold', '/gold.png');
         this.load.image('lemon', '/lemon.png');
+        this.load.image('cape', '/cape.png');
+        //preload craftSlot and craftSlotSelect png
+        //import collar red
+        //import necklace 
+        //import check and cross:
+        this.load.image('check', '/check.png');
+        this.load.image('cross', '/cross.png');
+        this.load.image('collar red', '/collar red.png');
+        this.load.image('craftSlot', '/craftSlot.png');
+        this.load.image('craftSlotSelect', '/craftSlotSelect.png');
+        this.load.image('craftModal', '/craftModal.png');
+        this.load.image('craft', '/crafting.png');
+        //load lemonpie
+        this.load.image('lemonpie', '/lemonpie.png');
         this.load.image('pebble', '/pebble.png');
         this.load.image('peach', '/peach.png');
         this.load.image('strawberry', '/strawberry.png');
+        //load strawberry cake
+        this.load.image('strawberry cake', '/strawberry cake.png');
         this.load.image('blueberry', '/blueberry.png');
         this.load.image('egg', '/egg.png');
         this.load.image('milk', '/milk.png');

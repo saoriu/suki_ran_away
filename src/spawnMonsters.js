@@ -135,9 +135,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
   monster.setInteractive();
 
-
-  let monsterShadow = scene.add.sprite(monsterX + 3, monsterY + 3, monsterSpriteKey);
-  monsterShadow.setTint(0x000000); // Color the shadow sprite black
+  let monsterShadow = scene.add.sprite(monsterX, monsterY, `${monsterSpriteKey}Shadow1`);
   monsterShadow.alpha = 0.3; // Make the shadow sprite semi-transparent
   monsterShadow.setPipeline('Light2D');
   monsterShadow.blendMode = Phaser.BlendModes.MULTIPLY;
@@ -173,9 +171,11 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
 
   monsters[monsterKey] = {
     name: chosenMonster.monster,
-    monsterShadow: monsterShadow,
+    trimmedHeight: trimmedHeight,
+    trimmedWidth: trimmedWidth,
     sprite: monster,
     speed: chosenMonster.speed,
+    monsterShadow: monsterShadow,
     description: chosenMonster.description,
     damage: damage,
     key: monsterKey,

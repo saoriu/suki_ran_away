@@ -23,11 +23,13 @@ export const textStyles = {
       fontSize: '16px', 
       fill: '#000000'
     },  
-    mainTitle: { color: 'black', fontSize: '35px', fontFamily: 'Ninja', fontWeight: 'bolder' },
+    mainTitle: { color: 'black', fontSize: '25px', fontFamily: 'Ninja', fontWeight: 'bolder' },
+    mainTitleTwo: { color: 'black', fontSize: '25px', fontFamily: 'Ninja', fontWeight: 'bolder' },
     title: { color: 'black', fontSize: '20px', fontFamily: 'Ninja', fontWeight: 'bolder' },
+    titleIngredients: {  color: 'black', fontSize: '18px', fontFamily: 'ManaSeedBody'},
     description: { color: 'black', fontSize: '16px', fontFamily: 'Ninja', fontWeight: 'bolder' },
     other: { color: 'black', fontSize: '16px', fontFamily: 'Ninja', fontWeight: 'bolder' },
-    indicator: { color: 'white', fontSize: '17px', fontFamily: 'Ninja', fontWeight: 'bolder', stroke: 'black', strokeThickness: 3 },
+    indicator: { color: 'white', fontSize: '12px', fontFamily: 'Ninja', fontWeight: 'bolder', stroke: 'black', strokeThickness: 4 },
     keys: {
       fontFamily: 'Ninja',
       fontWeight: '400',
@@ -52,6 +54,7 @@ export const textStyles = {
       stroke: 'black',
       strokeThickness: 2,
     },
+    counts: { fontFamily: 'Ninja', fontWeight: '400', fontStyle: 'normal', fontSize: '18px', fill: '#ffffff', stroke: '#000000', strokeThickness: 4 },
     playerBonus: { fontFamily: 'Ninja', fontWeight: '400', fontStyle: 'normal', fontSize: '22px', fill: '#FFFFFF', stroke: '#000000', strokeThickness: 4 },
     playerLevelText: { fontWeight:'800', fontSize: '22px', fill: '#ffffff', fontFamily: 'Ninja', }, 
     playerLevelText2: { fontWeight:'800', fontSize: '22px', fill: '#ffffff', fontFamily: 'Ninja', stroke: '#000000', strokeThickness: 2 }, 

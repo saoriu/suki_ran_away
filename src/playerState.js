@@ -14,6 +14,7 @@ export const PlayerState = {
     isHurt: false,
     JustAte: false,
     isNearFire: false,
+    isMenuOpen: false,
     isAttacking: false,
     collidingWithTree: false,
     isBeingKnockedBack: false,
