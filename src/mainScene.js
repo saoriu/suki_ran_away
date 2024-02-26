@@ -671,7 +671,7 @@ export class mainScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        PlayerState.gameTime += delta / 400000;
+        PlayerState.gameTime += delta / 30000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
@@ -800,7 +800,7 @@ export class mainScene extends Phaser.Scene {
             }
 
 
-            if (monster.currentHealth <= 0) {
+            if (monster.currentHealth < 1) {
                 //on monster death move the monsterShadow y 25px down
                 monster.monsterShadow.y -= 15;
                 monster.sprite.play(`${monster.event.monster}_die`, true);

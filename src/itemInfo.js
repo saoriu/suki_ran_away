@@ -34,6 +34,14 @@ export const itemInfo = {
                 eventChance: 1,
         },
     },
+'Bone': {
+        itemId: '0039',
+        description: 'A bone from a small animal. Not consumable but can be used in crafting.',
+        itemName: 'Bone',
+        friendlyName: 'Bone',
+        itemConsumable: false,
+    },
+
    'Strawberry': {
         itemId: '0003',
         description: 'A sweet fruit, perfect for a quick energy boost.',
