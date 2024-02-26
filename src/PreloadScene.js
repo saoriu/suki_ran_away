@@ -20,6 +20,7 @@ export class PreloadScene extends Phaser.Scene {
         this.load.atlas('pond', '/pond.png', '/pond.json');
         this.load.atlas('bush', '/bush.png', '/bush.json');
         this.load.atlas('ponds', '/ponds.png', '/ponds.json');
+        this.load.image('strawberry cake', '/strawberry cake.png');
         this.load.image('tree-down', '/tree-down.png');
         this.load.image('collar red silverbell', '/collar red silverbell.png');
         this.load.image('collar red gold', '/collar red gold.png');
@@ -48,7 +49,6 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image('peach', '/peach.png');
         this.load.image('strawberry', '/strawberry.png');
         //load strawberry cake
-        this.load.image('strawberry cake', '/strawberry cake.png');
         this.load.image('blueberry', '/blueberry.png');
         this.load.image('egg', '/egg.png');
         this.load.image('milk', '/milk.png');

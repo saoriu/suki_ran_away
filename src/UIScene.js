@@ -25,6 +25,7 @@ export class UIScene extends Phaser.Scene {
     create() {
 
         this.mainScene = this.scene.get('mainScene');
+        PlayerState.isMenuOpen = false;
         this.x = this.cameras.main.width / 2;
         this.y = this.cameras.main.height / 2;
         this.timeFilter = this.add.graphics();
