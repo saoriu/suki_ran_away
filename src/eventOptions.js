@@ -14,9 +14,7 @@ export const eventOptions = [
     monsterMass: 1,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
-      rare: ['Apple', 'Gold'],
-      ultrarare: ['Diamond']
-    },
+      rare: ['Apple', 'Lemon']    },
     skill: 'attacking',
     monsterChance: 'common'
   },
@@ -34,9 +32,9 @@ export const eventOptions = [
     attackSpeed: 500,
     monsterMass: 2,
     possibleOutcomes: {
-      common: ['Gold', 'Ruby'],
-      rare: ['Diamond', 'Emerald'],
-      ultrarare: ['Silk']
+      common: ['Cotton', 'Silk'],
+      rare: ['Gold', 'Emerald'],
+      ultrarare: ['Ruby']
     },
     skill: 'attacking',
     monsterChance: 'rare'
@@ -55,9 +53,9 @@ export const eventOptions = [
     damage: 5,
     monsterMass: 2,
     possibleOutcomes: {
-      common: ['Gold', 'Ruby'],
-      rare: ['Diamond', 'Emerald'],
-      ultrarare: ['Silk']
+      common: ['Pebble', 'Flour', 'Lemon'],
+      rare: ['Gold', 'Silk'],
+      ultrarare: ['Emerald']
     },
     skill: 'attacking',
     monsterChance: 'rare'
@@ -77,9 +75,9 @@ export const eventOptions = [
     specialEventBush: true,
     speed: 2.9,
     possibleOutcomes: {
-      common: ['Diamond', 'Thread'],
-      rare: ['Gold', 'Silk'],
-      ultrarare: ['Silk']
+      common: ['Silk', 'Emerald'],
+      rare: ['Diamond'],
+      ultrarare: ['Thread']
     },
     skill: 'attacking',
     monsterChance: 'common'
@@ -99,9 +97,9 @@ export const eventOptions = [
     specialEventBush: true,
     speed: 2.95,
     possibleOutcomes: {
-      common: ['Diamond', 'Thread'],
-      rare: ['Gold', 'Silk'],
-      ultrarare: ['Strawberry']
+      common: ['Emerald', 'Ruby'],
+      rare: ['Diamond'],
+      ultrarare: ['Thread']
     },
     skill: 'attacking',
     monsterChance: 'ultrarare'
@@ -120,9 +118,8 @@ export const eventOptions = [
     attackSpeed: 600,
     speed: 2.4,
     possibleOutcomes: {
-      common: ['Milk', 'Egg', 'Flour'],
-      rare: ['Ruby', 'Gold'],
-      ultrarare: ['Silk']
+      common: ['Egg', 'Flour'],
+      rare: ['Pebble'],
     },
     skill: 'attacking',
     monsterChance: 'common'
@@ -141,9 +138,9 @@ export const eventOptions = [
     isAggressive: false,
     monsterMass: 2.5,
     possibleOutcomes: {
-      common: ['Milk', 'Egg', 'Flour'],
-      rare: ['Ruby', 'Gold'],
-      ultrarare: ['Silk']
+      common: ['Milk', 'Pebble'],
+      rare: ['Lemon'],
+      ultrarare: ['Emerald']
     },
     skill: 'attacking',
     monsterChance: 'rare'
@@ -162,9 +159,9 @@ export const eventOptions = [
     speed: 2.7,
     monsterMass: 2.1,
     possibleOutcomes: {
-      common: ['Milk', 'Egg', 'Flour'],
+      common: ['Bone', 'Lemon'],
       rare: ['Ruby', 'Gold'],
-      ultrarare: ['Silk']
+      ultrarare: ['Thread']
     },
     skill: 'attacking',
     monsterChance: 'ultrarare'
@@ -182,9 +179,8 @@ export const eventOptions = [
     speed: 3,
     monsterMass: 2.1,
     possibleOutcomes: {
-      common: ['Milk', 'Egg', 'Flour'],
-      rare: ['Ruby', 'Gold'],
-      ultrarare: ['Silk']
+      common: ['Bone', 'Egg'],
+      rare: ['Gold'],
     },
     skill: 'attacking',
     specialEvent: true,
@@ -203,9 +199,9 @@ export const eventOptions = [
     speed: 2.9,
     monsterMass: 2.1,
     possibleOutcomes: {
-      common: ['Milk', 'Egg', 'Flour'],
-      rare: ['Ruby', 'Gold'],
-      ultrarare: ['Silk']
+      common: ['Egg'],
+      rare: ['Ruby', 'Gold', 'Emerald'],
+      ultrarare: ['Thread']
     },
     skill: 'attacking',
     specialEvent: true,
