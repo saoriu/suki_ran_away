@@ -7,6 +7,8 @@ import { updatePlayerState } from './api'; // Adjust the path according to your 
 import FontFaceObserver from 'fontfaceobserver';
 import { itemInfo } from './itemInfo.js';
 import { attacks } from './attacks.js';
+import * as Inventory from './Inventory';
+
 
 export class UIScene extends Phaser.Scene {
     constructor() {
@@ -30,6 +32,7 @@ export class UIScene extends Phaser.Scene {
         this.y = this.cameras.main.height / 2;
         this.timeFilter = this.add.graphics();
         this.energyText = null;
+        this.addToInventory = Inventory.addToInventory.bind(this.mainScene);
         this.activeChangeTexts = 0;
         this.postFxPlugin = this.plugins.get('rexoutlinepipelineplugin');
 
@@ -83,17 +86,22 @@ export class UIScene extends Phaser.Scene {
 
         const ninjaFontObserver = new FontFaceObserver('Ninja');
         const ManaSeedBodyFontObserver = new FontFaceObserver('ManaSeedBody');
-        Promise.all([ninjaFontObserver.load(), ManaSeedBodyFontObserver.load()]).then(() => {
+        const MonoSeedTitleFontObserver = new FontFaceObserver('ManaSeedTitleMono');
+        Promise.all([ninjaFontObserver.load(), ManaSeedBodyFontObserver.load(), MonoSeedTitleFontObserver.load()]).then(() => {
             this.updateInventoryDisplay();
             const userid = PlayerState.userid;
             let useridText = `${userid}`;
-            this.userText = this.add.text(125, 18, useridText, { fontFamily: 'Ninja', fontSize: '20px', fill: 'gold', stroke: 'black', strokeThickness: 3 });
+            this.userText = this.add.text(125, 22, useridText, textStyles.userid);
             this.energyText = this.add.text(this.energyx, this.energyy, ``, textStyles.energyText);
             this.add.existing(this.energyText);
             this.createAttackSelectionMenu();
-            this.energyBar = this.createEnergyBar(74, 73);
+            this.energyBar = this.createEnergyBar(73, 73);
             this.add.existing(this.energyBar.outer);
             this.add.existing(this.energyBar.fill);
+            this.messageArray = [];
+            this.messageText = this.add.text((this.x * 2) - 30, 30, '', textStyles.messageText);
+            this.messageText.setOrigin(1, 0);
+            this.messageText.setLineSpacing(10);  // Set the line spacing to 10 pixels
             this.updateEnergyBar();
             this.game.events.on('energyChanged', this.updateEnergyBar, this);
             this.initializeStaticElements();
@@ -104,18 +112,18 @@ export class UIScene extends Phaser.Scene {
 
 
             // Create dayText with initial value
-            dayText = this.add.text((this.x * 2) - 130, 30, `DAY ${PlayerState.days}`, textStyles.daysPassed);
+            dayText = this.add.text(40, 130, `DAY ${PlayerState.days}`, textStyles.daysPassed);
 
             // Create progress bar and add it to the container
 
             // Set the depth of the container to ensure it's rendered above other elements
             this.updateSkillsDisplay();
+            this.updateEquipmentDisplay();
             this.updateAttackBonusDisplay();
             this.updateFireBonusDisplay();
             this.updateTreesBonusDisplay();
             this.updateDefenceBonusDisplay();
         });
-
 
         this.tooltip = new Tooltip(this, 0, 0, '');
         this.add.existing(this.tooltip);
@@ -198,6 +206,8 @@ export class UIScene extends Phaser.Scene {
         });
         this.inventoryContainer = this.add.container(this.x, (this.y * 2) - 50).setDepth(3);
 
+        this.equipmentContainer = this.add.container(0, 30).setDepth(3);
+
         this.game.events.on('playerStateUpdated', this.createAttackSelectionMenu, this);
         this.game.events.on('updateSkillsDisplay', this.updateSkillsDisplay, this);
 
@@ -226,7 +236,20 @@ export class UIScene extends Phaser.Scene {
                         // If the pressed key corresponds to the currently selected index, use the item
                         const selectedItem = PlayerState.inventory[this.selectedIndex];
                         if (selectedItem) {
-                            this.useItem(selectedItem.name);
+                            if (event.shiftKey) {
+                                // If Shift is being pressed, destroy the item
+                                this.destroyItem(selectedItem.name);
+                            } 
+                            else if (event.altKey) {
+                                // If Ctrl is being pressed, drop the item
+                                this.destroyAllItem(selectedItem.name);
+                            }
+                            
+                            
+                            else {
+                                // Otherwise, use the item
+                                this.useItem(selectedItem.name);
+                            }
                         }
                     } else {
                         // Otherwise, select the item
@@ -250,11 +273,12 @@ export class UIScene extends Phaser.Scene {
         if (now - PlayerState.lastDamageTime < 3000 && !this.isSaveTextVisible) {
             if (!this.isUnderAttackTextVisible) {
                 this.isUnderAttackTextVisible = true;
-                const blockSaveText = this.add.text(this.x, this.y - 100, "CAN'T   SAVE   UNDER   ATTACK!", textStyles.saveblock).setOrigin(0.5);
+                this.addMessage('Cannot save when under attack!', 'tomato');
+
                 this.time.delayedCall(3000, () => {
-                    blockSaveText.destroy();
                     this.isUnderAttackTextVisible = false;
-                });
+                }
+                );
             }
             return;
         }
@@ -272,24 +296,20 @@ export class UIScene extends Phaser.Scene {
             const token = sessionStorage.getItem('token');
 
             // Display "Saving..." text
-            const savingText = this.add.text(this.x, this.y - 100, 'SAVING...', textStyles.save).setOrigin(0.5);
+            this.addMessage('Saving...', 'yellow');
             this.isSaveTextVisible = true; // Set isSaveTextVisible to true when the save confirmation is displayed
 
             await updatePlayerState(userid, PlayerState, token);
 
-            // Remove "Saving..." text
-            savingText.destroy();
 
             // Display "Game saved successfully" text
-            const savedText = this.add.text(this.x, this.y - 100, 'GAME   SAVED !', textStyles.save).setOrigin(0.5);
-
+            this.addMessage('Game saved successfully!', 'lime');
             // Remove "Game saved successfully" text after 3 seconds
             this.time.delayedCall(3000, () => {
-                savedText.destroy();
                 this.isSaveTextVisible = false; // Set isSaveTextVisible back to false when the save confirmation is destroyed
             });
         } catch (error) {
-            console.error('Error saving game:', error);
+            this.addMessage('Failed to save the game. Please try again.', 'tomato');
         } finally {
             this.isSaving = false; // Set isSaving back to false when the save process ends
         }
@@ -429,7 +449,7 @@ export class UIScene extends Phaser.Scene {
 
     itemMenu() {
         if (PlayerState.isMenuOpen) {
-    return;
+            return;
         }
 
         const allItems = Object.values(itemInfo);
@@ -467,14 +487,6 @@ export class UIScene extends Phaser.Scene {
             PlayerState.isMenuOpen = false;
         });
 
-        this.input.on('pointerdown', (pointer) => {
-            if (!menu.getBounds().contains(pointer.x, pointer.y) &&
-                !this.itemMenuButton.getBounds().contains(pointer.x, pointer.y)) {
-                menu.destroy();
-                PlayerState.isMenuOpen = false;
-            }
-        });
-
         // Create a graphics object
         const mask = this.add.graphics({});
         // Draw a rectangle on the graphics object
@@ -497,7 +509,6 @@ export class UIScene extends Phaser.Scene {
         this.ingredientsContainer = this.add.container(0, 0);
         menu.add(this.ingredientsContainer);
 
-
         filteredItems.forEach((item, index) => {
             const row = Math.floor(index / 3); // Change 3 to the number of columns you want
             const col = index % 3; // Change 3 to the number of columns you want
@@ -517,11 +528,11 @@ export class UIScene extends Phaser.Scene {
             this.itemContainer.add(sprite);
 
             // Check if the player has all the ingredients for the item
-if (!this.playerHasIngredients(item)) {
-    // If the player does not have all the ingredients, add a grey alpha to the sprite
-    sprite.setTint(0x808080); // Set the color to grey
-    sprite.setAlpha(0.5); // Set the alpha to 0.5
-}
+            if (!this.playerHasIngredients(item)) {
+                // If the player does not have all the ingredients, add a grey alpha to the sprite
+                sprite.setTint(0x808080); // Set the color to grey
+                sprite.setAlpha(0.5); // Set the alpha to 0.5
+            }
 
             itemsContainer.add(this.itemContainer);
 
@@ -540,27 +551,68 @@ if (!this.playerHasIngredients(item)) {
         itemsContainer.setMask(geometryMask);
 
         this.updateSelectedItem(0, 0); // Select the first item
-
-
-        //apply this.mask to menu
     }
 
-    // Function to check if the player has all the ingredients for an item
-    playerHasIngredients(item) {
-        // Iterate over the ingredients of the item
-        for (let ingredient of item.ingredients) {
-            // Find the ingredient in the player's inventory
-            const inventoryItem = PlayerState.inventory.find(i => i.name === ingredient);
+    createItem(itemName) {
+        const item = itemInfo[itemName];
+        if (item && item.ingredients) {
+            // Check if player has all the required ingredients
+            const hasIngredients = item.ingredients.every(ingredientName => {
+                const ingredient = PlayerState.inventory.find(invItem => invItem.name.toLowerCase() === ingredientName.toLowerCase());
+                return ingredient && ingredient.quantity >= 1;  // Check if ingredient exists and quantity is enough
+            });
 
-            // Check if the ingredient is in the player's inventory and the player has enough quantity
-            if (!inventoryItem || inventoryItem.quantity < 1) {
-                // If the ingredient is not in the player's inventory or the player doesn't have enough quantity, return false
-                return false;
+            if (hasIngredients) {
+                // Calculate the number of unique ingredients that will be used up
+
+
+                // Check if the new item already exists in the inventory
+                const existingItem = PlayerState.inventory.find(invItem => invItem.name === item.itemName);
+
+                const ingredientsUsedUp = item.ingredients.filter(ingredientName => {
+                    const ingredient = PlayerState.inventory.find(invItem => invItem.name === ingredientName);
+                    return ingredient && ingredient.quantity === 1;
+                }).length;
+
+                // Check if there is enough space in the inventory for the new item
+                if (!existingItem && PlayerState.inventory.length - ingredientsUsedUp >= 11) {
+                    this.addMessage(`Your bag is full, could not make ${item}`, 'tomato');
+                    return;
+                }
+
+                item.ingredients.forEach(ingredientName => {
+                    const ingredient = PlayerState.inventory.find(invItem => invItem.name === ingredientName);
+                    if (ingredient) {
+                        if (ingredient.quantity > 1) {
+                            ingredient.quantity--;
+                        } else {
+                            const ingredientIndex = PlayerState.inventory.indexOf(ingredient);
+                            PlayerState.inventory.splice(ingredientIndex, 1);
+                        }
+                    }
+                });
+                this.addMessage(`You made a ${item.friendlyName}`, 'gold');
+
+                if (existingItem) {
+                    // If the item already exists, increment its quantity
+                    existingItem.quantity++;
+                } else {
+                    // If the item doesn't exist, add it to the inventory
+                    const newItem = {
+                        name: item.itemName,
+                        quantity: 1
+                    };
+                    PlayerState.inventory.push(newItem);
+                }
+
+                this.updateInventoryDisplay(); // Update the inventory display
+
+                this.updateItemMenu(itemName);
+
+            } else {
+                this.addMessage(`You don't have the ingredients.`, 'tomato');
             }
-        }
-
-        // If all the ingredients are in the player's inventory and the player has enough quantity, return true
-        return true;
+        } 
     }
 
     updateSelectedItem(newRow, newCol) {
@@ -634,7 +686,32 @@ if (!this.playerHasIngredients(item)) {
         }
 
     }
+    // Function to check if the player has all the ingredients for an item
+    playerHasIngredients(item) {
+        // Iterate over the ingredients of the item
+        for (let ingredient of item.ingredients) {
+            // Find the ingredient in the player's inventory
+            const inventoryItem = PlayerState.inventory.find(i => i.name === ingredient);
 
+            // Check if the ingredient is in the player's inventory and the player has enough quantity
+            if (!inventoryItem || inventoryItem.quantity < item.ingredients.filter(i => i === ingredient).length){
+                // If the ingredient is not in the player's inventory or the player doesn't have enough quantity, return false
+                return false;
+            }
+        }
+
+        // If all ingredients are in the player's inventory in sufficient quantity, return true
+        return true;
+    }
+    updateItemMenu() {
+        // Iterate over all the items in the itemsGrid
+        this.itemsGrid.flat().forEach(itemGrid => {
+            // Update the sprite tint and alpha based on whether the player has the ingredients for the item
+            const hasIngredients = this.playerHasIngredients(itemGrid.item);
+            itemGrid.itemContainer.list[2].setTint(hasIngredients ? 0xffffff : 0x808080);
+            itemGrid.itemContainer.list[2].setAlpha(hasIngredients ? 1 : 0.5);
+        });
+    }
 
     handleDancingLevelUp() {
         this.isLevelingUp = true;
@@ -730,6 +807,38 @@ if (!this.playerHasIngredients(item)) {
                 });
             }
         });
+        // Array of message templates
+        const levelUpMessages = [
+            "A-meow-zing! You are now level %level%.",
+            "Purrrific! You've reached level %level%.",
+            "Oh word? You are now level %level%.",
+            "Nice. You've achieved level %level%.",
+            "Congratulations! You are now level %level%.",
+            "Another one. You are now level %level%.",
+            "You are now level %level%.",
+            "Woah... You've reached level %level%.",
+            "Keep it up! You are now level %level%.",
+            "Ok slay. You've reached level %level%.",
+            "You are meow level %level%.",
+            "Feline fine at level %level%!",
+            "Just clawed your way to level %level%!",
+            "Paws and reflect, you're now level %level%.",
+            "Cat's out of the bag, you're level %level%!",
+            "Purrfect progress! Level %level% unlocked.",
+            "Me-wow, you've made it to level %level%!",
+            "Fur real? Level %level% already!",
+            "Look what the cat dragged in: level %level%!",
+            "Paw-some! You've hit level %level%.",
+            "Litter-ally level %level% now.",
+        ];
+
+        // Select a random message template
+        const randomMessage = levelUpMessages[Math.floor(Math.random() * levelUpMessages.length)];
+
+        // Replace %level% with the actual level
+        const message = randomMessage.replace('%level%', PlayerState.skills.dancing.level);
+
+        this.addMessage(message, 'gold');
     }
 
     createProgressBar(x, y) {
@@ -931,7 +1040,7 @@ if (!this.playerHasIngredients(item)) {
 
     createEnergyBar(x, y) {
 
-        const progressBarWidth = 256;
+        const progressBarWidth = 258;
         const progressBarHeight = 32;
         const borderOffset = 2;
         const outerRect = this.add.rectangle(x + 53, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
@@ -948,7 +1057,7 @@ if (!this.playerHasIngredients(item)) {
         const previousEnergy = PlayerState.previousEnergy || PlayerState.energy;
         const displayedEnergy = Math.max(0, PlayerState.energy); // Cap the energy to be non-negative
         const energyProgress = Math.max(0, PlayerState.energy / 100);
-        const targetWidth = 256 * energyProgress;
+        const targetWidth = 258 * energyProgress;
         const hue = (PlayerState.energy / 100) * 120;
         const color = Phaser.Display.Color.HSLToColor(hue / 360, 0.8, 0.5).color;
 
@@ -982,9 +1091,9 @@ if (!this.playerHasIngredients(item)) {
             yOffset = 0;
         } else if (this.trianglePosition === 1) {
             xOffset = 0;
-            yOffset = 40; // 40 is the vertical distance between texts
+            yOffset = 25; // 40 is the vertical distance between texts
         } else {
-            xOffset = 40; // 40 is the horizontal distance between texts
+            xOffset = 25; // 40 is the horizontal distance between texts
             yOffset = 0;
         }
 
@@ -998,7 +1107,7 @@ if (!this.playerHasIngredients(item)) {
                     stroke: '#000000',
                     strokeThickness: 6,
                     fontFamily: 'Ninja',
-                    fontSize: '42px'
+                    fontSize: '25px'
                 }
             ).setDepth(5).setOrigin(0.5); // Set origin to center
             this.activeChangeTexts++;
@@ -1016,55 +1125,33 @@ if (!this.playerHasIngredients(item)) {
         }
         else if (energyChange < 0 && PlayerState.isUnderAttack) {
             const changeText = this.add.text(
-                this.x
-                + xOffset,
-                this.y + yOffset,
+                this.x + xOffset - 5,
+                this.y + yOffset - 10,
                 `${Math.abs(energyChange).toFixed(0)}`, // Use Math.abs to remove the negative sign
                 {
-                    fill: '#ff0000',
-                    stroke: '#000000',
+                    fill: '#ffffff',
+                    stroke: '#ff0000',
                     strokeThickness: 6,
                     fontFamily: 'Ninja',
-                    fontSize: '42px'
+                    fontSize: '25px'
                 }
-            ).setDepth(5).setOrigin(0.5); // Set origin to center
+            ).setDepth(5).setOrigin(0.5, 0.5); // Set origin to center
+
+            // Add the blood animation behind the damage text
+            const blood = this.add.sprite(this.x + xOffset, this.y + yOffset, 'blood').setDepth(4).setOrigin(0.5, 0.5);
+            blood.play('blood', true);
+
             this.activeChangeTexts++;
 
             this.tweens.add({
-                targets: changeText,
+                targets: [changeText, blood], // Add the blood sprite to the tween targets
                 y: changeText.y - 20,
                 alpha: 0,
                 duration: 1200,
                 onComplete: () => {
                     changeText.destroy();
+                    blood.destroy(); // Destroy the blood sprite when the tween completes
                     this.activeChangeTexts--; // Decrease the counter when a text is removed
-                }
-            });
-        } else if (energyChange === 0 && PlayerState.isUnderAttack) {
-            const missText = this.add.text(
-                this.x
-                + xOffset,
-                this.y + yOffset,
-                'MISS',
-                {
-                    fontFamily: 'Ninja',
-                    fontSize: '42px',
-                    fill: '#2196f3',
-                    stroke: '#000000',
-                    fontWeight: 'bold',
-                    strokeThickness: 6,
-                }
-            ).setDepth(5).setOrigin(0.5); // Set origin to center
-            this.activeChangeTexts++;
-
-            this.tweens.add({
-                targets: missText,
-                y: missText.y - 20,
-                alpha: 0,
-                duration: 1200,
-                onComplete: () => {
-                    missText.destroy();
-                    this.activeChangeTexts--;
                 }
             });
         }
@@ -1144,63 +1231,46 @@ if (!this.playerHasIngredients(item)) {
             const x = xOffset + index * 56.5; // x increments by the index, starting from xOffset
             const y = -2; // y is a fixed value
 
-            const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive({ draggable: true }).setScale(1).setOrigin(0.5).setDepth(1);
-            const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(2);
 
-            sprite.on('drag', (pointer, dragX, dragY) => {
-                sprite.x = dragX; // Update the sprite's x position as it's being dragged
-                sprite.y = dragY; // Update the sprite's y position as it's being dragged
-            });
+            if (item && item.name) {
 
-            sprite.on('dragend', (pointer, dragX, dragY) => {
-                const dropIndex = Math.round((dragX - xOffset) / 56.5); // Calculate the index of the slot where the sprite was dropped
-                if (dropIndex >= 0 && dropIndex < inventory.length) {
-                    // If the drop index is valid, swap the items in the inventory array
-                    const temp = inventory[index];
-                    inventory[index] = inventory[dropIndex];
-                    inventory[dropIndex] = temp;
+                const sprite = this.add.sprite(x, y, item.name.toLowerCase()).setInteractive({ draggable: true }).setScale(1).setOrigin(0.5).setDepth(1);
+                const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(2);
 
-                    this.updateInventoryDisplay(); // Update the inventory display
-                } else {
-                    // If the drop index is not valid, return the sprite to its original position
-                    sprite.x = x;
-                    sprite.y = y;
-                }
-            });
-
-            zone.on('pointerdown', (pointer) => {
-                this.selectedIndex = index;
-                if (pointer.leftButtonDown()) {
-                    this.useItem(item.name);
-                }
-            });
-
-
-            // Display the 'select.png' icon over the selected slot
-            if (index === this.selectedIndex) {
-                // Add a semi-transparent rectangle behind the selected item
-                const highlight = this.add.rectangle(x, y + 1, 55, 55, 0xffffff, 0.75);
-                this.inventoryContainer.add(highlight);
-            }
-
-            this.inventoryContainer.add([sprite, zone]);
-
-            if (item.quantity > 1) {
-                let quantityStr = this.formatQuantity(item.quantity);
-                let textWidth = quantityStr.length * 6; // Approximate width of one character. Adjust as needed.
-                const quantityText = this.add.text(x - textWidth, y, quantityStr, {
-                    fontSize: '18px',
-                    fontFamily: 'Ninja',
-                    fill: 'black',
-                    stroke: 'white',
-                    strokeThickness: 3,
+                zone.on('pointerdown', (pointer) => {
+                    this.selectedIndex = index;
+                    if (pointer.leftButtonDown()) {
+                        this.useItem(item.name);
+                    }
                 });
-                this.inventoryContainer.add(quantityText);
-            }
 
-            if (index === this.selectedIndex) {
-                const selectIcon = this.add.image(x, y + 1, 'select').setOrigin(0.5);
-                this.inventoryContainer.add(selectIcon);
+
+                // Display the 'select.png' icon over the selected slot
+                if (index === this.selectedIndex) {
+                    // Add a semi-transparent rectangle behind the selected item
+                    const highlight = this.add.rectangle(x, y + 1, 55, 55, 0xffffff, 0.75);
+                    this.inventoryContainer.add(highlight);
+                }
+
+                this.inventoryContainer.add([sprite, zone]);
+
+                if (item.quantity > 1) {
+                    let quantityStr = this.formatQuantity(item.quantity);
+                    let textWidth = quantityStr.length * 6; // Approximate width of one character. Adjust as needed.
+                    const quantityText = this.add.text(x - textWidth, y, quantityStr, {
+                        fontSize: '18px',
+                        fontFamily: 'Ninja',
+                        fill: 'black',
+                        stroke: 'white',
+                        strokeThickness: 3,
+                    });
+                    this.inventoryContainer.add(quantityText);
+                }
+
+                if (index === this.selectedIndex) {
+                    const selectIcon = this.add.image(x, y + 1, 'select').setOrigin(0.5);
+                    this.inventoryContainer.add(selectIcon);
+                }
             }
         });
     }
@@ -1229,6 +1299,16 @@ if (!this.playerHasIngredients(item)) {
             heal.play('heal');
             heal.setTint(0x00ff00);
 
+            // Helper function to determine whether to use "a", "an", or "some"
+            const indefiniteArticle = (word) => {
+                if (['cotton', 'flour', 'silk', 'milk'].includes(word.toLowerCase())) {
+                    return 'some';
+                }
+                return ['a', 'e', 'i', 'o', 'u'].includes(word[0].toLowerCase()) ? 'an' : 'a';
+            };
+
+            this.addMessage(`You eat ${indefiniteArticle(itemName)} ${itemName.toLowerCase()}.`, 'lime');
+
             heal.on('animationcomplete', () => {
                 heal.destroy();
             }, this);
@@ -1246,53 +1326,6 @@ if (!this.playerHasIngredients(item)) {
         }
     }
 
-    //craft item function
-    createItem(itemName) {
-        const item = itemInfo[itemName];
-        if (item && item.ingredients) {
-            // Check if player has all the required ingredients
-            const hasIngredients = item.ingredients.every(ingredientName => {
-                const ingredient = PlayerState.inventory.find(invItem => invItem.name.toLowerCase() === ingredientName.toLowerCase());
-                return ingredient && ingredient.quantity >= 1;  // Check if ingredient exists and quantity is enough
-            });
-
-            if (hasIngredients) {
-                // Reduce the quantity of the ingredients used
-                item.ingredients.forEach(ingredientName => {
-                    const ingredient = PlayerState.inventory.find(invItem => invItem.name === ingredientName);
-                    if (ingredient.quantity > 1) {
-                        ingredient.quantity--;
-                    } else {
-                        const ingredientIndex = PlayerState.inventory.indexOf(ingredient);
-                        PlayerState.inventory.splice(ingredientIndex, 1);
-                    }
-                });
-
-                // Check if the new item already exists in the inventory
-                const existingItem = PlayerState.inventory.find(invItem => invItem.name === item.itemName);
-
-                if (existingItem) {
-                    // If the item already exists, increment its quantity
-                    existingItem.quantity++;
-                } else {
-                    // If the item doesn't exist, add it to the inventory
-                    const newItem = {
-                        name: item.itemName,
-                        quantity: 1
-                    };
-                    PlayerState.inventory.push(newItem);
-                }
-
-                this.updateInventoryDisplay(); // Update the inventory display
-            } else {
-                console.log('You do not have the required ingredients to create this item.');
-            }
-        } else {
-            console.log('This item cannot be created.');
-        }
-
-        console.log('Final inventory:', JSON.stringify(PlayerState.inventory));  // Print final inventory
-    }
 
     destroyItem(itemName) {
         const index = PlayerState.inventory.findIndex(item => item.name === itemName);
@@ -1307,17 +1340,162 @@ if (!this.playerHasIngredients(item)) {
         } else {
         }
     }
+
+
+    destroyAllItem(itemName) {
+        const index = PlayerState.inventory.findIndex(item => item.name === itemName);
+        if (index !== -1) {
+            PlayerState.inventory.splice(index, 1);
+            this.updateInventoryDisplay(); // Update the inventory display
+        } else {
+        }
+    }
+
     useItem(itemName) {
         const item = itemInfo[itemName.charAt(0).toUpperCase() + itemName.slice(1)];
         if (item) {
             if (itemName.toLowerCase() === 'log' && PlayerState.isNearFire) {
                 this.mainScene.useLogOnFire(this.fire);
                 this.consumeItem(itemName);
+            } else if (itemName.toLowerCase() === 'log' && !PlayerState.isNearFire) {
+                this.addMessage('You are not near a fire.', 'tomato');
             } else if (item.itemConsumable) {
                 this.consumeItem(itemName);
+            } else if (item.isEquippable) {
+                // If there's already an item equipped in the same slot
+                if (PlayerState.equipment[item.equipmentSlot] && PlayerState.equipment[item.equipmentSlot].equipmentName !== null) {
+                    // Check if the inventory is full
+                    const isInventoryFull = PlayerState.inventory.length >= 11; // Assuming 11 is the max inventory size
+    
+                    // Check if the currently equipped item already exists in the inventory
+                    const isEquippedItemInInventory = PlayerState.inventory.some(invItem => invItem.name === PlayerState.equipment[item.equipmentSlot].itemName);
+    
+                    // If the inventory is full and the currently equipped item doesn't already exist in the inventory
+                    if (isInventoryFull && !isEquippedItemInInventory) {
+                        // Add a text message on screen:
+                        this.addMessage(`Bag is full, cannot equip ${item.friendlyName}.`, 'tomato');
+                        return;
+                    }
+    
+                    // Use unequipItem to remove the currently equipped item
+                    this.unequipItem(item.equipmentSlot);
+                }
+    
+                // Equip the new item
+                PlayerState.equipment[item.equipmentSlot] = item;
+                PlayerState.justEquipped = true;
+    
+                // Decrease the quantity of the new item in the inventory by 1
+                const itemIndex = PlayerState.inventory.findIndex(invItem => invItem.name === itemName);
+                if (itemIndex !== -1) {
+                    PlayerState.inventory[itemIndex].quantity -= 1;
+    
+                    // If the quantity of the item in the inventory is 0, remove it from the inventory
+                    if (PlayerState.inventory[itemIndex].quantity === 0) {
+                        PlayerState.inventory.splice(itemIndex, 1);
+                    }
+                }
+    
+                this.updateEquipmentDisplay();
             }
+    
             this.updateInventoryDisplay(); // Update the inventory display
-        } else {
+        }
+    }
+
+
+    addMessage(message, color) {
+        // Create a new Text object for the message with wordWrap set to 150
+        let text = this.add.text((this.x * 2) - 30, 30, message, { ...textStyles.messageText, wordWrap: { width: 400 } });
+        text.setOrigin(1, 0);
+        text.setLineSpacing(5)
+
+        // Set the color of the text
+        text.setColor(color);
+
+        // Add the Text object to the end of the array
+        this.messageArray.push(text);
+
+        // If there are more than 4 messages, remove the oldest one
+        if (this.messageArray.length > 5) {
+            let oldestMessage = this.messageArray.shift();
+            oldestMessage.destroy();  // Destroy the Text object of the oldest message
+        }
+
+        // Update the displayed text
+        let lastY = 30;  // The y position of the last message
+        this.messageArray.forEach((text, index) => {
+            // Set the y position of the Text object to be a fixed distance below the last message
+            text.setY(lastY);
+
+            // Calculate the height of the text after it wraps
+            const textHeight = text.getBounds().height;
+
+            // Update the y position of the last message
+            lastY += textHeight + 10;  // Add 5 for the line spacing
+        });
+    }
+
+    updateEquipmentDisplay() {
+        // Clear the current display
+        this.equipmentContainer.removeAll(true);
+
+        // Loop through the equipment slots
+        for (let slot in PlayerState.equipment) {
+            const item = PlayerState.equipment[slot];
+            const x = 50; // x increments by the index, starting from xOffset
+            const y = 130; // y is a fixed value
+
+            let itemSprite;
+
+            if (item && item.itemName) {
+                itemSprite = this.add.sprite(x, y, item.itemName.toLowerCase()).setInteractive().setScale(1).setOrigin(0.5).setDepth(10);
+                const zone = this.add.zone(x, y, 55, 55).setOrigin(0.5).setInteractive().setDepth(20);
+                zone.on('pointerdown', (pointer) => {
+                    if (pointer.leftButtonDown()) {
+                        this.unequipItem(slot);
+                    }
+                    this.updateEquipmentDisplay();
+                });
+
+                this.equipmentContainer.add([itemSprite, zone]);
+            }
+        }
+    }
+
+    unequipItem(slot) {
+        const item = PlayerState.equipment[slot];
+        if (item && item.itemName) {
+            // Check if the inventory is full and the item doesn't already exist in the inventory
+            const isInventoryFull = PlayerState.inventory.length >= 11; // Assuming 11 is the max inventory size
+            const isItemInInventory = PlayerState.inventory.some(invItem => invItem.name === item.itemName);
+            if (isInventoryFull && !isItemInInventory) {
+                this.addMessage(`Bag is full, cannot unequip ${item.friendlyName}.`, 'tomato');
+
+                return;
+            }
+
+            // Check if the item already exists in the inventory
+            const existingItem = PlayerState.inventory.find(invItem => invItem.name === item.itemName);
+
+            if (existingItem) {
+                // If the item already exists, increment its quantity
+                existingItem.quantity++;
+            } else {
+                // If the item doesn't exist, add it to the inventory
+                const newItem = {
+                    name: item.itemName,
+                    quantity: 1
+                };
+                PlayerState.inventory.push(newItem);
+            }
+
+            // Remove the item from the equipment
+            delete PlayerState.equipment[slot];
+
+            // Update the displays
+            this.updateInventoryDisplay();
+            this.updateEquipmentDisplay();
         }
     }
 

@@ -29,12 +29,32 @@ export class mainScene extends Phaser.Scene {
         super({ key: 'mainScene' });
         this.tiles = {};
         this.allEntities = [];
+        this.collarParams = {
+            x: 0,
+            y: 0,
+            texture: null,
+            scale: 1,
+            depth: 5,
+            pipeline: 'Light2D',
+            label: 'collar',
+            light: {
+                color: 0xffffcc,
+                x: null,
+                y: null,
+                intensity: 1.5,
+                radius: 100,
+                falloff: 1,
+                angle: 0,
+                penumbra: 0
+            }
+        };
         this.isDashing = false;
         this.ashes = [];
         this.tileWidth = GAME_CONFIG.TILE_WIDTH;
         this.cat = null; // Will be set in create()
         this.cursors = null; // Will be set in create()
         this.monsters = {};
+        this.currentCollarName = null;
         this.tilesBuffer = GAME_CONFIG.TILES_BUFFER;
         this.moveSpeed = PlayerState.speed;
         this.diagonalVelocity = (this.moveSpeed / Math.sqrt(2));
@@ -60,7 +80,7 @@ export class mainScene extends Phaser.Scene {
         this.bushs = [];
         this.bush = [];
         this.lastRegenerateEnergyTime = 0;
-        this.positionChangeThreshold = 0.05 * this.tileWidth;
+        this.positionChangeThreshold = 0.025 * this.tileWidth;
         this.newpositionChangeThreshold = 1 * this.tileWidth;
         this.intersections = [];
         this.slices = [];
@@ -81,16 +101,21 @@ export class mainScene extends Phaser.Scene {
             friction: 0,
         }).setScale(1).setCircle((1) * 42).setDepth(5)
 
+        this.checkCollar();
         // Adjust the physics properties of the this.cat
         const catBody = this.cat.body;
         catBody.inertia = Infinity; // Prevent rotation
         catBody.inverseInertia = 0;
         catBody.mass = 1;
+
         this.cat.body.friction = 0;
         this.cat.body.frictionAir = 0;
+
+
         this.cat.setPipeline('Light2D');
         catBody.label = 'player';
         this.postFxPlugin = this.plugins.get('rexoutlinepipelineplugin');
+
 
         // Loop through each event option
         eventOptions.forEach(option => {
@@ -131,7 +156,7 @@ export class mainScene extends Phaser.Scene {
 
             // Refresh the texture
             shadowTexture1.refresh();
-        
+
             let shadowTexture2 = this.textures.createCanvas(`${monsterType}Shadow2`, trimmedWidth, trimmedHeight);
             ctx = shadowTexture2.getContext();
 
@@ -155,16 +180,27 @@ export class mainScene extends Phaser.Scene {
             }
 
             // Refresh the texture
-            shadowTexture2.refresh();    
+            shadowTexture2.refresh();
 
             // Create an animation with the shadow texture
             this.anims.create({
                 key: `${monsterType}ShadowAnimation`,
-                frames: [{ key: `${monsterType}Shadow1`}, { key: `${monsterType}Shadow2`}],
+                frames: [{ key: `${monsterType}Shadow1` }, { key: `${monsterType}Shadow2` }],
                 frameRate: 3, // Adjust this value to your needs
                 repeat: -1 // This will make the animation loop indefinitely
             });
         });
+
+        //Gametime manipulation
+
+        this.input.keyboard.on('keydown-P', () => {
+            PlayerState.gameTime = 10;
+        });
+
+        this.input.keyboard.on('keydown-O', () => {
+            PlayerState.gameTime = 23;
+        });
+
 
         // Create a new canvas texture for the small shadow
         let smallTexture = this.textures.createCanvas('smallShadow', 32, 32);
@@ -272,26 +308,26 @@ export class mainScene extends Phaser.Scene {
         }
         treeShadowTexture.refresh();
 
-                // Create a new canvas texture for the small shadow
-                let treeShadowTexture2 = this.textures.createCanvas('treeShadow2', 64 * 3.6, 64 * 2.8);
-                ctx = treeShadowTexture2.getContext();
-                squareSize = 5; // Size of the squares
-                radiusX = 32 * 3.6; // Radius along the x axis
-                radiusY = 13 * 2.8; // Radius along the y axis
-        
-                for (let y = 0; y < 64 * 2.8; y += squareSize) {
-                    for (let x = 0; x < 64 * 3.6; x += squareSize) {
-                        let distX = Math.abs(x + squareSize / 2 - 32 * 3.6) / radiusX;
-                        let distY = Math.abs(y + squareSize / 2 - 32 * 2.8) / radiusY;
-                        let dist = Math.sqrt(distX * distX + distY * distY);
-        
-                        if (dist < 1) {
-                            ctx.fillStyle = '#000000';
-                            ctx.fillRect(x, y, squareSize, squareSize);
-                        }
-                    }
+        // Create a new canvas texture for the small shadow
+        let treeShadowTexture2 = this.textures.createCanvas('treeShadow2', 64 * 3.6, 64 * 2.8);
+        ctx = treeShadowTexture2.getContext();
+        squareSize = 5; // Size of the squares
+        radiusX = 32 * 3.6; // Radius along the x axis
+        radiusY = 13 * 2.8; // Radius along the y axis
+
+        for (let y = 0; y < 64 * 2.8; y += squareSize) {
+            for (let x = 0; x < 64 * 3.6; x += squareSize) {
+                let distX = Math.abs(x + squareSize / 2 - 32 * 3.6) / radiusX;
+                let distY = Math.abs(y + squareSize / 2 - 32 * 2.8) / radiusY;
+                let dist = Math.sqrt(distX * distX + distY * distY);
+
+                if (dist < 1) {
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(x, y, squareSize, squareSize);
                 }
-                treeShadowTexture2.refresh();
+            }
+        }
+        treeShadowTexture2.refresh();
 
         this.targetMonsterKey = null;
 
@@ -532,26 +568,26 @@ export class mainScene extends Phaser.Scene {
             if (!this.isFainting && this.canAttack) {
                 let attackName;
 
-                if(!PlayerState.isMenuOpen){
+                if (!PlayerState.isMenuOpen) {
 
 
-                switch (event.code) {
-                    case 'KeyZ':
-                        attackName = PlayerState.selectedAttacks[1] || 'scratch';
-                        break;
-                    case 'KeyX':
-                        attackName = PlayerState.selectedAttacks[2] || 'scratch';
-                        break;
-                    case 'KeyC':
-                        attackName = PlayerState.selectedAttacks[3] || 'scratch';
-                        break;
-                    case 'Space':
-                        attackName = 'scratch';
-                        this.handleItemPickup(this.cat);
-                        break;
-                    default:
-                        return; // Exit the function if a non-attack key is pressed
-                }
+                    switch (event.code) {
+                        case 'KeyZ':
+                            attackName = PlayerState.selectedAttacks[1] || 'scratch';
+                            break;
+                        case 'KeyX':
+                            attackName = PlayerState.selectedAttacks[2] || 'scratch';
+                            break;
+                        case 'KeyC':
+                            attackName = PlayerState.selectedAttacks[3] || 'scratch';
+                            break;
+                        case 'Space':
+                            attackName = 'scratch';
+                            this.handleItemPickup(this.cat);
+                            break;
+                        default:
+                            return; // Exit the function if a non-attack key is pressed
+                    }
                 }
 
                 if (this.canAttack && attackName !== undefined && !PlayerState.isEating) {
@@ -569,51 +605,68 @@ export class mainScene extends Phaser.Scene {
                             this.launchProjectile(targetMonster);
                         }
                     }
-
                     switch (this.lastDirection) {
                         case 'up':
                             this.attackAnimationKey = `attack${attackNumber}-back`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'up';
                             break;
                         case 'down':
                             this.attackAnimationKey = `attack${attackNumber}-front`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'down';
                             break;
                         case 'left':
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'left';
                             break;
                         case 'right':
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'right';
                             break;
                         case 'upLeft':
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'upLeft';
                             break;
                         case 'upRight':
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'upRight';
                             break;
                         case 'downLeft':
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'downLeft';
                             break;
                         case 'downRight':
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             this.lastDirection = 'downRight';
                             break;
                         default:
                             this.attackAnimationKey = `attack${attackNumber}`;
+                            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                            }
                             break;
                     }
-
                     // Start the new animation
                     this.cat.play(this.attackAnimationKey, true);
+                    this.checkCollarAnims(this.attackAnimationKey)
                 }
             }
         });
-    
+
 
         let lastPressTime = 0;
         let lastDashTime = 0;
@@ -640,6 +693,8 @@ export class mainScene extends Phaser.Scene {
         });
 
         this.allEntities.push(this.cat);
+        this.allEntities.push(this.collar);
+        
 
         this.cat.on('animationcomplete', (animation, frame) => {
             if (animation.key === this.attackAnimationKey) {
@@ -671,7 +726,8 @@ export class mainScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        PlayerState.gameTime += delta / 30000;
+
+        PlayerState.gameTime += delta / 300000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
@@ -755,12 +811,19 @@ export class mainScene extends Phaser.Scene {
             }
         });
         if (PlayerState.isAttacking && this.targetMonsterKey) {
-            this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
-
-        }
-
-        else if (PlayerState.isAttacking && !PlayerState.isDead) {
-            this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            if (this.cat) {
+                this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            }
+            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null && this.collar) {
+                this.collar.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            }
+        } else if (PlayerState.isAttacking && !PlayerState.isDead) {
+            if (this.cat) {
+                this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            }
+            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null && this.collar) {
+                this.collar.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            }
         }
 
         let treesCopy = [...this.trees];
@@ -805,6 +868,12 @@ export class mainScene extends Phaser.Scene {
                 monster.monsterShadow.y -= 15;
                 monster.sprite.play(`${monster.event.monster}_die`, true);
                 this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
+
+                if (monster.aggroSprite) {
+                    this.allEntities = this.allEntities.filter(entity => entity !== monster.aggroSprite);
+                    monster.aggroSprite.destroy();
+                }
+                
             } else if (monster.isTweening) {
                 monster.sprite.play(`${monster.event.monster}_fall`, true);
             } else if (monster.isHurt) {
@@ -872,24 +941,7 @@ export class mainScene extends Phaser.Scene {
             }
         }
 
-        this.fires.forEach((fire) => {
-            if (fire && fire.active) {
-                const fireBody = fire.body;
 
-                const fireCenterX = fireBody.position.x;
-                const fireCenterY = fireBody.position.y;
-
-                const dx = this.cat.x - fireCenterX;
-                const dy = this.cat.y - fireCenterY;
-                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
-
-                if (distanceInTiles <= 1.1) {
-                    this.fireAttack(fire);
-                }
-
-                this.isNearFire(fire);
-            }
-        });
         // Step 1: Calculate all depths
         this.allEntities.forEach((entity) => {
             if (entity.label === 'log') {
@@ -901,7 +953,13 @@ export class mainScene extends Phaser.Scene {
             } else if (entity.label === 'treeShadow') {
                 let treeDepth = entity.parentTree ? entity.parentTree.depth : (entity.y / 10);
                 entity.setDepth(treeDepth - 5); // Slightly behind the tree regardless of 'y'
-    
+
+            } else if (entity.label === 'collar') {
+                if (entity.depth === null) {
+                    entity.setDepth(2);
+                } else {
+                    entity.setDepth(6 + (entity.y / 10));
+                }
             }
             else if (entity.label === 'bushShadow') {
                 //bush shadow depth should be less than the bush depth
@@ -910,6 +968,13 @@ export class mainScene extends Phaser.Scene {
                 } else {
                     entity.setDepth((entity.y - 20) / 10);
                 }
+            }
+            else if (entity.label === 'aggro') {
+                if (entity.depth === null) {
+                    entity.setDepth(1);
+                } else {
+                    entity.setDepth(15 + (entity.y / 10));
+                }            
             }
             if (entity.body) {
                 if (entity.y === null) {
@@ -952,32 +1017,152 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
+        this.fires.forEach((fire) => {
+            if (fire && fire.active) {
+                const fireBody = fire.body;
+
+                const fireCenterX = fireBody.position.x;
+                const fireCenterY = fireBody.position.y;
+
+                const dx = this.cat.x - fireCenterX;
+                const dy = this.cat.y - fireCenterY;
+                const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+
+                if (distanceInTiles <= 1.1) {
+                    this.fireAttack(fire);
+                }
+
+                this.isNearFire(fire);
+            }
+        });
+
         Object.values(this.monsters).forEach(monster => {
             if (!monster.sprite || !monster.sprite.body) {
                 return;
             }
 
+            // If the monster is aggressive and the aggro sprite doesn't exist, create it
+            if (monster.isAggressive && !monster.aggroSprite) {
+                monster.aggroSprite = this.add.sprite(monster.sprite.x, monster.sprite.y, 'aggro');
+                monster.aggroSprite.label = 'aggro';
+                //add light to aggro sprite
+                monster.aggroSprite.setPipeline('Light2D');
+                this.allEntities.push(monster.aggroSprite);
+            }
+
+            // If the monster is not aggressive and the aggro sprite exists, destroy it
+            if (!monster.isAggressive && monster.aggroSprite) {
+                monster.aggroSprite.destroy();
+                monster.aggroSprite = null;
+            }
+
+            // If the aggro sprite exists, position it at the same location as the monster
+            if (monster.aggroSprite) {
+                monster.aggroSprite.x = monster.sprite.x;
+                monster.aggroSprite.y = monster.sprite.y - 100
+            }
+            let uiScene = this.scene.get('UIScene');
+
+            if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                if (PlayerState.equipment.collar.light) {
+                    const dxCollar = this.cat.x - monster.sprite.body.position.x;
+                    const dyCollar = this.cat.y - monster.sprite.body.position.y;
+                    const distanceCollar = Math.sqrt(dxCollar * dxCollar + dyCollar * dyCollar);
+
+                    // Check if the monster is within the light radius
+                    if (distanceCollar <= PlayerState.equipment.collar.lightRadius * 1.5) {
+                        // If the repel chance hasn't been rolled for this monster yet
+                        if (monster.repelRolled === undefined && monster.isAggressive) {
+                            // Roll a random number between 0 and 1
+                            let roll = Math.random();
+                            // If the roll is less than the repel chance, set the monster to unaggressive
+                            if (roll < PlayerState.equipment.collar.repelChance) {
+                                monster.isAggressive = false;
+                                uiScene.addMessage(`Your ${PlayerState.equipment.collar.friendlyName} repels the ${monster.name}!`, '#ff9a6e');
+                            }
+
+                            // Mark that the repel chance has been rolled for this monster
+                            monster.repelRolled = false;
+                        }
+                    }
+                }
+            }
+
+
             this.fires.forEach(fire => {
                 if (!fire || !fire.active) {
                     return;
                 }
+                if (monster.isAggressive) {
 
-                // Use the fire's body position to get the center of the sprite
-                const fireCenterX = fire.body.position.x;
-                const fireCenterY = fire.body.position.y;
+                    // Use the fire's body position to get the center of the sprite
+                    const fireCenterX = fire.body.position.x;
+                    const fireCenterY = fire.body.position.y;
 
-                const dx = monster.sprite.body.position.x - fireCenterX;
-                const dy = monster.sprite.body.position.y - fireCenterY;
-                const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
+                    const dx = monster.sprite.body.position.x - fireCenterX;
+                    const dy = monster.sprite.body.position.y - fireCenterY;
+                    const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
 
-                // Only set monster to unaggressive if it's not immune to fire
-                if (distance <= 5 && !monster.immuneToFire) {
-                    monster.isAggressive = false;
+                    const dx2 = this.cat.x - fireCenterX;
+                    const dy2 = this.cat.y - fireCenterY;
+                    const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2) / this.tileWidth;
+    
+
+                    if (distance >= 5 || distance2 >= 5) {
+                        return;
+                    }
+
+                    if (monster.randomRoll === undefined) {
+                        let fireBonus = PlayerState.equipment.collar && PlayerState.equipment.collar.fireBonus ? PlayerState.equipment.collar.fireBonus : 0;
+                        monster.randomRoll = Math.floor(Math.random() * (fireBonus + 3));
+                    }
+
+                    if (monster.fireRepelled <= monster.randomRoll) {
+                        // Increment fireRepelled or initialize it to 1 if it doesn't exist
+                        let message;
+                        let color;
+                        if (monster.randomRoll - monster.fireRepelled >= 3) {
+                            monster.isAggressive = false;
+                        } else if (monster.randomRoll - monster.fireRepelled === 2) {
+                            monster.isAggressive = false;
+                        } else if (monster.randomRoll - monster.fireRepelled === 1) {
+                            monster.isAggressive = false;
+                        } else if (monster.randomRoll - monster.fireRepelled <= 0) {
+                            message = `The ${monster.name} ignores the fire!`;
+                            color = '#ff987d';
+                        }
+
+                        monster.fireRepelled = (monster.fireRepelled || 0) + 1;
+
+                        
+                        if (message) {
+                            uiScene.addMessage(message, color);
+                        }
+                    }
                 }
             });
         });
     }
 
+    checkCollar() {
+        if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+
+            this.collar = this.add.sprite(this.cat.x, this.cat.y, null).setScale(1).setDepth(5);
+            this.collar.setPipeline(this.collarParams.pipeline);
+            this.collar.label = this.collarParams.label;
+            this.currentCollarName = PlayerState.equipment.collar.itemName;
+            if (PlayerState.equipment.collar.light) {
+                this.collar.light = this.lights.addLight(this.cat.x, this.cat.y, PlayerState.equipment.collar.lightRadius).setColor(0xFF4500).setIntensity(PlayerState.equipment.collar.lightIntensity);
+            }
+        }
+        else {
+            this.collar = this.add.sprite(this.cat.x, this.cat.y, null).setScale(1).setDepth(5);
+            this.collar.setPipeline(this.collarParams.pipeline);
+            this.collar.label = this.collarParams.label;
+            this.currentCollarName = null;
+            this.collar.light = null
+        }
+    }
 
 
     fireAttack(fire) {
@@ -1020,6 +1205,7 @@ export class mainScene extends Phaser.Scene {
 
     }
 
+
     // Set a flag in PlayerState when player is near fire
     isNearFire() {
         PlayerState.isNearFire = false; // Reset the flag
@@ -1034,11 +1220,12 @@ export class mainScene extends Phaser.Scene {
                 const dy = this.cat.y - fireCenterY;
                 const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
 
-
                 if (distance <= 2.5) {
                     PlayerState.isNearFire = true;
                     return; // Exit the loop as soon as we find a fire the player is near
                 }
+
+                
             }
         });
     }
@@ -1332,7 +1519,7 @@ export class mainScene extends Phaser.Scene {
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
-        const fireProbability = 0.35 * (1 + PlayerState.fireBonus / 100);
+        const fireProbability = 0.50 * (1 + PlayerState.fireBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
 
@@ -1413,65 +1600,65 @@ export class mainScene extends Phaser.Scene {
 
         let velocityX = 0, velocityY = 0;
 
-        if(!PlayerState.isMenuOpen){
+        if (!PlayerState.isMenuOpen) {
 
-        if (this.cursors.left.isDown && this.cursors.up.isDown) {
-            // Handle up-left diagonal movement
-            velocityX = -this.diagonalVelocity;
-            velocityY = -this.diagonalVelocity;
-            if (!this.isDashing) {
-                this.lastDirection = 'upLeft';
-            }
-        } else if (this.cursors.right.isDown && this.cursors.up.isDown) {
-            // Handle up-right diagonal movement
-            velocityX = this.diagonalVelocity;
-            velocityY = -this.diagonalVelocity;
-            if (!this.isDashing) {
-                this.lastDirection = 'upRight';
-            }
-        } else if (this.cursors.left.isDown && this.cursors.down.isDown) {
-            // Handle down-left diagonal movement
-            velocityX = -this.diagonalVelocity;
-            velocityY = this.diagonalVelocity;
-            if (!this.isDashing) {
-                this.lastDirection = 'downLeft';
-            }
-        } else if (this.cursors.right.isDown && this.cursors.down.isDown) {
-            // Handle down-right diagonal movement
-            velocityX = this.diagonalVelocity;
-            velocityY = this.diagonalVelocity;
-            if (!this.isDashing) {
-                this.lastDirection = 'downRight';
-            }
-        } else if (this.cursors.left.isDown) {
-            // Handle left movement
-            velocityX = -this.moveSpeed;
-            if (!this.isDashing) {
-                this.lastDirection = 'left';
-            }
-        } else if (this.cursors.right.isDown) {
-            // Handle right movement
-            velocityX = this.moveSpeed;
-            if (!this.isDashing) {
-                this.lastDirection = 'right';
-            }
-        } else if (this.cursors.up.isDown) {
-            // Handle up movement
-            velocityY = -this.moveSpeed;
-            if (!this.isDashing) {
-                this.lastDirection = 'up';
-            }
-        } else if (this.cursors.down.isDown) {
-            // Handle down movement
-            velocityY = this.moveSpeed;
-            if (!this.isDashing) {
-                this.lastDirection = 'down';
+            if (this.cursors.left.isDown && this.cursors.up.isDown) {
+                // Handle up-left diagonal movement
+                velocityX = -this.diagonalVelocity;
+                velocityY = -this.diagonalVelocity;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'upLeft';
+                }
+            } else if (this.cursors.right.isDown && this.cursors.up.isDown) {
+                // Handle up-right diagonal movement
+                velocityX = this.diagonalVelocity;
+                velocityY = -this.diagonalVelocity;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'upRight';
+                }
+            } else if (this.cursors.left.isDown && this.cursors.down.isDown) {
+                // Handle down-left diagonal movement
+                velocityX = -this.diagonalVelocity;
+                velocityY = this.diagonalVelocity;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'downLeft';
+                }
+            } else if (this.cursors.right.isDown && this.cursors.down.isDown) {
+                // Handle down-right diagonal movement
+                velocityX = this.diagonalVelocity;
+                velocityY = this.diagonalVelocity;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'downRight';
+                }
+            } else if (this.cursors.left.isDown) {
+                // Handle left movement
+                velocityX = -this.moveSpeed;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'left';
+                }
+            } else if (this.cursors.right.isDown) {
+                // Handle right movement
+                velocityX = this.moveSpeed;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'right';
+                }
+            } else if (this.cursors.up.isDown) {
+                // Handle up movement
+                velocityY = -this.moveSpeed;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'up';
+                }
+            } else if (this.cursors.down.isDown) {
+                // Handle down movement
+                velocityY = this.moveSpeed;
+                if (!this.isDashing && !PlayerState.isEating) {
+                    this.lastDirection = 'down';
+                }
             }
         }
-    }
 
         if (PlayerState.isAttacking && !this.isDashing) {
-            const attackSpeedReductionFactor = 0.5;
+            const attackSpeedReductionFactor = 0.3;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
@@ -1483,8 +1670,18 @@ export class mainScene extends Phaser.Scene {
         }
 
         this.cat.setVelocity(velocityX, velocityY);
+        if (this.collar) {
+        if(PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+            this.collar.x = this.cat.x;
+            this.collar.y = this.cat.y;
+            if (PlayerState.equipment.collar.light) {
+            this.collar.light.x = this.cat.x;
+            this.collar.light.y = this.cat.y;
+        }
+    }
+    }
         this.handlePlayerAnimations(this.lastDirection, velocityX, velocityY);
-    
+
     }
 
     updateTargetMonsterKey(attackName) {
@@ -1602,7 +1799,7 @@ export class mainScene extends Phaser.Scene {
 
 
         const fireShadow = this.add.sprite(fire.x, fire.y, 'fire');
-        fireShadow.setTint(0x000000); // Set the tint to orange
+        fireShadow.setTint(0x000000); // Set the tint to black
         fireShadow.setOrigin(0.5, 0.5);
         fireShadow.setPipeline('Light2D');
         fireShadow.setDepth(1);
@@ -1713,6 +1910,8 @@ export class mainScene extends Phaser.Scene {
         // Find the fire closest to the player
         let closestFire = null;
         let closestDistance = Infinity;
+        let uiScene = this.scene.get('UIScene');
+
         this.fires.forEach((fire) => {
             if (fire && fire.active) {
                 const fireBody = fire.body;
@@ -1730,6 +1929,7 @@ export class mainScene extends Phaser.Scene {
                 }
             }
         });
+
 
         // Extend the timer for the closest fire
         if (closestFire && closestFire.timerEvent) {
@@ -1815,7 +2015,28 @@ export class mainScene extends Phaser.Scene {
                     log.destroy();
                 }
             });
+
+            //uiscene
+            let remainingTimeMs = closestFire.endTime - Date.now();
+            let remainingTimeSec = Math.floor(remainingTimeMs / 1000);
+            let remainingMinutes = Math.floor(remainingTimeSec / 60);
+            let remainingSeconds = remainingTimeSec % 60;
+
+            let remainingTimeString;
+            if (remainingMinutes > 0) {
+                remainingTimeString = `${remainingMinutes} ${remainingMinutes > 1 ? 'mins' : 'min'}`;
+                if (remainingSeconds > 0) {
+                    remainingTimeString += ` ${remainingSeconds} ${remainingSeconds > 1 ? 'secs' : 'sec'}`;
+                }
+            } else if (remainingSeconds > 0) {
+                remainingTimeString = `${remainingSeconds} ${remainingSeconds > 1 ? 'secs' : 'sec'}`;
+            } else {
+                remainingTimeString = 'now';
+            }
+
+            uiScene.addMessage(`The fire burns for another ${remainingTimeString}.`, '#ffc284');
         } else {
+
         }
     }
 
@@ -1896,7 +2117,7 @@ export class mainScene extends Phaser.Scene {
                     treeShadow.play('treeshadowAnimation', true);
                 } else {
                     console.error('Animation treeshadowAnimation does not exist');
-                }            
+                }
             }
         } else {
             const treeVertices = this.createTreeVertices(x, y);
@@ -1935,7 +2156,7 @@ export class mainScene extends Phaser.Scene {
                     treeShadow.play('treeshadowAnimation', true);
                 } else {
                     console.error('Animation treeshadowAnimation does not exist');
-                }            
+                }
             }
 
             this.setBodyProperties(tree.body);
@@ -2069,6 +2290,7 @@ export class mainScene extends Phaser.Scene {
         pondBody.label = 'pond';
         pond.setExistingBody(pondBody).setOrigin(originX, originY);
         pond.setPipeline('Light2D');
+        pond.setDepth(2);
         pond.play(randomPondType);
 
         this.ponds.push(pond);
@@ -2297,6 +2519,53 @@ export class mainScene extends Phaser.Scene {
         });
     }
 
+
+    checkCollarAnims(catAnimationKey) {
+        if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+            // If the collar sprite doesn't exist or the equipped collar has changed, create a new collar sprite
+            if (!this.collar || (this.collar && this.currentCollarName !== PlayerState.equipment.collar.itemName)) {
+                // If a collar sprite already exists, destroy it
+                if (this.collar) {
+                    this.allEntities = this.allEntities.filter(entity => entity !== this.collar);
+                    this.lights.removeLight(this.collar.light);
+                    this.collar.destroy();
+                }
+
+                // Create a new collar sprite
+                this.collar = this.add.sprite(this.cat.x, this.cat.y, PlayerState.equipment.collar.itemName)
+                    .setScale(1)
+                this.collar.setPipeline('Light2D');
+                this.currentCollarName = PlayerState.equipment.collar.itemName; // Update the currentCollarName
+                this.collar.label = this.collarParams.label;
+                if (PlayerState.equipment.collar.light) {
+                    this.collar.light = this.lights.addLight(this.cat.x, this.cat.y, PlayerState.equipment.collar.lightRadius).setColor(0xFF4500).setIntensity(PlayerState.equipment.collar.lightIntensity);
+                }
+
+                // Add the new collar to all entities
+                this.allEntities.push(this.collar);
+                this.cat.stop();
+                this.cat.play(catAnimationKey, true);
+            }
+
+            let currentCatAnimation = this.cat.anims.currentAnim.key.replace(/-/g, '_');
+            let collarAnimation = PlayerState.equipment.collar.equipmentName + '_' + currentCatAnimation;
+            this.collar.play(collarAnimation, true, this.cat.anims.currentFrame.frameNumber);
+
+            this.collar.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+            this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+
+        } else {
+            // If the collar is not equipped, destroy the collar sprite
+            if (this.collar) {
+                this.allEntities = this.allEntities.filter(entity => entity !== this.collar);
+                this.lights.removeLight(this.collar.light);
+                this.collar.destroy();
+                this.collar = null; // Set to null so we know it's destroyed
+            }
+            this.cat.flipX = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
+        }
+    }
+
     handlePlayerAnimations(lastDirection, velocityX, velocityY) {
 
         if (PlayerState.isDead) {
@@ -2304,18 +2573,21 @@ export class mainScene extends Phaser.Scene {
         }
 
         //if this.isdashing is true, then the player is dashing increase speed and play attack5 animation
-        if (this.isDashing) {
+        if (this.isDashing && !PlayerState.isEating) { 
             this.moveSpeed *= 1.0145
             //increase diagonal velocity
             this.diagonalVelocity = (this.moveSpeed / Math.sqrt(2));
-
             // Determine the animation key based on the last direction
             switch (this.lastDirection) {
                 case 'up':
                     this.attackAnimationKey = 'attack5-back';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
                     break;
                 case 'down':
                     this.attackAnimationKey = 'attack5-front';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
                     break;
                 case 'left':
                 case 'right':
@@ -2324,14 +2596,17 @@ export class mainScene extends Phaser.Scene {
                 case 'downLeft':
                 case 'downRight':
                     this.attackAnimationKey = 'attack5';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
                     break;
                 default:
                     this.attackAnimationKey = 'attack5';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
                     break;
             }
-
             this.cat.play(this.attackAnimationKey, true);
-
+            this.checkCollarAnims(this.attackAnimationKey);
             // After the animation is complete, set this.isDashing to false and reset the speed
             this.cat.on('animationcomplete', () => {
                 this.isDashing = false;
@@ -2344,7 +2619,7 @@ export class mainScene extends Phaser.Scene {
 
         //if player is underattack apply red tint for 1 second
         if (PlayerState.isHurt) {
-            this.cat.setTint(0xff0000);
+            this.cat.setTint(0xffffff);
 
             // Start flashing
             let flash = setInterval(() => {
@@ -2363,66 +2638,124 @@ export class mainScene extends Phaser.Scene {
 
 
         if (PlayerState.isAttacking && !PlayerState.isEating) {
-            // Adjust the flip of the character without interrupting the animation
             const shouldFlip = (this.lastDirection === 'left' || this.lastDirection === 'upLeft' || this.lastDirection === 'downLeft');
             if (this.cat.flipX !== shouldFlip) {
                 this.cat.flipX = shouldFlip;
+                if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    this.collar.flipX = shouldFlip;
+                }
             }
             return;
         }
 
-        if (PlayerState.isEating) {
-            this.cat.play('eat', true);
-            this.cat.on('animationcomplete', () => {
-                PlayerState.isEating = false;
-            }, this);
-            return;
-        }
+        if (PlayerState.isEating) {            
+            let eatAnimationKey;
 
 
-        if (velocityX === 0 && velocityY === 0 && !PlayerState.isAttacking) {
-            // Handle idle animations based on last direction
             switch (this.lastDirection) {
                 case 'up':
-                    this.cat.play('sit-back', true);
-
+                    eatAnimationKey = 'eat-back';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
+                    this.lastDirection = 'up';
                     break;
                 case 'down':
-                    this.cat.play('sit-forward', true);
-
+                    eatAnimationKey = 'eat-front';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
+                    this.lastDirection = 'down';
+                    break;
+                case 'left':
+                case 'upLeft':
+                case 'downLeft':
+                    eatAnimationKey = 'eat';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
+                    this.lastDirection = 'left';
+                    break;
+                case 'upRight':
+                case 'right':
+                case 'downRight':
+                    eatAnimationKey = 'eat';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
+                    this.lastDirection = 'right';
                     break;
                 default:
-                    this.cat.play('sit', true);
+                    eatAnimationKey = 'eat';
+                    if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+                    }
                     break;
             }
+
+            this.cat.play(eatAnimationKey, true);
+        
+            this.checkCollarAnims(eatAnimationKey);
+
+            this.cat.once('animationcomplete-' + eatAnimationKey, () => {
+                PlayerState.isEating = false; // Reset the isEating flag after the animation completes
+            });
+            
+
+
+    
+            return;
+        }
+
+
+        if (velocityX === 0 && velocityY === 0 && !PlayerState.isAttacking && !PlayerState.isEating) {
+            // Handle idle animations based on last direction
+            let catAnimationKey;
+            switch (this.lastDirection) {
+                case 'up':
+                    catAnimationKey = 'sit-back';
+                    break;
+                case 'down':
+                    catAnimationKey = 'sit-forward';
+                    break;
+                default:
+                    catAnimationKey = 'sit';
+                    break;
+            }
+        
+            this.cat.play(catAnimationKey, true);
+            this.checkCollarAnims(catAnimationKey);
         } else
             // Handle movement animations
             if (this.lastDirection === 'left') {
                 this.cat.play('run', true);
                 this.cat.flipX = true; // flip when moving left
+                this.checkCollarAnims('run');
             } else if (this.lastDirection === 'right') {
                 this.cat.play('run', true);
                 this.cat.flipX = false; // don't flip when moving right
+                this.checkCollarAnims('run');
             } else if (this.lastDirection === 'up') {
                 this.cat.play('up', true);
+                this.checkCollarAnims('up');
             } else if (this.lastDirection === 'down') {
                 this.cat.play('down', true);
+                this.checkCollarAnims('down');
             }
             else if (this.lastDirection === 'upLeft') {
                 this.cat.play('run-diagonal-back', true);
                 this.cat.flipX = true;
+                this.checkCollarAnims('run-diagonal-back');
             }
             else if (this.lastDirection === 'upRight') {
                 this.cat.play('run-diagonal-back', true);
                 this.cat.flipX = false;
+                this.checkCollarAnims('run-diagonal-back');
             }
             else if (this.lastDirection === 'downLeft') {
                 this.cat.play('run-diagonal-front', true);
                 this.cat.flipX = true;
+                this.checkCollarAnims('run-diagonal-front');
             }
             else if (this.lastDirection === 'downRight') {
                 this.cat.play('run-diagonal-front', true);
                 this.cat.flipX = false;
+                this.checkCollarAnims('run-diagonal-front');
             }
     }
 
@@ -2531,7 +2864,7 @@ export class mainScene extends Phaser.Scene {
         this.catShadow.scaleX = 1; // Adjust the scale if needed
         this.catShadow.scaleY = 1; // Adjust the scale if needed
         this.catShadow.alpha = this.getAlphaFromTime(PlayerState.gameTime); // Make the shadow sprite semi-transparent
-        
+
         // For the monster shadows
         Object.values(this.monsters).forEach(monster => {
             if (monster.monsterShadow && monster.sprite && monster.sprite.active) {
@@ -2637,11 +2970,19 @@ export class mainScene extends Phaser.Scene {
         if (this.isFainting) return; // Prevent multiple calls if already processing death
         this.cat.anims.stop(); // Stop current animations
         this.cat.play('dead', true);
+        if (PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
+            this.allEntities = this.allEntities.filter(entity => entity !== this.collar);
+            this.lights.removeLight(this.collar.light);
+            this.collar.destroy();
+            this.collar = null; // Set to null so we know it's destroyed
+        }
+
 
         PlayerState.isDead = true;
         PlayerState.isUnderAttack = false;
         PlayerState.isHurt = false;
         PlayerState.isEating = false;
+        delete PlayerState.equipment.collar;
 
         this.isFainting = true;
         PlayerState.isAttacking = false; // Ensure no attack is in progress
@@ -2652,11 +2993,15 @@ export class mainScene extends Phaser.Scene {
 
         Object.values(this.monsters).forEach(monster => {
             this.gameEvents.endBattleForMonster(monster, null);
-
+    
+            // If the aggro sprite exists, destroy it and remove it from allEntities
+            if (monster.aggroSprite) {
+                this.allEntities = this.allEntities.filter(entity => entity !== monster.aggroSprite);
+            }
+    
             // Remove the current monster from allEntities
             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
-        });
-
+        }); 
 
 
         // Reset the monsters object
@@ -2664,7 +3009,10 @@ export class mainScene extends Phaser.Scene {
 
         // In mainScene.js
         let uiScene = this.scene.get('UIScene');
+        uiScene.addMessage('Oh no! You have fainted!', 'red');
         uiScene.clearInventory();
+        uiScene.updateEquipmentDisplay();
+
 
         this.destroyAll(this.cat.x, this.cat.y, this);
 
@@ -2947,6 +3295,13 @@ export class mainScene extends Phaser.Scene {
                             scene.gameEvents.cleanUpMonster(monster, null, this.allEntities);
                             this.allEntities = this.allEntities.filter(entity => entity !== monster.sprite);
                             delete this.monsters[key];
+
+                            // If the monster is not aggressive and the aggro sprite exists, destroy it
+                            if (monster.aggroSprite) {
+                                this.allEntities = this.allEntities.filter(entity => entity !== monster.aggroSprite);
+                                monster.aggroSprite.destroy();
+                                monster.aggroSprite = null;
+                            }
                         }
                     }
                 }

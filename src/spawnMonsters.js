@@ -153,13 +153,12 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
   const monsterKey = `monster-${Date.now()}-${Phaser.Math.Between(1, 1000)}`; // Example unique key
   function createHealthBar(scene, x, y) {
     const progressBarWidth = 80;
-    const progressBarHeight = 6;
-    const borderOffset = 2;
+    const progressBarHeight = 8;
 
-    const outerRect = scene.add.rectangle(x, y, progressBarWidth + 2 * borderOffset, progressBarHeight + 2 * borderOffset, 0x000000);
+    const outerRect = scene.add.rectangle(x, y, progressBarWidth, progressBarHeight, 0x000000);
     outerRect.setOrigin(0, 0.5).setVisible(false);
 
-    const progressFill = scene.add.rectangle(x + borderOffset, y, progressBarWidth, progressBarHeight, 0xff0000);
+    const progressFill = scene.add.rectangle(x, y, progressBarWidth, progressBarHeight, 0xff0000);
     progressFill.setOrigin(0, 0.5);
     progressFill.displayWidth = progressBarWidth;
 
@@ -178,6 +177,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     monsterShadow: monsterShadow,
     description: chosenMonster.description,
     damage: damage,
+    fireRepelled: 0,
     key: monsterKey,
     attackRange: chosenMonster.attackRange,
     level: modifiedLevel,

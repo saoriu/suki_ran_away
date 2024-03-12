@@ -20,6 +20,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                 parent: 'phaser-game',
                 width: dimensions.width,
                 height: dimensions.height,
+                pixelArt: true, // Enable pixel art mode
                 render: {
                     pixelArt: true,
                 },
@@ -34,7 +35,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                     }
                 },
                 autoRound: false,
-                antialias: true,
+                antialias: false,
                 resolution: window.devicePixelRatio, // Add this line
                 plugins: {
                     scene: [

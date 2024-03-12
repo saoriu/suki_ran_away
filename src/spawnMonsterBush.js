@@ -140,6 +140,7 @@ export function spawnMonsterBush(bushX, bushY, scene, tileWidth, monsters, allEn
         speed: chosenMonster.speed,
         description: chosenMonster.description,
         damage: damage,
+        fireRepelled: 3,
         immuneToFire: true,
         attackSpeed: chosenMonster.attackSpeed,
         key: monsterKey,

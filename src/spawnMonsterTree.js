@@ -4,8 +4,6 @@ import { PlayerState } from './playerState.js';
 
 
 export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEntities) {
-
-    console.log(treeY)
     // At the start of the spawnMonsterTree function
 
     for (const key in monsters) {
@@ -70,7 +68,6 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
     const monsterX = treeX + trimmedWidth / 2 + offset ;    
     const monsterY = treeY + trimmedHeight / 2;
 
-    console.log(monsterX, monsterY)
 
     //define monsterradius based on monster frame data
     let monsterRadius = trimmedWidth / 2;
@@ -84,7 +81,6 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
 
 
   let monsterShadow = scene.add.sprite(monsterX, monsterY, `${monsterSpriteKey}Shadow1`);
-  console.log(monsterShadow)
   monsterShadow.alpha = 0.3; // Make the shadow sprite semi-transparent
   monsterShadow.setPipeline('Light2D');
   monsterShadow.blendMode = Phaser.BlendModes.MULTIPLY;
@@ -151,6 +147,7 @@ export function spawnMonsterTree(treeX, treeY, scene, tileWidth, monsters, allEn
         attackRange: chosenMonster.attackRange,
         attackSpeed: chosenMonster.attackSpeed,
         level: modifiedLevel,
+        fireRepelled: 2,
         isAggressive: true,
         attackComplete: true,
         isTweening: true,

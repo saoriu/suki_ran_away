@@ -38,6 +38,7 @@ app.post('/register', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const playerState = {
     userid: userid,
+    skin: 'default',
     days: 0,
     energy: 100,
     speed: 3,
@@ -46,11 +47,17 @@ app.post('/register', async (req, res) => {
       gathering: { level: 1, xp: 0, totalXP: 0 },
       crafting: { level: 1, xp: 0, totalXP: 0 },
     },
+    equipment: {
+      collar: {
+        equipmentName: null,
+      }
+  },
     lastDamageTime: Date.now(),
     isDead: false,
     isUnderAttack: false,
     isEating: false,
     isHurt: false,
+    isMenuOpen: false,
     JustAte: false,
     isAttacking: false,
     isBeingKnockedBack: false,
@@ -65,7 +72,7 @@ app.post('/register', async (req, res) => {
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
     inventory: [],
-    gameTime: 12,
+    gameTime: 9,
   };
 
   const user = { userid, password: hashedPassword, playerState };

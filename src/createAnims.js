@@ -1,6 +1,97 @@
 export function createAnims(scene, cat) {
 
-   
+    function createItemAnimations(scene, itemName) {
+        const animations = [
+            { key: 'attack2', startFrame: 0, endFrame: 4 },
+            { key: 'attack2_back', startFrame: 5, endFrame: 9 },
+            { key: 'attack2_front', startFrame: 10, endFrame: 14 },
+            { key: 'dead', startFrame: 15, endFrame: 25 },
+            { key: 'down', startFrame: 26, endFrame: 33 },
+            { key: 'eat', startFrame: 34, endFrame: 47 },
+            { key: 'eat_back', startFrame: 48, endFrame: 61 },
+            { key: 'eat_front', startFrame: 62, endFrame: 75 },
+            { key: 'attack6', startFrame: 76, endFrame: 81 },
+            { key: 'attack6_back', startFrame: 82, endFrame: 88 },
+            { key: 'attack6_front', startFrame: 89, endFrame: 95 },
+            { key: 'attack3', startFrame: 96, endFrame: 104 },
+            { key: 'attack3_back', startFrame: 105, endFrame: 113 },
+            { key: 'attack3_front', startFrame: 114, endFrame: 122 },
+            { key: 'attack5', startFrame: 123, endFrame: 136 },
+            { key: 'attack5_back', startFrame: 137, endFrame: 146 },
+            { key: 'attack5_front', startFrame: 147, endFrame: 156 },
+            { key: 'run', startFrame: 157, endFrame: 164 },
+            { key: 'run_diagonal_back', startFrame: 165, endFrame: 172 },
+            { key: 'run_diagonal_front', startFrame: 173, endFrame: 180 },
+            { key: 'attack1', startFrame: 181, endFrame: 184 },
+            { key: 'attack1_back', startFrame: 185, endFrame: 188 },
+            { key: 'attack1_front', startFrame: 189, endFrame: 192 },
+            { key: 'sit', startFrame: 193, endFrame: 200 },
+            { key: 'sit_back', startFrame: 201, endFrame: 208 },
+            { key: 'sit_forward', startFrame: 209, endFrame: 216 },
+            { key: 'up', startFrame: 217, endFrame: 224 }
+        ];
+
+        animations.forEach(animation => {
+            scene.anims.create({
+                key: `${itemName}_${animation.key}`,
+                frames: Array(animation.endFrame - animation.startFrame + 1).fill().map((_, i) => ({ key: itemName, frame: `item_${itemName}_${animation.key}-${i + 1}` })),
+                frameRate: determineFrameRateItem(animation.key),
+                repeat: 0
+            });
+        });
+    }
+
+    function determineFrameRateItem(key) {
+        switch (key) {
+            case 'attack2':
+            case 'attack2_back':
+            case 'attack2_front':
+                return 10;
+            case 'dead':
+                return 9;
+            case 'attack6':
+            case 'attack6_back':
+            case 'attack6_front':
+                return 12;
+            case 'attack3':
+            case 'attack3_back':
+            case 'attack3_front':
+                return 12;
+            case 'eat':
+            case 'eat_back':
+            case 'eat_front':
+                return 15;
+            case 'attack5':
+            case 'attack5_back':
+            case 'attack5_front':
+                return 25;
+            case 'run':
+                return 9;
+            case 'attack1':
+            case 'attack1_back':
+            case 'attack1_front':
+                return 8;
+            case 'run_diagonal_back':
+            case 'run_diagonal_front':
+                return 13;
+            case 'sit':
+            case 'sit_back':
+            case 'sit_forward':
+            case 'up':
+            case 'down':
+                return 7;
+            default:
+                return 10; // Default frame rate
+        }
+    }
+
+        // Now you can create animations for both items with a single line each
+        createItemAnimations(scene, 'collar');
+        createItemAnimations(scene, 'redcollarbellsilver');
+        //brass and gold too
+        createItemAnimations(scene, 'redcollarbellbrass');
+        createItemAnimations(scene, 'redcollarbellgold');
+
 
     function createAnimation(scene, key, startFrame, endFrame) {
         scene.anims.create({
@@ -10,7 +101,87 @@ export function createAnims(scene, cat) {
             repeat: 0
         });
     }
-    
+
+
+    function determineFrameRate(key) {
+        switch (key) {
+            case 'attack1':
+            case 'attack1-back':
+            case 'attack1-front':
+            case 'attack4':
+            case 'attack4-back':
+            case 'attack4-front':
+                return 8;
+            case 'attack3':
+            case 'attack3-back':
+            case 'attack3-front':
+                return 12;
+            case 'attack2':
+            case 'attack2-back':
+            case 'attack2-front':
+                return 10;
+            case 'attack5':
+            case 'attack5-back':
+            case 'attack5-front':
+                return 25;
+            case 'attack6':
+            case 'attack6-back':
+            case 'attack6-front':
+                return 12;
+            case 'eat':
+            case 'eat-back':
+            case 'eat-front':
+                return 15;
+            case 'dead':
+            case 'run':
+                return 9;
+            case 'run-diagonal-back':
+            case 'run-diagonal-front':
+                return 13;
+            case 'sit-back':
+            case 'sit-forward':
+            case 'sit':
+            case 'up':
+            case 'down':
+                return 7;
+            default:
+                return 10; // Default frame rate
+        }
+    }
+
+    createAnimation(scene, 'attack1', 0, 3);
+    createAnimation(scene, 'attack1-back', 4, 7);
+    createAnimation(scene, 'attack1-front', 8, 11);
+    createAnimation(scene, 'attack2', 12, 16);
+    createAnimation(scene, 'attack2-back', 17, 21);
+    createAnimation(scene, 'attack2-front', 22, 26);
+    createAnimation(scene, 'attack3', 27, 35);
+    createAnimation(scene, 'attack3-back', 36, 44);
+    createAnimation(scene, 'attack3-front', 45, 53);
+    createAnimation(scene, 'attack4', 54, 58);
+    createAnimation(scene, 'attack4-back', 59, 63);
+    createAnimation(scene, 'attack4-front', 64, 68);
+    createAnimation(scene, 'attack5', 69, 82);
+    createAnimation(scene, 'attack5-back', 83, 92);
+    createAnimation(scene, 'attack5-front', 93, 102);
+    createAnimation(scene, 'attack6', 103, 108); // Updated
+    createAnimation(scene, 'attack6-back', 109, 115); // Updated
+    createAnimation(scene, 'attack6-front', 116, 122); // Updated
+    createAnimation(scene, 'ball', 123, 125); // Updated
+    createAnimation(scene, 'dead', 126, 136); // Updated
+    createAnimation(scene, 'down', 137, 144); // Updated
+    createAnimation(scene, 'eat', 145, 158); // Updated
+    createAnimation(scene, 'eat-back', 159, 172); // Updated
+    createAnimation(scene, 'eat-front', 173, 186); // Updated
+    createAnimation(scene, 'run', 187, 194); // Updated
+    createAnimation(scene, 'run-diagonal-back', 195, 202); // Updated
+    createAnimation(scene, 'run-diagonal-front', 203, 210); // Updated
+    createAnimation(scene, 'sit', 211, 218); // Updated
+    createAnimation(scene, 'sit-back', 219, 226); // Updated
+    createAnimation(scene, 'sit-forward', 227, 234); // Updated
+    createAnimation(scene, 'up', 235, 242); // Updated
+
+
 
     scene.anims.create({
         key: 'fire',
@@ -19,6 +190,12 @@ export function createAnims(scene, cat) {
         repeat: -1
     });
 
+    scene.anims.create({
+        key: 'blood',
+        frames: Array.from({length: 21}, (_, i) => ({ key: 'blood', frame: `blood_${i}` })),
+        frameRate: 20,
+        repeat: 0
+    });
     scene.anims.create({
         key: 'pond_2',
         frames: ['pond_2-1', 'pond_2-2', 'pond_2-3'].map(filename => ({ key: 'ponds', frame: filename })),
@@ -80,80 +257,6 @@ export function createAnims(scene, cat) {
         frameRate: 3,
         repeat: -1
     });
-
-    function determineFrameRate(key) {
-        switch (key) {
-            case 'attack1':
-            case 'attack1-back':
-            case 'attack1-front':
-            case 'attack2':
-            case 'attack4':
-            case 'attack4-back':
-            case 'attack4-front':
-                return 8;
-            case 'attack3':
-            case 'attack3-back':
-            case 'attack3-front':
-                return 12;
-            case 'attack2-back':
-            case 'attack2-front':
-                return 10;
-            case 'attack5':
-            case 'attack5-back':
-            case 'attack5-front':
-                return 25;
-            case 'attack6':
-            case 'attack6-back':
-            case 'attack6-front':
-                return 12;
-            case 'dead':
-                return 9;
-            case 'run':
-                return 9;
-            case 'run-diagonal-back':
-            case 'run-diagonal-front':
-                return 13;
-            case 'sit-back':
-            case 'sit-forward':
-            case 'sit':
-            case 'up':
-            case 'down':
-                return 7;
-            default:
-                return 10; // Default frame rate
-        }
-    }
-
-createAnimation(scene, 'attack1', 0, 3);
-createAnimation(scene, 'attack1-back', 4, 7);
-createAnimation(scene, 'attack1-front', 8, 11);
-createAnimation(scene, 'attack2', 12, 16);
-createAnimation(scene, 'attack2-back', 17, 21);
-createAnimation(scene, 'attack2-front', 22, 26);
-createAnimation(scene, 'attack3', 27, 35);
-createAnimation(scene, 'attack3-back', 36, 44);
-createAnimation(scene, 'attack3-front', 45, 53);
-createAnimation(scene, 'attack4', 54, 58);
-createAnimation(scene, 'attack4-back', 59, 63);
-createAnimation(scene, 'attack4-front', 64, 68);
-createAnimation(scene, 'attack5', 69, 82);
-createAnimation(scene, 'attack5-back', 83, 92);
-createAnimation(scene, 'attack5-front', 93, 102);
-createAnimation(scene, 'attack6', 103, 108); // Updated
-createAnimation(scene, 'attack6-back', 109, 115); // Updated
-createAnimation(scene, 'attack6-front', 116, 122); // Updated
-createAnimation(scene, 'ball', 123, 125); // Updated
-createAnimation(scene, 'dead', 126, 136); // Updated
-createAnimation(scene, 'down', 138, 145); // Updated
-createAnimation(scene, 'eat', 146, 158); // Updated
-createAnimation(scene, 'run-diagonal-back', 159, 166); // Updated
-createAnimation(scene, 'run-diagonal-front', 167, 174); // Updated
-createAnimation(scene, 'run', 175, 182); // Updated
-createAnimation(scene, 'sit-back', 183, 190); // Updated
-createAnimation(scene, 'sit-forward', 191, 198); // Updated
-createAnimation(scene, 'sit', 199, 206); // Updated
-createAnimation(scene, 'up', 207, 214); // Updated
-
 
     scene.anims.create({
         key: 'panda_attack',
@@ -262,8 +365,8 @@ createAnimation(scene, 'up', 207, 214); // Updated
         repeat: 0
     });
 
-      // Raccoon Idle Animation
-      scene.anims.create({
+    // Raccoon Idle Animation
+    scene.anims.create({
         key: 'raccoon',
         frames: Array(8).fill().map((_, i) => ({ key: 'monsters', frame: `raccoon_idle-${i + 1}` })),
         frameRate: 10,
@@ -381,7 +484,7 @@ createAnimation(scene, 'up', 207, 214); // Updated
 
     function createAnimsPink(scene, creature, action, start, end) {
         const frames = [];
-        for(let i = start; i <= end; i++) {
+        for (let i = start; i <= end; i++) {
             // The frame key includes the index
             const frameKey = action ? `${creature}_${action}-${i}` : `${creature}-${i}`;
             frames.push({ key: 'pinkfly', frame: frameKey });
@@ -401,11 +504,11 @@ createAnimation(scene, 'up', 207, 214); // Updated
     createAnimsPink(scene, 'pinkfly', 'hurt', 1, 5);
     createAnimsPink(scene, 'pinkfly', '', 1, 6); // This will create an animation with key 'pinkfly'
     createAnimsPink(scene, 'pinkfly', 'run', 1, 6);
-    
+
 
     function createAnims(scene, creature, action, start, end) {
         const frames = [];
-        for(let i = start; i <= end; i++) {
+        for (let i = start; i <= end; i++) {
             // The frame key includes the index
             const frameKey = action ? `${creature}_${action}-${i}` : `${creature}-${i}`;
             frames.push({ key: 'treemonsters', frame: frameKey });
@@ -443,7 +546,7 @@ createAnimation(scene, 'up', 207, 214); // Updated
         frameRate: 10,
         repeat: 0
     });
-    
+
     scene.anims.create({
         key: 'fox_hurt',
         frames: Array(7).fill().map((_, i) => ({ key: 'monsters', frame: `fox_hurt-${i + 1}` })),

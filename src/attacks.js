@@ -17,7 +17,7 @@ export const attacks = {
     roll: {
       name: 'roll',
       range: 0.4,
-      attack: 1,
+      attack: 5,
       speed: 2, 
       knockback: 0.5, 
       damage: 2,

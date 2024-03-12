@@ -1,0 +1,4745 @@
+{
+	"textures": [
+		{
+			"image": "redcollarbellsilver.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 251,
+				"h": 1326
+			},
+			"scale": 0.7,
+			"frames": [
+				{
+					"filename": "item_redcollarbellsilver_attack2-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 48,
+						"h": 30
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 48,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 48,
+						"y": 0,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 92,
+						"y": 0,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 136,
+						"y": 0,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 180,
+						"y": 0,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 59,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 0,
+						"y": 48,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 48,
+						"y": 48,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 66,
+						"w": 47,
+						"h": 12
+					},
+					"frame": {
+						"x": 96,
+						"y": 48,
+						"w": 47,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 62,
+						"w": 47,
+						"h": 9
+					},
+					"frame": {
+						"x": 143,
+						"y": 48,
+						"w": 47,
+						"h": 9
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 66,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 190,
+						"y": 48,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 61,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 61,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 73,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 61,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 73,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 123,
+						"y": 61,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack2_front-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 76,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 164,
+						"y": 61,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 48,
+						"y": 45,
+						"w": 44,
+						"h": 54
+					},
+					"frame": {
+						"x": 205,
+						"y": 61,
+						"w": 44,
+						"h": 54
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 45,
+						"w": 44,
+						"h": 54
+					},
+					"frame": {
+						"x": 0,
+						"y": 115,
+						"w": 44,
+						"h": 54
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 62,
+						"w": 44,
+						"h": 44
+					},
+					"frame": {
+						"x": 44,
+						"y": 115,
+						"w": 44,
+						"h": 44
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 66,
+						"w": 44,
+						"h": 40
+					},
+					"frame": {
+						"x": 88,
+						"y": 115,
+						"w": 44,
+						"h": 40
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 132,
+						"y": 115,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 176,
+						"y": 115,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 0,
+						"y": 169,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 44,
+						"y": 169,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 88,
+						"y": 169,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 132,
+						"y": 169,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_dead-11",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 69,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 176,
+						"y": 169,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 62,
+						"w": 47,
+						"h": 27
+					},
+					"frame": {
+						"x": 0,
+						"y": 206,
+						"w": 47,
+						"h": 27
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 69,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 47,
+						"y": 206,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 76,
+						"w": 47,
+						"h": 23
+					},
+					"frame": {
+						"x": 88,
+						"y": 206,
+						"w": 47,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 135,
+						"y": 206,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 62,
+						"w": 47,
+						"h": 23
+					},
+					"frame": {
+						"x": 176,
+						"y": 206,
+						"w": 47,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 69,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 233,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 76,
+						"w": 47,
+						"h": 20
+					},
+					"frame": {
+						"x": 41,
+						"y": 233,
+						"w": 47,
+						"h": 20
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_down-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 88,
+						"y": 233,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 129,
+						"y": 233,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 173,
+						"y": 233,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 0,
+						"y": 280,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 44,
+						"y": 280,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 88,
+						"y": 280,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 132,
+						"y": 280,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 176,
+						"y": 280,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 0,
+						"y": 328,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 44,
+						"y": 328,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 88,
+						"y": 328,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-11",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 132,
+						"y": 328,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-12",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 176,
+						"y": 328,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-13",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 0,
+						"y": 376,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat-14",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 44,
+						"y": 376,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 88,
+						"y": 376,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 136,
+						"y": 376,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 184,
+						"y": 376,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 424,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 48,
+						"y": 424,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 96,
+						"y": 424,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 144,
+						"y": 424,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 192,
+						"y": 424,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 437,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 48,
+						"y": 437,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-11",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 76,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 96,
+						"y": 437,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-12",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 144,
+						"y": 437,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-13",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 192,
+						"y": 437,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_back-14",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 0,
+						"y": 450,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 48,
+						"y": 450,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 89,
+						"y": 450,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 130,
+						"y": 450,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 171,
+						"y": 450,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 473,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 473,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 473,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 123,
+						"y": 473,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 164,
+						"y": 473,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 205,
+						"y": 473,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-11",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 83,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 496,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-12",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 496,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-13",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 496,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_eat_front-14",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 123,
+						"y": 496,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 48,
+						"h": 30
+					},
+					"frame": {
+						"x": 164,
+						"y": 496,
+						"w": 48,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 55,
+						"w": 47,
+						"h": 37
+					},
+					"frame": {
+						"x": 0,
+						"y": 526,
+						"w": 47,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 48,
+						"w": 48,
+						"h": 37
+					},
+					"frame": {
+						"x": 47,
+						"y": 526,
+						"w": 48,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 52,
+						"w": 47,
+						"h": 37
+					},
+					"frame": {
+						"x": 95,
+						"y": 526,
+						"w": 47,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 52,
+						"w": 47,
+						"h": 37
+					},
+					"frame": {
+						"x": 142,
+						"y": 526,
+						"w": 47,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 189,
+						"y": 526,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 59,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 0,
+						"y": 573,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 48,
+						"y": 573,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 52,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 96,
+						"y": 573,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 52,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 137,
+						"y": 573,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 178,
+						"y": 573,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 586,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_back-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 66,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 41,
+						"y": 586,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 89,
+						"y": 586,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 130,
+						"y": 586,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 52,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 171,
+						"y": 586,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 609,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 609,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 609,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack6_front-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 76,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 123,
+						"y": 609,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 48,
+						"h": 30
+					},
+					"frame": {
+						"x": 164,
+						"y": 609,
+						"w": 48,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 59,
+						"w": 47,
+						"h": 33
+					},
+					"frame": {
+						"x": 0,
+						"y": 639,
+						"w": 47,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 52,
+						"w": 47,
+						"h": 47
+					},
+					"frame": {
+						"x": 47,
+						"y": 639,
+						"w": 47,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 52,
+						"w": 47,
+						"h": 47
+					},
+					"frame": {
+						"x": 94,
+						"y": 639,
+						"w": 47,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 52,
+						"w": 47,
+						"h": 47
+					},
+					"frame": {
+						"x": 141,
+						"y": 639,
+						"w": 47,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 52,
+						"w": 47,
+						"h": 47
+					},
+					"frame": {
+						"x": 188,
+						"y": 639,
+						"w": 47,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 52,
+						"w": 47,
+						"h": 47
+					},
+					"frame": {
+						"x": 0,
+						"y": 686,
+						"w": 47,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 45,
+						"y": 59,
+						"w": 47,
+						"h": 33
+					},
+					"frame": {
+						"x": 47,
+						"y": 686,
+						"w": 47,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 41,
+						"y": 59,
+						"w": 48,
+						"h": 30
+					},
+					"frame": {
+						"x": 94,
+						"y": 686,
+						"w": 48,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 142,
+						"y": 686,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 69,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 190,
+						"y": 686,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 733,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 73,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 733,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 733,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 123,
+						"y": 733,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 164,
+						"y": 733,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 73,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 205,
+						"y": 733,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_back-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 69,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 756,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 756,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 76,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 756,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 69,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 123,
+						"y": 756,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 27,
+						"h": 13
+					},
+					"frame": {
+						"x": 171,
+						"y": 756,
+						"w": 27,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 198,
+						"y": 756,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 779,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 48,
+						"y": 779,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 66,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 96,
+						"y": 779,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack3_front-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 144,
+						"y": 779,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 59,
+						"w": 47,
+						"h": 37
+					},
+					"frame": {
+						"x": 192,
+						"y": 779,
+						"w": 47,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 55,
+						"w": 47,
+						"h": 41
+					},
+					"frame": {
+						"x": 0,
+						"y": 816,
+						"w": 47,
+						"h": 41
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 59,
+						"w": 47,
+						"h": 40
+					},
+					"frame": {
+						"x": 47,
+						"y": 816,
+						"w": 47,
+						"h": 40
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 44,
+						"h": 37
+					},
+					"frame": {
+						"x": 94,
+						"y": 816,
+						"w": 44,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 34,
+						"h": 37
+					},
+					"frame": {
+						"x": 138,
+						"y": 816,
+						"w": 34,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 69,
+						"w": 13,
+						"h": 34
+					},
+					"frame": {
+						"x": 172,
+						"y": 816,
+						"w": 13,
+						"h": 34
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 73,
+						"w": 9,
+						"h": 19
+					},
+					"frame": {
+						"x": 185,
+						"y": 816,
+						"w": 9,
+						"h": 19
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 194,
+						"y": 816,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 197,
+						"y": 816,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 200,
+						"y": 816,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-11",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 203,
+						"y": 816,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-12",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 41,
+						"w": 48,
+						"h": 30
+					},
+					"frame": {
+						"x": 0,
+						"y": 857,
+						"w": 48,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-13",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 45,
+						"w": 48,
+						"h": 37
+					},
+					"frame": {
+						"x": 48,
+						"y": 857,
+						"w": 48,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5-14",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 48,
+						"h": 37
+					},
+					"frame": {
+						"x": 96,
+						"y": 857,
+						"w": 48,
+						"h": 37
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 73,
+						"w": 48,
+						"h": 9
+					},
+					"frame": {
+						"x": 144,
+						"y": 857,
+						"w": 48,
+						"h": 9
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 59,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 192,
+						"y": 857,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 9
+					},
+					"frame": {
+						"x": 0,
+						"y": 894,
+						"w": 48,
+						"h": 9
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 48,
+						"y": 894,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 51,
+						"y": 894,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 54,
+						"y": 894,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 57,
+						"y": 894,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 69,
+						"w": 37,
+						"h": 9
+					},
+					"frame": {
+						"x": 60,
+						"y": 894,
+						"w": 37,
+						"h": 9
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 62,
+						"w": 37,
+						"h": 9
+					},
+					"frame": {
+						"x": 97,
+						"y": 894,
+						"w": 37,
+						"h": 9
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_back-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 59,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 134,
+						"y": 894,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 73,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 182,
+						"y": 894,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 917,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 80,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 917,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 97,
+						"w": 13,
+						"h": 9
+					},
+					"frame": {
+						"x": 82,
+						"y": 917,
+						"w": 13,
+						"h": 9
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 95,
+						"y": 917,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 98,
+						"y": 917,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 101,
+						"y": 917,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 3,
+						"h": 3
+					},
+					"frame": {
+						"x": 104,
+						"y": 917,
+						"w": 3,
+						"h": 3
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-9",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 52,
+						"w": 47,
+						"h": 16
+					},
+					"frame": {
+						"x": 107,
+						"y": 917,
+						"w": 47,
+						"h": 16
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack5_front-10",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 59,
+						"w": 47,
+						"h": 23
+					},
+					"frame": {
+						"x": 154,
+						"y": 917,
+						"w": 47,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 52,
+						"w": 47,
+						"h": 44
+					},
+					"frame": {
+						"x": 201,
+						"y": 917,
+						"w": 47,
+						"h": 44
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 55,
+						"h": 33
+					},
+					"frame": {
+						"x": 0,
+						"y": 961,
+						"w": 55,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 52,
+						"w": 51,
+						"h": 33
+					},
+					"frame": {
+						"x": 55,
+						"y": 961,
+						"w": 51,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 52,
+						"w": 51,
+						"h": 33
+					},
+					"frame": {
+						"x": 106,
+						"y": 961,
+						"w": 51,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 52,
+						"w": 51,
+						"h": 44
+					},
+					"frame": {
+						"x": 157,
+						"y": 961,
+						"w": 51,
+						"h": 44
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 59,
+						"w": 51,
+						"h": 33
+					},
+					"frame": {
+						"x": 0,
+						"y": 1005,
+						"w": 51,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 52,
+						"w": 51,
+						"h": 33
+					},
+					"frame": {
+						"x": 51,
+						"y": 1005,
+						"w": 51,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 52,
+						"w": 51,
+						"h": 33
+					},
+					"frame": {
+						"x": 102,
+						"y": 1005,
+						"w": 51,
+						"h": 33
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 41,
+						"w": 44,
+						"h": 20
+					},
+					"frame": {
+						"x": 153,
+						"y": 1005,
+						"w": 44,
+						"h": 20
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 38,
+						"w": 44,
+						"h": 30
+					},
+					"frame": {
+						"x": 197,
+						"y": 1005,
+						"w": 44,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 41,
+						"w": 44,
+						"h": 30
+					},
+					"frame": {
+						"x": 0,
+						"y": 1038,
+						"w": 44,
+						"h": 30
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 80,
+						"y": 48,
+						"w": 40,
+						"h": 27
+					},
+					"frame": {
+						"x": 44,
+						"y": 1038,
+						"w": 40,
+						"h": 27
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 38,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 84,
+						"y": 1038,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 34,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 125,
+						"y": 1038,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 34,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 166,
+						"y": 1038,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_back-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 76,
+						"y": 38,
+						"w": 44,
+						"h": 19
+					},
+					"frame": {
+						"x": 207,
+						"y": 1038,
+						"w": 44,
+						"h": 19
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 45,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 0,
+						"y": 1068,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 52,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 44,
+						"y": 1068,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 55,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 88,
+						"y": 1068,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 62,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 132,
+						"y": 1068,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 73,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 176,
+						"y": 1068,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 0,
+						"y": 1116,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 48,
+						"w": 44,
+						"h": 48
+					},
+					"frame": {
+						"x": 44,
+						"y": 1116,
+						"w": 44,
+						"h": 48
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_run_diagonal_front-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 52,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 88,
+						"y": 1116,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 52,
+						"y": 48,
+						"w": 23,
+						"h": 16
+					},
+					"frame": {
+						"x": 132,
+						"y": 1116,
+						"w": 23,
+						"h": 16
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 48,
+						"w": 23,
+						"h": 16
+					},
+					"frame": {
+						"x": 155,
+						"y": 1116,
+						"w": 23,
+						"h": 16
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 55,
+						"w": 23,
+						"h": 16
+					},
+					"frame": {
+						"x": 178,
+						"y": 1116,
+						"w": 23,
+						"h": 16
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 44,
+						"h": 47
+					},
+					"frame": {
+						"x": 201,
+						"y": 1116,
+						"w": 44,
+						"h": 47
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 48,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 1164,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 52,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 41,
+						"y": 1164,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 82,
+						"y": 1164,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 62,
+						"w": 40,
+						"h": 13
+					},
+					"frame": {
+						"x": 123,
+						"y": 1164,
+						"w": 40,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_front-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 52,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 163,
+						"y": 1164,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_front-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 55,
+						"w": 30,
+						"h": 23
+					},
+					"frame": {
+						"x": 204,
+						"y": 1164,
+						"w": 30,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_front-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 1187,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_attack1_front-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 73,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 1187,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 66,
+						"w": 48,
+						"h": 26
+					},
+					"frame": {
+						"x": 82,
+						"y": 1187,
+						"w": 48,
+						"h": 26
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 62,
+						"w": 48,
+						"h": 27
+					},
+					"frame": {
+						"x": 130,
+						"y": 1187,
+						"w": 48,
+						"h": 27
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 48,
+						"h": 26
+					},
+					"frame": {
+						"x": 178,
+						"y": 1187,
+						"w": 48,
+						"h": 26
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 62,
+						"w": 48,
+						"h": 27
+					},
+					"frame": {
+						"x": 0,
+						"y": 1214,
+						"w": 48,
+						"h": 27
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 66,
+						"w": 48,
+						"h": 26
+					},
+					"frame": {
+						"x": 48,
+						"y": 1214,
+						"w": 48,
+						"h": 26
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 62,
+						"w": 48,
+						"h": 27
+					},
+					"frame": {
+						"x": 96,
+						"y": 1214,
+						"w": 48,
+						"h": 27
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 59,
+						"w": 48,
+						"h": 26
+					},
+					"frame": {
+						"x": 144,
+						"y": 1214,
+						"w": 48,
+						"h": 26
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 69,
+						"y": 62,
+						"w": 48,
+						"h": 27
+					},
+					"frame": {
+						"x": 192,
+						"y": 1214,
+						"w": 48,
+						"h": 27
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 66,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 0,
+						"y": 1241,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 48,
+						"y": 1241,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 59,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 96,
+						"y": 1241,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 144,
+						"y": 1241,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 66,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 192,
+						"y": 1241,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 1254,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 59,
+						"w": 48,
+						"h": 12
+					},
+					"frame": {
+						"x": 48,
+						"y": 1254,
+						"w": 48,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_back-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 55,
+						"y": 62,
+						"w": 48,
+						"h": 13
+					},
+					"frame": {
+						"x": 96,
+						"y": 1254,
+						"w": 48,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 69,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 144,
+						"y": 1254,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 185,
+						"y": 1254,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 0,
+						"y": 1277,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 41,
+						"y": 1277,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 82,
+						"y": 1277,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 123,
+						"y": 1277,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 62,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 164,
+						"y": 1277,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_sit_forward-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 66,
+						"w": 41,
+						"h": 23
+					},
+					"frame": {
+						"x": 205,
+						"y": 1277,
+						"w": 41,
+						"h": 23
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 48,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 1300,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 41,
+						"y": 1300,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 48,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 82,
+						"y": 1300,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-4",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 45,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 123,
+						"y": 1300,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-5",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 48,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 164,
+						"y": 1300,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-6",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 59,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 205,
+						"y": 1300,
+						"w": 41,
+						"h": 12
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-7",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 48,
+						"w": 41,
+						"h": 13
+					},
+					"frame": {
+						"x": 0,
+						"y": 1313,
+						"w": 41,
+						"h": 13
+					}
+				},
+				{
+					"filename": "item_redcollarbellsilver_up-8",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 158,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 62,
+						"y": 45,
+						"w": 41,
+						"h": 12
+					},
+					"frame": {
+						"x": 41,
+						"y": 1313,
+						"w": 41,
+						"h": 12
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:9c21497e378f076189aa8d35467c3c2a:4ad87df64856a07f66f11eabd9347f1f:572d08589861f360601c31656976a706$"
+	}
+}

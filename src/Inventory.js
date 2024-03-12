@@ -4,14 +4,30 @@ import { PlayerState } from './playerState';
 export function handleItemPickup(cat) {
     const cameraView = this.cameras.main.worldView;
 
+    // Create an object to store the counts and configurations of each item
+    let itemCounts = {};
+
     this.items = this.items.filter(item => {
         if (cameraView.contains(item.sprite.x, item.sprite.y)) {
             if (Phaser.Geom.Intersects.RectangleToRectangle(cat.getBounds(), item.sprite.getBounds())) {
-                if (addToInventory.call(this, item.config)) {
+                // Increment the count of this item and store its configuration
+                itemCounts[item.config.name] = {
+                    count: (itemCounts[item.config.name]?.count || 0) + 1,
+                    config: item.config
+                };
+
+                // Check if the item already exists in the inventory
+                const existingItem = PlayerState.inventory.find(i => i.name === item.config.name);
+
+                // If the item exists in the inventory or the inventory is not full, add the item to the inventory
+                if (existingItem || PlayerState.inventory.length < this.maxInventorySize) {
+                    addToInventory.call(this, item.config, itemCounts[item.config.name].count);
                     item.sprite.destroy();
                     this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
                     return false;
                 } else {
+                    // If the inventory is full, add a message to the UIScene
+                    this.scene.get('UIScene').addMessage(`Bag is full! Cannot pick up ${item.config.name.toLowerCase()}.`, 'tomato');
                 }
             }
         }
@@ -19,24 +35,20 @@ export function handleItemPickup(cat) {
     });
 }
 
-export function addToInventory(itemConfig) {
+export function addToInventory(itemConfig, quantity = 1) {
     let inventory = PlayerState.inventory || [];
     const existingItem = inventory.find(item => item.name === itemConfig.name);
 
     if (existingItem) {
-        // If found, increment the quantity of the existing item.
-        existingItem.quantity += 1;
+        existingItem.quantity += quantity;
+
     } else if (inventory.length < this.maxInventorySize) {
-        // If not found and there is space, add a new item with quantity 1.
-        itemConfig.quantity = 1; // initialize quantity
+        itemConfig.quantity = quantity;
         inventory.push(itemConfig);
-    } else {
-        // If inventory is full, return false.
-        return false;
     }
 
-    PlayerState.inventory = inventory; // Update the inventory in the PlayerState.
-    this.scene.get('UIScene').updateInventoryDisplay(); // Update the UIScene without passing inventory as a parameter.
+    PlayerState.inventory = inventory;
+    this.scene.get('UIScene').updateInventoryDisplay();
     return true;
 }
 

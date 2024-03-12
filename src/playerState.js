@@ -1,5 +1,6 @@
 export const PlayerState = {
     userid: '',
+    skin: 'default',
     days: 0,
     energy: 100,
     speed: 3,
@@ -8,11 +9,17 @@ export const PlayerState = {
         gathering: { level: 1, xp: 0, totalXP: 0 },
     },
     lastDamageTime: Date.now(),
+    equipment: {
+        collar: {
+            equipmentName: null,
+        }
+    },
     isDead: false,
     isUnderAttack: false,
     isEating: false,
     isHurt: false,
     JustAte: false,
+    justEquipped: false,
     isNearFire: false,
     isMenuOpen: false,
     isAttacking: false,
@@ -20,7 +27,6 @@ export const PlayerState = {
     isBeingKnockedBack: false,
     attackBonus: 0, //rare attack moves boost
     luckBonus: 0, //chance to get a rare item from a monster
-    fireBonus: 0, //chance to get an event
     defenceBonus: 0, //chance to lower monster damage
     treesBonus: 0, //chance to get more wood
     fishBonus: 0, //chance to get more fish
@@ -37,7 +43,7 @@ export const PlayerState = {
     lastEnergyUpdate: Date.now(),
     selectedAttacks: ['scratch'],
     inventory: [],
-    gameTime: 10,
+    gameTime: 9,
 };
 // In playerState.js
 export function setLevel(newLevel) {

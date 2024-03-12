@@ -144,64 +144,40 @@ export class GameEvents {
                         const changeText = this.scene.add.text(
                             -40,
                             0,
-                        `${Math.abs(playerRoll).toFixed(0)}`,
-                        {
-                            fontFamily: 'Ninja',
-                            fontSize: '42px',
-                            fill: '#ff0000',
-                            stroke: '#ffffff',
-                            strokeThickness: 6,
-                        }
-                        ).setDepth(targetMonster.sprite.depth + 2000).setOrigin(0.5, 0); // Set depth to monster's depth + 5                
-                
-                        // Attach damage text to the monster for tracking
-                    targetMonster.damageText = changeText;
+                            `${Math.abs(playerRoll).toFixed(0)}`,
+                            {
+                                fontFamily: 'Ninja',
+                                fontSize: '25px',
+                                fill: '#ffffff',
+                                stroke: '#ff0000',
+                                strokeThickness: 6,
+                            }
+                        ).setDepth(targetMonster.sprite.depth + 2000).setOrigin(0.5, 0); // Set depth to monster's depth + 5    
 
-                    // Tween for damage text fade out
-                    if (changeText) {
-                        this.scene.tweens.add({
-                            targets: changeText,
+                        // Add the blood animation behind the damage text
+                        const blood = this.scene.add.sprite(0, 0, 'blood').setDepth(targetMonster.sprite.depth + 1999).setOrigin(0.5, 0.5);
+                        blood.play('blood', true);
+                    
+
+                        // Attach damage text to the monster for tracking
+                        targetMonster.damageText = changeText;
+                        targetMonster.blood = blood;
+
+                        // Tween for damage text fade out
+                        if (changeText) {
+                            this.scene.tweens.add({
+                                targets: changeText,
                             alpha: 0,
                             duration: 1200,
                             onComplete: () => {
-                                if (targetMonster.sprite && targetMonster.sprite.active) {
                                     changeText.destroy();
-                                }
+                                    blood.destroy();
                             }
                         });
                     }
                 
                     }
                 }, timeToImpact);
-            } else if (playerRoll === 0) {
-                const missText = this.scene.add.text(
-                    0,
-                    0,
-                    'MISS',
-                    {
-                        fontFamily: 'Ninja',
-                        fontSize: '42px',
-                        fill: '#2196f3',
-                        stroke: '#ffffff',
-                        strokeThickness: 6,
-                    }
-                    ).setDepth(targetMonster.sprite.depth + 2000).setOrigin(0.5, 0); // Set depth to monster's depth + 5            
-                // Attach miss text to the monster for tracking
-                targetMonster.damageText = missText;
-            
-                // Tween for miss text fade out
-                if (missText) {
-                    this.scene.tweens.add({
-                        targets: missText,
-                        alpha: 0,
-                        duration: 1200,
-                        onComplete: () => {
-                            if (targetMonster.sprite && targetMonster.sprite.active) {
-                                missText.destroy();
-                            }
-                        }
-                    });
-                }
             }
 
 
@@ -253,38 +229,6 @@ export class GameEvents {
 
                 if (monsterRoll > 0) {
                     PlayerState.isHurt = true;
-
-                    //only knockback if isbeingknockedback is false
-                    if (!PlayerState.isBeingKnockedBack) {
-                        const knockbackDistance = (monsterRoll / 10) * this.tileWidth;
-                        const directionX = this.player.x - targetMonster.sprite.x;
-                        const directionY = this.player.y - targetMonster.sprite.y;
-                        const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
-                        const normalizedDirectionX = directionX / magnitude;
-                        const normalizedDirectionY = directionY / magnitude;
-
-                        const newPlayerX = this.player.x + normalizedDirectionX * knockbackDistance;
-                        const newPlayerY = this.player.y + normalizedDirectionY * knockbackDistance;
-
-                        const knockbackSpeed = 300;
-                        const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000;
-
-                        this.player.tween = this.scene.tweens.add({
-                            targets: this.player,
-                            x: newPlayerX,
-                            y: newPlayerY,
-                            duration: knockbackDuration,
-                            ease: 'Power1',
-                            onComplete: () => {
-                                PlayerState.isBeingKnockedBack = false;
-                            },
-                            onStop: () => {
-                                setTimeout(() => {
-                                    PlayerState.isBeingKnockedBack = false;
-                                }, 200);
-                            }
-                        });
-                    }
                 }
 
                 if (PlayerState.energy < 1) {
@@ -300,9 +244,9 @@ export class GameEvents {
         }, timeToImpact);
     }
 
-
     handleItemDrop(targetMonster) {
         if (!targetMonster) return;
+        const uiScene = this.scene.scene.get('UIScene');
 
         const randomNum = Math.random();
         const itemTier = randomNum <= 0.05 ? 'ultrarare' : randomNum <= 0.25 ? 'rare' : 'common';
@@ -324,6 +268,26 @@ export class GameEvents {
             //show the item
             newItem.show();
         });
+
+        // Map item rarities to colors
+        const itemColors = {
+            common: 'white',
+            uncommon: '#87CEEB',
+            rare: 'gold',
+            ultrarare: 'magenta'
+        };
+
+        const messageColor = itemColors[item.effects.rarity];
+
+        // Helper function to determine whether to use "a", "an", or "some"
+        const indefiniteArticle = (word) => {
+            if (['cotton', 'flour', 'silk', 'milk'].includes(word.toLowerCase())) {
+                return 'some';
+            }
+            return ['a', 'e', 'i', 'o', 'u'].includes(word[0].toLowerCase()) ? 'an' : 'a';
+        };
+
+        uiScene.addMessage(`The ${targetMonster.name.toLowerCase()} dropped ${indefiniteArticle(itemDropped)} ${itemDropped.toLowerCase()}!`, messageColor);
     }
 
     endBattleForMonster(targetMonster, targetMonsterKey) {
@@ -370,6 +334,16 @@ export class GameEvents {
             targetMonster.damageText = null;
         }
 
+        if (targetMonster.blood) {
+            targetMonster.blood.destroy();
+        }
+
+        // If the aggro sprite exists, destroy it and remove it from allEntities
+        if (targetMonster.aggroSprite) {
+            targetMonster.aggroSprite.destroy();
+            targetMonster.aggroSprite = null;
+        }
+
         
         if (targetMonster.healthBar && targetMonster.healthBar.fill && targetMonster.healthBar.outer) {
             targetMonster.healthBar.fill.destroy();
@@ -399,9 +373,12 @@ export class GameEvents {
         Object.values(monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return; // Check if monster and its sprite are valid
 
-            if (monster.damageText && monster && monster.sprite && monster.sprite.active) {
+            if (monster.damageText && monster && monster.sprite && monster.sprite.active && monster.blood) {
                 monster.damageText.x = monster.sprite.x;
                 monster.damageText.y = monster.sprite.y - 20;
+
+                monster.blood.x = monster.sprite.x + 5;
+                monster.blood.y = monster.sprite.y + 5;
             }
 
 

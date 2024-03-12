@@ -14,7 +14,8 @@ export const eventOptions = [
     monsterMass: 1,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
-      rare: ['Apple', 'Lemon']    },
+      rare: ['Apple', 'Lemon'],
+      ultrarare: ['Cotton']},
     skill: 'attacking',
     monsterChance: 'common'
   },
@@ -28,7 +29,7 @@ export const eventOptions = [
     isAggressive: false,
     level: 5,
     speed: 2.2,
-    damage: 8,
+    damage: 5,
     attackSpeed: 500,
     monsterMass: 2,
     possibleOutcomes: {
@@ -50,7 +51,7 @@ export const eventOptions = [
     isAggressive: true,
     level: 5,
     speed: 2.4,
-    damage: 5,
+    damage: 4,
     monsterMass: 2,
     possibleOutcomes: {
       common: ['Pebble', 'Flour', 'Lemon'],
@@ -70,7 +71,7 @@ export const eventOptions = [
     isAggressive: true,
     attackSpeed: 700,
     level: 10,
-    damage: 15,
+    damage: 7,
     monsterMass: 0.2,
     specialEventBush: true,
     speed: 2.9,
@@ -92,7 +93,7 @@ export const eventOptions = [
     specialEvent: false,
     isAggressive: true,
     level: 17,
-    damage: 20,
+    damage: 12,
     monsterMass: 0.2,
     specialEventBush: true,
     speed: 2.95,
@@ -120,6 +121,7 @@ export const eventOptions = [
     possibleOutcomes: {
       common: ['Egg', 'Flour'],
       rare: ['Pebble'],
+      ultrarare: ['Pebble']
     },
     skill: 'attacking',
     monsterChance: 'common'
@@ -154,7 +156,7 @@ export const eventOptions = [
     isAggressive: true,
     attackSpeed: 700,
     description: 'A shiny coat and a sharp bite.',
-    damage: 20,
+    damage: 8,
     level: 20,
     speed: 2.7,
     monsterMass: 2.1,
@@ -174,13 +176,14 @@ export const eventOptions = [
     attackSpeed: 600,
     isAggressive: true,
     description: 'Sharp talons and a sharp bite.',
-    damage: 10,
+    damage: 6,
     level: 15,
     speed: 3,
     monsterMass: 2.1,
     possibleOutcomes: {
       common: ['Bone', 'Egg'],
       rare: ['Gold'],
+      ultrarare: ['Gold']
     },
     skill: 'attacking',
     specialEvent: true,
@@ -194,7 +197,7 @@ export const eventOptions = [
     attackSpeed: 600,
     isAggressive: true,
     description: 'Beautiful and deadly.',
-    damage: 15,
+    damage: 10,
     level: 40,
     speed: 2.9,
     monsterMass: 2.1,

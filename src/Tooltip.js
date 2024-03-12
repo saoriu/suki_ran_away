@@ -30,7 +30,6 @@ export class Tooltip extends Phaser.GameObjects.Container {
     }
 
     showTooltip(x, y) {
-        //console log the text and x y
         this.setPosition(x, y);
         this.setVisible(true);
         this.setDepth(100);

@@ -1,0 +1,209 @@
+{
+	"textures": [
+		{
+			"image": "bush.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 250,
+				"h": 771
+			},
+			"scale": 0.68,
+			"frames": [
+				{
+					"filename": "bush_1-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 26,
+						"w": 124,
+						"h": 121
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 124,
+						"h": 121
+					}
+				},
+				{
+					"filename": "bush_1-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 26,
+						"w": 124,
+						"h": 121
+					},
+					"frame": {
+						"x": 124,
+						"y": 0,
+						"w": 124,
+						"h": 121
+					}
+				},
+				{
+					"filename": "bush_1-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 26,
+						"w": 124,
+						"h": 121
+					},
+					"frame": {
+						"x": 0,
+						"y": 121,
+						"w": 124,
+						"h": 121
+					}
+				},
+				{
+					"filename": "bush_2-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 26,
+						"w": 124,
+						"h": 124
+					},
+					"frame": {
+						"x": 124,
+						"y": 121,
+						"w": 124,
+						"h": 124
+					}
+				},
+				{
+					"filename": "bush_2-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 26,
+						"w": 126,
+						"h": 124
+					},
+					"frame": {
+						"x": 0,
+						"y": 245,
+						"w": 126,
+						"h": 124
+					}
+				},
+				{
+					"filename": "bush_2-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 26,
+						"w": 124,
+						"h": 124
+					},
+					"frame": {
+						"x": 126,
+						"y": 245,
+						"w": 124,
+						"h": 124
+					}
+				},
+				{
+					"filename": "bush_3-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 13,
+						"y": 16,
+						"w": 144,
+						"h": 134
+					},
+					"frame": {
+						"x": 0,
+						"y": 369,
+						"w": 144,
+						"h": 134
+					}
+				},
+				{
+					"filename": "bush_3-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 13,
+						"y": 16,
+						"w": 148,
+						"h": 134
+					},
+					"frame": {
+						"x": 0,
+						"y": 503,
+						"w": 148,
+						"h": 134
+					}
+				},
+				{
+					"filename": "bush_3-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 163,
+						"h": 163
+					},
+					"spriteSourceSize": {
+						"x": 13,
+						"y": 16,
+						"w": 144,
+						"h": 134
+					},
+					"frame": {
+						"x": 0,
+						"y": 637,
+						"w": 144,
+						"h": 134
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:2127061babe8f91e0b8b1759ec739b91:b1e90adbf9e1c1d058031fb3eb52a1c1:9a29614d4e5584409212bbc11852b6f6$"
+	}
+}

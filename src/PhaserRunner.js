@@ -169,9 +169,9 @@ export default function PhaserRunner() {
             alert("This game is not supported on mobile devices! Mobile gaming is for babies and you are not a baby.")
           ) : null}
           <div className='header'>
-            <img className="main-image" src="/title.png" alt="Suki Ran Away" />            
+            <img className="main-image" src="/ui/title.png" alt="Suki Ran Away" />            
           </div>
-          <div className="container" style={{ backgroundImage: `url(${process.env.PUBLIC_URL + '/login.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div className="container">
             <div className="login-container">
               <h2 className="text-center">{isRegistering ? 'REGISTER' : 'LOGIN'}</h2>
               {isLoading ? (
