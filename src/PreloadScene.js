@@ -7,7 +7,7 @@ export class PreloadScene extends Phaser.Scene {
     }
 
     preload() {
-        for (let i = 1; i <= 13; i++) this.load.image(`tile${i}`, `/tiles/tile${i}.png`);
+        for (let i = 1; i <= 31; i++) this.load.image(`tile${i}`, `/tiles/tile${i}.png`);
         if (!this.plugins.get('rexoutlinepipelineplugin')) {
             this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
         }

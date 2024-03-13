@@ -1,6 +1,6 @@
 // gameConstants.js
 export const GAME_CONFIG = {
-  TILE_WIDTH: 64,
+  TILE_WIDTH: 48,
   SCALE: 4, //size
   CAMERA_WIDTH: window.innerWidth,
   CAMERA_HEIGHT: window.innerHeight,

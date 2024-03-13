@@ -961,14 +961,6 @@ export class mainScene extends Phaser.Scene {
                     entity.setDepth(6 + (entity.y / 10));
                 }
             }
-            else if (entity.label === 'bushShadow') {
-                //bush shadow depth should be less than the bush depth
-                if (entity.depth === null) {
-                    entity.setDepth(1);
-                } else {
-                    entity.setDepth((entity.y - 20) / 10);
-                }
-            }
             else if (entity.label === 'aggro') {
                 if (entity.depth === null) {
                     entity.setDepth(1);
@@ -1417,7 +1409,6 @@ export class mainScene extends Phaser.Scene {
                 // Logic for bush depleting
                 bush.isDepleted = true;
                 bush.clearTint();
-                bush.shadow.destroy();
                 bush.setTexture('bush-down');
                 bush.anims.stop();
 
@@ -1426,18 +1417,6 @@ export class mainScene extends Phaser.Scene {
                         bush.setTexture(bush.originalType);
                         bush.isDepleted = false;
 
-                        const bushShadow = this.add.sprite(bush.x, bush.y, bush.originalType);
-
-                        bushShadow.setOrigin(0.5, 0.6);
-                        bushShadow.setTint(0x000000); // Color the shadow sprite black
-                        bushShadow.setPipeline('Light2D');
-                        bushShadow.label = 'bushShadow';
-                        bushShadow.parentBush = bush;
-                        bushShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
-
-                        bush.shadow = bushShadow; // Store the shadow sprite as a property of the tree
-
-                        bushShadow.play(bush.originalType);
                         bush.play(bush.originalType);
                     }
                 }, 15000);
@@ -1503,10 +1482,12 @@ export class mainScene extends Phaser.Scene {
         } else if (roll <= 0.95) {
             tileType = Phaser.Math.Between(2, 5);
         } else if (roll <= 0.97) {
-            tileType = Phaser.Math.Between(6, 9);
+            tileType = Phaser.Math.Between(6, 16);
+        } else if (roll <= 0.98) {
+            tileType = Phaser.Math.Between(17, 22);
         } else {
-            tileType = Phaser.Math.Between(10, 13);
-        }
+            tileType = Phaser.Math.Between(23, 31);
+        }        
         return tileType;
     }
 
@@ -2294,6 +2275,7 @@ export class mainScene extends Phaser.Scene {
         pond.play(randomPondType);
 
         this.ponds.push(pond);
+        this.allEntities.push(pond);
     }
 
     createPondVertices(pondType, x, y) {
@@ -2445,28 +2427,16 @@ export class mainScene extends Phaser.Scene {
 
         bushBody.label = 'bush';
 
-        const bushShadow = this.add.sprite(bush.x, bush.y, randomBushType);
-
-        bushShadow.setOrigin(0.5, 0.6);
-        bushShadow.setTint(0x000000); // Color the shadow sprite black
-        bushShadow.setPipeline('Light2D');
-        bushShadow.label = 'bushShadow';
-        bushShadow.parentBush = bush;
-        bushShadow.setBlendMode(Phaser.BlendModes.MULTIPLY); // Set the blend mode to 'multiply'
-
-        bush.shadow = bushShadow; // Store the shadow sprite as a property of the tree
 
         bush.setExistingBody(bushBody).setOrigin(0.5, 0.6);
         bush.setPipeline('Light2D');
         bush.play(randomBushType);
-        bushShadow.play(randomBushType);
         bush.originalType = randomBushType;
 
         bush.isDepleted = false;
 
 
         this.bushs.push(bush);
-        this.allEntities.push(bushShadow);
         this.allEntities.push(bush);
 
     }
@@ -2929,22 +2899,6 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        // For the bush shadows
-        this.bushs.forEach(bush => {
-            if (bush.shadow && bush.active) {
-                let angle = Math.atan2(this.sunLight.y - bush.y, this.sunLight.x - bush.x);
-                let orbitRadius = 7;
-                let shadowPosX = -bush.x + orbitRadius * Math.cos(angle);
-                let shadowPosY = -bush.y + orbitRadius * Math.sin(angle);
-
-                bush.shadow.alpha = this.getAlphaFromTime(PlayerState.gameTime);
-                bush.shadow.x = -shadowPosX;
-                bush.shadow.y = -shadowPosY;
-                bush.shadow.scaleX = 1.0;
-                bush.shadow.scaleY = 1.0;
-            }
-        });
-
     }
 
     updateHealthBar(scene, healthBar, currentHealth, maxHealth) {
@@ -3094,6 +3048,8 @@ export class mainScene extends Phaser.Scene {
 
                         pond.body.destroy();
                         pond.destroy();
+                        this.allEntities = this.allEntities.filter(entity => entity !== pond);
+
                     }
                 }
 
@@ -3109,12 +3065,10 @@ export class mainScene extends Phaser.Scene {
                             this.collidingBush = null;
                         }
 
-                        bush.shadow.destroy();
                         bush.body.destroy();
                         bush.destroy();
 
                         this.allEntities = this.allEntities.filter(entity => entity !== bush);
-                        this.allEntities = this.allEntities.filter(entity => entity !== bush.shadow);
                     }
                 }
 
@@ -3324,7 +3278,7 @@ export class mainScene extends Phaser.Scene {
                     if (tree && tree.active) {
                         const treeTileI = Math.floor(tree.x / this.tileWidth);
                         const treeTileJ = Math.floor(tree.y / this.tileWidth);
-                        const buffer = 7; // Add a buffer of 2 tiles
+                        const buffer = 7; 
                         if (treeTileI < startI - buffer || treeTileI > endI + buffer || treeTileJ < startJ - buffer || treeTileJ > endJ + buffer) { // Check if the tree is out of view
                             tree.isDepleted = false;
 
@@ -3360,13 +3314,15 @@ export class mainScene extends Phaser.Scene {
                     if (pond && pond.active) {
                         const pondTileI = Math.floor(pond.x / this.tileWidth);
                         const pondTileJ = Math.floor(pond.y / this.tileWidth);
-                        const buffer = 6; // Add a buffer of 2 tiles
+                        const buffer = 7; 
                         if (pondTileI < startI - buffer || pondTileI > endI + buffer || pondTileJ < startJ - buffer || pondTileJ > endJ + buffer) { // Check if the tree is out of view
                             this.ponds.splice(index, 1);
                             this.matter.world.remove(pond.body);
 
                             pond.body.destroy();
                             pond.destroy();
+
+                            this.allEntities = this.allEntities.filter(entity => entity !== pond);
                         }
                     }
                 }
@@ -3377,7 +3333,7 @@ export class mainScene extends Phaser.Scene {
                     if (bush && bush.active) {
                         const bushTileI = Math.floor(bush.x / this.tileWidth);
                         const bushTileJ = Math.floor(bush.y / this.tileWidth);
-                        const buffer = 3; // Add a buffer of 2 tiles
+                        const buffer = 3; 
                         if (bushTileI < startI - buffer || bushTileI > endI + buffer || bushTileJ < startJ - buffer || bushTileJ > endJ + buffer) { // Check if the tree is out of view
                             this.bushs.splice(index, 1);
                             this.matter.world.remove(bush.body);
@@ -3388,11 +3344,8 @@ export class mainScene extends Phaser.Scene {
 
                             bush.body.destroy();
                             bush.destroy();
-                            bush.shadow.destroy();
 
                             this.allEntities = this.allEntities.filter(entity => entity !== bush);
-                            this.allEntities = this.allEntities.filter(entity => entity !== bush.shadow);
-
                         }
                     }
                 }
