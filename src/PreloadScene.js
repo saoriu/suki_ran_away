@@ -17,6 +17,9 @@ export class PreloadScene extends Phaser.Scene {
         this.load.atlas('bluecollar', '/equip/bluecollar.png', '/equip/collar.json');
         this.load.atlas('blackcollar', '/equip/blackcollar.png', '/equip/collar.json');
         this.load.atlas('magentacollar', '/equip/magentacollar.png', '/equip/collar.json');
+        //preload /Users/saoriuchida/CODE/suki-ran-away/suki_ran_away/public/tiles/RA_Ruins.png
+        this.load.tilemapTiledJSON('maze', '/tiles/maze.json');
+        this.load.image('RA_Ruins', '/tiles/RA_Ruins.png');
         this.load.image('title', '/ui/title.png');
         this.load.atlas('cat', '/characters/cat.png', '/characters/cat.json');
         this.load.atlas('monsters', '/characters/monsters.png', '/characters/monsters.json');

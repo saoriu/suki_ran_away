@@ -47,7 +47,7 @@ export const attacks = {
       range: 0.4,
       attack: 3,
       speed: 1.3,
-      knockback: 7,
+      knockback: 10,
       damage: 3,
       level: 10,
       bleed: 0,

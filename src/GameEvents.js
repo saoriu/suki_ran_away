@@ -85,60 +85,49 @@ export class GameEvents {
             // Calculate the monster's health and level
             let monsterHealth = targetMonster.level * 1;
             let monsterLevel = targetMonster.level;
-            const timeToImpact = 0;
+            const timeToImpact = 150;
 
 
-            const selectedAttack = attacks[attackName] || attacks['scratch'];   
-            const playerRoll = Phaser.Math.Between(1, Math.floor((PlayerState.skills.dancing.level * 0.1) + (selectedAttack.damage * (1 + PlayerState.attackBonus / 100))));
-
+            const selectedAttack = attacks[attackName] || attacks['scratch'];
+           const playerRoll = Phaser.Math.Between(1, Math.floor((PlayerState.skills.dancing.level * 0.1) + (selectedAttack.damage * (1 + PlayerState.attackBonus / 100))));
             // Apply damage to the monster
             targetMonster.currentHealth -= playerRoll;
-            
             if (playerRoll > 0) {
                 targetMonster.isHurt = true;
-
+               
+            
+            
+            
                 setTimeout(() => {
-                    if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
-                        if (targetMonster.currentHealth > 0 && selectedAttack.knockback) {
-                            const knockbackDistance = (selectedAttack.knockback) * this.tileWidth;
-                            const directionX = targetMonster.sprite.x - this.player.x;
-                            const directionY = targetMonster.sprite.y - this.player.y;
-                            const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
-                            const normalizedDirectionX = directionX / magnitude;
-                            const normalizedDirectionY = directionY / magnitude;
+                    if (targetMonster.sprite && targetMonster.sprite.active) {
+                        if (targetMonster.currentHealth > 0) {
+                            const knockbackMagnitude = selectedAttack.knockback * 0.015; // Decrease the magnitude
+                            const directionX = this.player.x - targetMonster.sprite.x;
+                            const directionY = this.player.y - targetMonster.sprite.y;
 
-                            const newMonsterX = targetMonster.sprite.x + normalizedDirectionX * knockbackDistance;
-                            const newMonsterY = targetMonster.sprite.y + normalizedDirectionY * knockbackDistance;
+                            // Normalize the direction vector
+                            const dir = new Phaser.Math.Vector2(directionX, directionY).normalize();
 
-                            // Set a constant speed for the knockback movement
-                            const knockbackSpeed = 300; // Pixels per second, adjust as needed
+                            // Apply the force more gradually
+                            this.scene.time.addEvent({
+                                delay: 20, // Increase delay to spread out the force application
+                                callback: () => {
+                                    // Apply the force using Phaser's Matter physics method
+                                    this.scene.matter.body.applyForce(targetMonster.sprite.body, {
+                                        x: targetMonster.sprite.x,
+                                        y: targetMonster.sprite.y
+                                    }, {
+                                        x: -dir.x * knockbackMagnitude,
+                                        y: -dir.y * knockbackMagnitude
+                                    });
+                                },
+                                repeat: selectedAttack.knockback // Adjust repeat count to maintain the same knockback distance
+                            });
 
-                            // Calculate the duration based on distance and speed
-                            const knockbackDuration = Math.abs(knockbackDistance / knockbackSpeed) * 1000; // Convert to milliseconds
-
-                            if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
-                                targetMonster.isBeingKnockedBack = true; // Set the flag to true when the knockback starts
-                                // Create the knockback tween and store it in monsterObj.tween
-                                targetMonster.tween = this.scene.tweens.add({
-                                    targets: targetMonster.sprite,
-                                    x: newMonsterX,
-                                    y: newMonsterY,
-                                    duration: knockbackDuration,
-                                    ease: 'Power1',
-                                    onComplete: () => {
-                                        targetMonster.isBeingKnockedBack = false; // Reset the flag to false when the knockback completes
-                                    },
-                                    onStop: () => {
-                                        //set isbeingknockedback after 100ms
-                                        setTimeout(() => {
-                                            targetMonster.isBeingKnockedBack = false;
-                                        }
-                                        , 200);
-                                    }
-                                });
-                            }
                         }
                     }
+                    
+
 
                     if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
                         const changeText = this.scene.add.text(
@@ -212,7 +201,7 @@ export class GameEvents {
 
         let monsterLevel = targetMonster.level;
         let monsterDamage = targetMonster.damage;
-        const monsterRoll = Phaser.Math.Between(1, monsterDamage * (1 - PlayerState.defenceBonus / 100));        
+       const monsterRoll = Phaser.Math.Between(1, monsterDamage * (1 - PlayerState.defenceBonus / 100));     
         targetMonster.isAttacking = true;
         this.monsterHasAttacked = true;
 
@@ -367,9 +356,7 @@ export class GameEvents {
         }
 
 
-    update(monsters, allEntities) {
-
-
+    update(monsters, allEntities, delta) {
         Object.values(monsters).forEach(monster => {
             if (!monster || !monster.sprite || !monster.sprite.active) return; // Check if monster and its sprite are valid
 
@@ -389,7 +376,7 @@ export class GameEvents {
             }
 
 
-            this.updateMonsterMovement(this.player, monster, distance, allEntities); // Update monster movement based on current state
+            this.updateMonsterMovement(this.player, monster, distance, allEntities, delta); // Update monster movement based on current state
         });
         
 
@@ -410,14 +397,16 @@ export class GameEvents {
         return monster.distance;
     }
 
-    updateMonsterMovement(player, monster, distance, allEntities) {
+    updateMonsterMovement(player, monster, distance, allEntities, delta) {
         //if monster health is not 0
-        if (monster.currentHealth > 0 && !monster.isBeingKnockedBack && !monster.isTweening) {
+        if (monster.currentHealth > 0) {
+            const speedScale = delta / 8; // Adjust the divisor as needed
+
             if (monster.isAggressive && !monster.canReach) {
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPlayer(player, monster);
                 const velocity = {
-                    x: normalizedDirectionX * monster.speed,
-                    y: normalizedDirectionY * monster.speed
+                    x: normalizedDirectionX * monster.speed * speedScale,
+                    y: normalizedDirectionY * monster.speed * speedScale
                 };
 
                 // Apply velocity to the monster
@@ -437,8 +426,8 @@ export class GameEvents {
 
                 const { normalizedDirectionX, normalizedDirectionY } = this.getDirectionTowardsPoint(monster.destination, monster);
                 const velocity = {
-                    x: normalizedDirectionX * (monster.speed * 0.35),
-                    y: normalizedDirectionY * (monster.speed * 0.35)
+                    x: normalizedDirectionX * (monster.speed * 0.35) * speedScale,
+                    y: normalizedDirectionY * (monster.speed * 0.35) * speedScale
                 };
 
                 // Apply velocity to the monster

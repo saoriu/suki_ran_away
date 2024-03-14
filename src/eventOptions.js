@@ -11,7 +11,7 @@ export const eventOptions = [
     level: 2,
     damage: 2,
     speed: 2.7,
-    monsterMass: 1,
+    monsterMass: 1.5,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
       rare: ['Apple', 'Lemon'],
@@ -31,7 +31,7 @@ export const eventOptions = [
     speed: 2.2,
     damage: 5,
     attackSpeed: 500,
-    monsterMass: 2,
+    monsterMass: 2.2,
     possibleOutcomes: {
       common: ['Cotton', 'Silk'],
       rare: ['Gold', 'Emerald'],
@@ -72,7 +72,7 @@ export const eventOptions = [
     attackSpeed: 700,
     level: 10,
     damage: 7,
-    monsterMass: 0.2,
+    monsterMass: 1.4,
     specialEventBush: true,
     speed: 2.9,
     possibleOutcomes: {
@@ -94,7 +94,7 @@ export const eventOptions = [
     isAggressive: true,
     level: 17,
     damage: 12,
-    monsterMass: 0.2,
+    monsterMass: 1.4,
     specialEventBush: true,
     speed: 2.95,
     possibleOutcomes: {
@@ -114,7 +114,7 @@ export const eventOptions = [
     description: 'She may have something useful.',
     level: 2,
     isAggressive: false,
-    monsterMass: 0.8,
+    monsterMass: 1.5,
     damage: 1,
     attackSpeed: 600,
     speed: 2.4,

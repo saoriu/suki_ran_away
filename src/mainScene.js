@@ -49,6 +49,7 @@ export class mainScene extends Phaser.Scene {
             }
         };
         this.isDashing = false;
+        this.mazeSpawned = false;
         this.ashes = [];
         this.tileWidth = GAME_CONFIG.TILE_WIDTH;
         this.cat = null; // Will be set in create()
@@ -56,8 +57,7 @@ export class mainScene extends Phaser.Scene {
         this.monsters = {};
         this.currentCollarName = null;
         this.tilesBuffer = GAME_CONFIG.TILES_BUFFER;
-        this.moveSpeed = PlayerState.speed;
-        this.diagonalVelocity = (this.moveSpeed / Math.sqrt(2));
+        this.diagonalVelocity = (PlayerState.speed / Math.sqrt(2));
         this.canAttack = true;
         this.attackAnimationKey = null; // Will be set when needed
         this.POSITION_CHANGE_THRESHOLD = 0.05;
@@ -72,7 +72,6 @@ export class mainScene extends Phaser.Scene {
         this.treePool = [];
         this.trees = [];
         this.treeShadowPool = [];
-        this.fire = [];
         this.fires = [];
         this.tilePool = [];
         this.ponds = [];
@@ -165,7 +164,6 @@ export class mainScene extends Phaser.Scene {
             radiusX = trimmedWidth / 2.5; // Radius along the x axis
             radiusY = radiusX / 3; // Radius along the y axis
 
-            // Draw the shadow using the square approach
             for (let y = 0; y < trimmedHeight; y += squareSize) {
                 for (let x = 0; x < trimmedWidth; x += squareSize) {
                     let distX = Math.abs(x + squareSize / 2 - trimmedWidth / 2) / radiusX;
@@ -665,6 +663,7 @@ export class mainScene extends Phaser.Scene {
                     this.checkCollarAnims(this.attackAnimationKey)
                 }
             }
+
         });
 
 
@@ -727,7 +726,7 @@ export class mainScene extends Phaser.Scene {
 
     update(time, delta) {
 
-        PlayerState.gameTime += delta / 300000;
+        PlayerState.gameTime += delta / 30000;
         if (PlayerState.gameTime >= 24) {
             PlayerState.gameTime = 0;
             PlayerState.days++;
@@ -742,7 +741,7 @@ export class mainScene extends Phaser.Scene {
 
         this.updateTooltip.call(this);
 
-        this.handlePlayerMovement();
+        this.handlePlayerMovement(delta);
 
         if (time - this.lastRegenerateEnergyTime > 1000) { // 1000 ms = 1 second
             regenerateEnergy(this);
@@ -901,7 +900,7 @@ export class mainScene extends Phaser.Scene {
             }
         });
 
-        this.gameEvents.update(this.monsters, this.allEntities);
+        this.gameEvents.update(this.monsters, this.allEntities, delta);
 
 
         Object.values(this.monsters).forEach(monsterObj => {
@@ -1020,13 +1019,19 @@ export class mainScene extends Phaser.Scene {
                 const dy = this.cat.y - fireCenterY;
                 const distanceInTiles = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
 
+                // Check if the player is near the fire
+                if (distanceInTiles <= 2.5) {
+                    PlayerState.isNearFire = true;
+                } else {
+                    PlayerState.isNearFire = false;
+                }
+
+                // Check if the player is being attacked by the fire
                 if (distanceInTiles <= 1.1) {
                     this.fireAttack(fire);
                 }
-
-                this.isNearFire(fire);
             }
-        });
+        }); 
 
         Object.values(this.monsters).forEach(monster => {
             if (!monster.sprite || !monster.sprite.body) {
@@ -1095,6 +1100,7 @@ export class mainScene extends Phaser.Scene {
                     const dy = monster.sprite.body.position.y - fireCenterY;
                     const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
 
+                    
                     const dx2 = this.cat.x - fireCenterX;
                     const dy2 = this.cat.y - fireCenterY;
                     const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2) / this.tileWidth;
@@ -1198,29 +1204,6 @@ export class mainScene extends Phaser.Scene {
     }
 
 
-    // Set a flag in PlayerState when player is near fire
-    isNearFire() {
-        PlayerState.isNearFire = false; // Reset the flag
-
-        this.fires.forEach((fire, index) => {
-            if (fire && fire.active) {
-                // Use the fire's body position to get the center of the sprite
-                const fireCenterX = fire.body.position.x;
-                const fireCenterY = fire.body.position.y;
-
-                const dx = this.cat.x - fireCenterX;
-                const dy = this.cat.y - fireCenterY;
-                const distance = Math.sqrt(dx * dx + dy * dy) / this.tileWidth;
-
-                if (distance <= 2.5) {
-                    PlayerState.isNearFire = true;
-                    return; // Exit the loop as soon as we find a fire the player is near
-                }
-
-                
-            }
-        });
-    }
 
     spawnMonstersOnly(centerX, centerY, scene) {
 
@@ -1500,7 +1483,7 @@ export class mainScene extends Phaser.Scene {
             spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
-        const fireProbability = 0.50 * (1 + PlayerState.fireBonus / 100);
+        const fireProbability = 1 * (1 + PlayerState.fireBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
 
@@ -1573,7 +1556,7 @@ export class mainScene extends Phaser.Scene {
         return probability;
     }
 
-    handlePlayerMovement() {
+    handlePlayerMovement(delta) {
         if (PlayerState.isDead) {
             this.cat.setVelocity(0, 0);
             return;
@@ -1581,76 +1564,85 @@ export class mainScene extends Phaser.Scene {
 
         let velocityX = 0, velocityY = 0;
 
+        const speedScale = delta / 8; // Adjust the divisor as needed
+
         if (!PlayerState.isMenuOpen) {
 
             if (this.cursors.left.isDown && this.cursors.up.isDown) {
                 // Handle up-left diagonal movement
-                velocityX = -this.diagonalVelocity;
-                velocityY = -this.diagonalVelocity;
+                velocityX = -this.diagonalVelocity * speedScale;
+                velocityY = -this.diagonalVelocity * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'upLeft';
                 }
             } else if (this.cursors.right.isDown && this.cursors.up.isDown) {
                 // Handle up-right diagonal movement
-                velocityX = this.diagonalVelocity;
-                velocityY = -this.diagonalVelocity;
+                velocityX = this.diagonalVelocity * speedScale;
+                velocityY = -this.diagonalVelocity * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'upRight';
                 }
             } else if (this.cursors.left.isDown && this.cursors.down.isDown) {
                 // Handle down-left diagonal movement
-                velocityX = -this.diagonalVelocity;
-                velocityY = this.diagonalVelocity;
+                velocityX = -this.diagonalVelocity * speedScale;
+                velocityY = this.diagonalVelocity * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'downLeft';
                 }
             } else if (this.cursors.right.isDown && this.cursors.down.isDown) {
                 // Handle down-right diagonal movement
-                velocityX = this.diagonalVelocity;
-                velocityY = this.diagonalVelocity;
+                velocityX = this.diagonalVelocity * speedScale;
+                velocityY = this.diagonalVelocity * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'downRight';
                 }
             } else if (this.cursors.left.isDown) {
                 // Handle left movement
-                velocityX = -this.moveSpeed;
+                velocityX = -PlayerState.speed * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'left';
                 }
             } else if (this.cursors.right.isDown) {
                 // Handle right movement
-                velocityX = this.moveSpeed;
+                velocityX = PlayerState.speed * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'right';
                 }
             } else if (this.cursors.up.isDown) {
                 // Handle up movement
-                velocityY = -this.moveSpeed;
+                velocityY = -PlayerState.speed * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'up';
                 }
             } else if (this.cursors.down.isDown) {
                 // Handle down movement
-                velocityY = this.moveSpeed;
+                velocityY = PlayerState.speed * speedScale;
                 if (!this.isDashing && !PlayerState.isEating) {
                     this.lastDirection = 'down';
                 }
             }
         }
-
+    
         if (PlayerState.isAttacking && !this.isDashing) {
             const attackSpeedReductionFactor = 0.3;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
-
+    
         if (PlayerState.isEating) {
             const attackSpeedReductionFactor = 0.3;
             velocityX *= attackSpeedReductionFactor;
             velocityY *= attackSpeedReductionFactor;
         }
+    
+        if (this.isDashing) {
+            const dashSpeedIncreaseFactor = 1.5;
+            velocityX *= dashSpeedIncreaseFactor;
+            velocityY *= dashSpeedIncreaseFactor;
+        }
 
         this.cat.setVelocity(velocityX, velocityY);
+    
         if (this.collar) {
         if(PlayerState.equipment.collar && PlayerState.equipment.collar.equipmentName !== null) {
             this.collar.x = this.cat.x;
@@ -1766,7 +1758,7 @@ export class mainScene extends Phaser.Scene {
         };
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 30) ||
+        if (isTooCloseToOtherObjects(this.fires, 60) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
@@ -1798,8 +1790,6 @@ export class mainScene extends Phaser.Scene {
 
         fire.body.isSensor = true;
 
-        this.fires.push(fire);
-
 
         fire.light = this.lights.addLight(x, y, 400).setColor(0xFF4500).setIntensity(1.6);
 
@@ -1812,9 +1802,14 @@ export class mainScene extends Phaser.Scene {
             repeat: -1
         });
 
+
+        this.fires.push(fire);
+
         for (let index = this.fires.length - 1; index >= 0; index--) {
             let fire = this.fires[index];
+
             if (fire && fire.active) {
+                fire.light.setIntensity(1.6);
                 fire.endTime = Date.now() + 15000;
 
                 // Create a recurring timer event that checks if the fire should be extinguished
@@ -1829,11 +1824,6 @@ export class mainScene extends Phaser.Scene {
                                 // Check if the fire object has a light property
                                 if (fire.light) {
                                     fire.light.setIntensity(0);
-
-                                    // Check if the lights manager exists before removing the light
-                                    if (this.lights) {
-                                        this.lights.removeLight(fire.light.x, fire.light.y);
-                                    }
                                 }
 
                                 // Check if the matter world exists before removing the fire body
@@ -1846,9 +1836,9 @@ export class mainScene extends Phaser.Scene {
                                     fire.shadow.destroy();
                                 }
 
-                                // Check if the fires array exists before removing the fire object
+                                // Check if the fires array exists before removing the fire object by filtering it
                                 if (this.fires) {
-                                    this.fires.splice(index, 1);
+                                    this.fires = this.fires.filter(f => f !== fire);
                                 }
 
                                 // Check if the add method exists before creating the ashes sprite
@@ -1865,18 +1855,24 @@ export class mainScene extends Phaser.Scene {
                                     fire.body.destroy();
                                 }
 
+                                if (fire.timerEvent) {
+                                    fire.timerEvent.remove();
+                                }
+
                                 // Check if the fire object exists before destroying it
                                 if (fire) {
                                     fire.destroy();
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             if (fire && fire.active) {
                                 const timeLeft = Math.round((fire.endTime - Date.now()) / 1000);
                                 const proportion = Math.min(timeLeft / 15, 1); // Cap the proportion at 1
 
                                 // Set the intensity proportional to the time left, capped at 1.7
                                 const intensity = 1.7 * proportion;
+                                
                                 fire.light.setIntensity(intensity);
                             }
                         }
@@ -1929,11 +1925,6 @@ export class mainScene extends Phaser.Scene {
                             // Check if the fire object has a light property
                             if (closestFire.light) {
                                 closestFire.light.setIntensity(0);
-
-                                // Check if the lights manager exists before removing the light
-                                if (this.lights) {
-                                    this.lights.removeLight(closestFire.light.x, closestFire.light.y);
-                                }
                             }
 
                             // Check if the matter world exists before removing the fire body
@@ -2050,6 +2041,26 @@ export class mainScene extends Phaser.Scene {
         const x = spawnTileI * this.tileWidth;
         const y = spawnTileJ * this.tileWidth;
 
+        const treeSize = 10;
+
+            // Check if any of the tiles around the spawn location are part of the maze or objects layer
+    for (let i = -treeSize; i <= treeSize; i++) {
+        for (let j = -treeSize; j <= treeSize; j++) {
+            const tileX = x + i * this.tileWidth;
+            const tileY = y + j * this.tileWidth;
+
+            if (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(tileX, tileY)) {
+                // If there's a tile at this location in the maze layer, return and don't spawn the tree
+                return;
+            }
+    
+            if (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(tileX, tileY)) {
+                // If there's a tile at this location in the objects layer, return and don't spawn the tree
+                return;
+            }
+        }
+    }
+
         const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
             return objectArray.some(obj => {
                 if (obj && obj.active) {
@@ -2064,16 +2075,19 @@ export class mainScene extends Phaser.Scene {
 
         const monstersArray = Object.values(this.monsters);
 
-        // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
-        if (isTooCloseToOtherObjects(this.fires, 4) ||
-            isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 7) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bushs, 4) || // assuming a bush threshold
-            isTooCloseToOtherObjects(monstersArray, 4)) { // Pass the monsters array
-            return;
-        }
-        let tree;
-        let treeShadow;
+    // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
+    if (isTooCloseToOtherObjects(this.fires, 4) ||
+        isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
+        isTooCloseToOtherObjects(this.ponds, 7) || // assuming a pond threshold
+        isTooCloseToOtherObjects(this.bushs, 4) || // assuming a bush threshold
+        isTooCloseToOtherObjects(monstersArray, 4) || // Pass the monsters array
+        (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
+        (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(x, y))) { // Check if there's a tile at the spawn location in the objects layer
+        return;
+    }
+
+    let tree;
+    let treeShadow;
 
         if (this.treePool.length > 0) {
             tree = this.treePool.pop();
@@ -2170,6 +2184,32 @@ export class mainScene extends Phaser.Scene {
         }
     }
 
+    spawnMazeAndObjects() {
+        // Create the map
+        this.map = this.make.tilemap({ key: 'maze' });
+    
+        // Add the tileset image
+        this.tileset = this.map.addTilesetImage('RA_Ruins');
+    
+        // Add the tileset to the map
+        this.mazeLayer = this.map.createLayer('walls', this.tileset, 0, 0);
+    
+        // Add the 'objects' layer to the map
+        this.objectsLayer = this.map.createLayer('object', this.tileset, 0, 0);
+    
+        // Set collision for the layers
+        this.mazeLayer.setCollisionByExclusion([-1]);
+        this.objectsLayer.setCollisionByExclusion([-1]);
+    
+        // Convert the tilemap layers to Matter.js bodies
+        this.matter.world.convertTilemapLayer(this.mazeLayer);
+        this.matter.world.convertTilemapLayer(this.objectsLayer);
+    
+        // Set the pipeline to 'Light2D'
+        this.mazeLayer.setPipeline('Light2D');
+        this.objectsLayer.setPipeline('Light2D');
+    }
+
     spawnPonds() {
         const camera = this.cameras.main;
         const centerX = camera.midPoint.x;
@@ -2206,6 +2246,26 @@ export class mainScene extends Phaser.Scene {
         const x = spawnTileI * this.tileWidth;
         const y = spawnTileJ * this.tileWidth;
 
+        const pondSize = 10;
+
+        // Check if any of the tiles around the spawn location are part of the maze or objects layer
+for (let i = -pondSize; i <= pondSize; i++) {
+    for (let j = -pondSize; j <= pondSize; j++) {
+        const tileX = x + i * this.tileWidth;
+        const tileY = y + j * this.tileWidth;
+
+        if (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(tileX, tileY)) {
+            // If there's a tile at this location in the maze layer, return and don't spawn the tree
+            return;
+        }
+
+        if (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(tileX, tileY)) {
+            // If there's a tile at this location in the objects layer, return and don't spawn the tree
+            return;
+        }
+    }
+}
+
         const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
             return objectArray.some(obj => {
                 if (obj && obj.active) {
@@ -2226,8 +2286,9 @@ export class mainScene extends Phaser.Scene {
             isTooCloseToOtherObjects(this.trees, 7) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 10) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bushs, 8) ||
-            isTooCloseToOtherObjects(monstersArray, 5)) { // Pass the monsters array
-
+            isTooCloseToOtherObjects(monstersArray, 5)|| // Pass the monsters array
+            (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
+            (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(x, y))) { // Check if there's a tile at the spawn location in the objects layer
             return;
         }
 
@@ -2381,6 +2442,26 @@ export class mainScene extends Phaser.Scene {
         const x = spawnTileI * this.tileWidth;
         const y = spawnTileJ * this.tileWidth;
 
+        const bushSize = 3;
+
+        // Check if any of the tiles around the spawn location are part of the maze or objects layer
+for (let i = -bushSize; i <= bushSize; i++) {
+    for (let j = -bushSize; j <= bushSize; j++) {
+        const tileX = x + i * this.tileWidth;
+        const tileY = y + j * this.tileWidth;
+
+        if (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(tileX, tileY)) {
+            // If there's a tile at this location in the maze layer, return and don't spawn the tree
+            return;
+        }
+
+        if (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(tileX, tileY)) {
+            // If there's a tile at this location in the objects layer, return and don't spawn the tree
+            return;
+        }
+    }
+}
+
         const isTooCloseToOtherObjects = (objectArray, distanceThreshold) => {
             return objectArray.some(obj => {
                 if (obj && obj.active) {
@@ -2401,7 +2482,9 @@ export class mainScene extends Phaser.Scene {
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 6) || // assuming a pond threshold
             isTooCloseToOtherObjects(monstersArray, 3) ||
-            isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
+            isTooCloseToOtherObjects(this.bushs, 3) || // Pass the monsters array
+            (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
+            (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(x, y))) { // Check if there's a tile at the spawn location in the objects layer
             return;
         }
 
@@ -2542,12 +2625,9 @@ export class mainScene extends Phaser.Scene {
             return;
         }
 
+        //speedscale
         //if this.isdashing is true, then the player is dashing increase speed and play attack5 animation
         if (this.isDashing && !PlayerState.isEating) { 
-            this.moveSpeed *= 1.0145
-            //increase diagonal velocity
-            this.diagonalVelocity = (this.moveSpeed / Math.sqrt(2));
-            // Determine the animation key based on the last direction
             switch (this.lastDirection) {
                 case 'up':
                     this.attackAnimationKey = 'attack5-back';
@@ -2580,8 +2660,6 @@ export class mainScene extends Phaser.Scene {
             // After the animation is complete, set this.isDashing to false and reset the speed
             this.cat.on('animationcomplete', () => {
                 this.isDashing = false;
-                this.moveSpeed = PlayerState.speed;
-                this.diagonalVelocity = this.moveSpeed / Math.sqrt(2);
             }, this);
             return;
         }
@@ -3080,14 +3158,11 @@ export class mainScene extends Phaser.Scene {
                         // Turn off the light associated with the fire
                         fire.light.setIntensity(0);
 
-                        // Remove the light from the LightManager's list of lights
-                        this.lights.removeLight(fire.light.x, fire.light.y);
-
                         // Destroy the fire body
                         this.matter.world.remove(fire.body);
 
-                        // Remove the fire from the fires array before destroying it
-                        this.fires.splice(index, 1);
+                        // Remove the fire from the fires array before destroying it by filtering it out
+                        this.fires = this.fires.filter(f => f !== fire);
 
                         fire.shadow.destroy();
 
@@ -3355,16 +3430,18 @@ export class mainScene extends Phaser.Scene {
                     if (fire && fire.active) {
                         const fireTileI = Math.floor(fire.x / this.tileWidth);
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
-                        if (fireTileI < startI - buffer.fire || fireTileI > endI + buffer.fire || fireTileJ < startJ - buffer.fire || fireTileJ > endJ + buffer.fire) {
-                            this.tweens.killTweensOf(fire.light);
-                            fire.light.setIntensity(0);
-                            this.lights.removeLight(fire.light.x, fire.light.y);
+                        const buffer = 3;
+                        if (fireTileI < startI - buffer || fireTileI > endI + buffer || fireTileJ < startJ - buffer || fireTileJ > endJ + buffer) {
+                            fire.light.setIntensity(1.6);
+                            this.fires = this.fires.filter(f => f !== fire);
+                            // Then, proceed with the other cleanup operations
                             this.matter.world.remove(fire.body);
-                            this.fires.splice(index, 1);
                             fire.shadow.destroy();
                             fire.body.destroy();
                             fire.timerEvent.remove();
                             fire.destroy();
+                            this.tweens.killTweensOf(fire.light);
+                            fire.light.setIntensity(0);
                         }
                     }
                 }
