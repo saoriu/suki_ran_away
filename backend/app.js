@@ -41,7 +41,7 @@ app.post('/register', async (req, res) => {
     skin: 'default',
     days: 0,
     energy: 100,
-    speed: 3,
+    speed: 3.5,
     skills: {
       dancing: { level: 1, xp: 0, totalXP: 0 },
       gathering: { level: 1, xp: 0, totalXP: 0 },

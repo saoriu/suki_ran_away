@@ -193,17 +193,6 @@ export class mainScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-P', () => {
             PlayerState.gameTime = 10;
-
-            for (let index = this.fires.length - 1; index >= 0; index--) {
-                let fire = this.fires[index];
-                console.log('Fire:', fire);
-            }
-
-            //for all ashes in this.ashes console log the ashes
-            for (let index = this.ashes.length - 1; index >= 0; index--) {
-                let ash = this.ashes[index];
-                console.log('Ash:', ash);
-            }
         });
 
         this.input.keyboard.on('keydown-O', () => {
@@ -1440,7 +1429,7 @@ export class mainScene extends Phaser.Scene {
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
 
         if (randomFloat < spawnProbability) {
-           // spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
+           spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
         const fireProbability = .5 * (1 + PlayerState.fireBonus / 100);

@@ -10,7 +10,7 @@ export const eventOptions = [
     attackRange: 0.25,
     level: 2,
     damage: 2,
-    speed: 2.7,
+    speed: 3.2,
     monsterMass: 1.5,
     possibleOutcomes: {
       common: ['Cotton', 'Pebble'],
@@ -28,7 +28,7 @@ export const eventOptions = [
     attackRange: 0.25,
     isAggressive: false,
     level: 5,
-    speed: 2.2,
+    speed: 2.7,
     damage: 5,
     attackSpeed: 500,
     monsterMass: 2.2,
@@ -50,7 +50,7 @@ export const eventOptions = [
     attackSpeed: 700,
     isAggressive: true,
     level: 5,
-    speed: 2.4,
+    speed: 2.9,
     damage: 4,
     monsterMass: 2,
     possibleOutcomes: {
@@ -74,7 +74,7 @@ export const eventOptions = [
     damage: 7,
     monsterMass: 1.4,
     specialEventBush: true,
-    speed: 2.9,
+    speed: 3.4,
     possibleOutcomes: {
       common: ['Silk', 'Emerald'],
       rare: ['Diamond'],
@@ -96,7 +96,7 @@ export const eventOptions = [
     damage: 12,
     monsterMass: 1.4,
     specialEventBush: true,
-    speed: 2.95,
+    speed: 3.45,
     possibleOutcomes: {
       common: ['Emerald', 'Ruby'],
       rare: ['Diamond'],
@@ -117,7 +117,7 @@ export const eventOptions = [
     monsterMass: 1.5,
     damage: 1,
     attackSpeed: 600,
-    speed: 2.4,
+    speed: 2.9,
     possibleOutcomes: {
       common: ['Egg', 'Flour'],
       rare: ['Pebble'],
@@ -135,10 +135,10 @@ export const eventOptions = [
     description: 'Its a hard life.',
     damage: 0,
     level: 15,
-    speed: 1.45,
+    speed: 1.95,
     attackSpeed: 800,
     isAggressive: false,
-    monsterMass: 2.5,
+    monsterMass: 25,
     possibleOutcomes: {
       common: ['Milk', 'Pebble'],
       rare: ['Lemon'],
@@ -158,7 +158,7 @@ export const eventOptions = [
     description: 'A shiny coat and a sharp bite.',
     damage: 8,
     level: 20,
-    speed: 2.7,
+    speed: 3.2,
     monsterMass: 2.1,
     possibleOutcomes: {
       common: ['Bone', 'Lemon'],
@@ -178,7 +178,7 @@ export const eventOptions = [
     description: 'Sharp talons and a sharp bite.',
     damage: 6,
     level: 15,
-    speed: 3,
+    speed: 3.5,
     monsterMass: 2.1,
     possibleOutcomes: {
       common: ['Bone', 'Egg'],
@@ -199,7 +199,7 @@ export const eventOptions = [
     description: 'Beautiful and deadly.',
     damage: 10,
     level: 40,
-    speed: 2.9,
+    speed: 3.45,
     monsterMass: 2.1,
     possibleOutcomes: {
       common: ['Egg'],
