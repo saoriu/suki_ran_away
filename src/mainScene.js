@@ -193,6 +193,17 @@ export class mainScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-P', () => {
             PlayerState.gameTime = 10;
+
+            for (let index = this.fires.length - 1; index >= 0; index--) {
+                let fire = this.fires[index];
+                console.log('Fire:', fire);
+            }
+
+            //for all ashes in this.ashes console log the ashes
+            for (let index = this.ashes.length - 1; index >= 0; index--) {
+                let ash = this.ashes[index];
+                console.log('Ash:', ash);
+            }
         });
 
         this.input.keyboard.on('keydown-O', () => {
@@ -1429,10 +1440,10 @@ export class mainScene extends Phaser.Scene {
         const randomFloat = Phaser.Math.FloatBetween(0, 1);
 
         if (randomFloat < spawnProbability) {
-            spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
+           // spawnMonsters(centerX, centerY, scene, this.tileWidth, this.tilesBuffer, this.monsters, this.allEntities);
         }
 
-        const fireProbability = 1 * (1 + PlayerState.fireBonus / 100);
+        const fireProbability = .5 * (1 + PlayerState.fireBonus / 100);
         const randomFireFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomFireFloat < fireProbability) {
 
@@ -1446,7 +1457,7 @@ export class mainScene extends Phaser.Scene {
         if (randomTreeFloat < treeProbability) {
             const randomNumberOfTrees = Phaser.Math.Between(1, 10);
             for (let i = 0; i < randomNumberOfTrees; i++) {
-                this.spawnTrees();
+               this.spawnTrees();
             }
         }
 
@@ -1458,7 +1469,7 @@ export class mainScene extends Phaser.Scene {
 
             for (let i = 0; i < randomNumberOfPonds; i++) {
 
-                this.spawnPonds();
+              this.spawnPonds();
             }
         }
 
@@ -1469,7 +1480,7 @@ export class mainScene extends Phaser.Scene {
 
             for (let i = 0; i < randomNumberOfbushs; i++) {
 
-                this.spawnbush();
+               this.spawnbush();
             }
         }
     }
@@ -1667,10 +1678,10 @@ export class mainScene extends Phaser.Scene {
         const visibleStartJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
         const visibleEndJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
 
-        const bufferStartI = visibleStartI - (this.tilesBuffer + 3); // extend outward by 1 tile
-        const bufferEndI = visibleEndI + (this.tilesBuffer + 3);    // extend outward by 1 tile
-        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 3); // extend outward by 1 tile
-        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 3);    // extend outward by 1 tile
+        const bufferStartI = visibleStartI - (this.tilesBuffer + 4); // extend outward by 1 tile
+        const bufferEndI = visibleEndI + (this.tilesBuffer + 4);    // extend outward by 1 tile
+        const bufferStartJ = visibleStartJ - (this.tilesBuffer + 4); // extend outward by 1 tile
+        const bufferEndJ = visibleEndJ + (this.tilesBuffer + 4);    // extend outward by 1 tile
 
         let spawnTileI, spawnTileJ;
 
@@ -1708,8 +1719,9 @@ export class mainScene extends Phaser.Scene {
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 80) ||
+            isTooCloseToOtherObjects(this.ashes, 80) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.ponds, 10) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
             return;
         }
@@ -1792,7 +1804,7 @@ export class mainScene extends Phaser.Scene {
 
                                 // Check if the add method exists before creating the ashes sprite
                                 if (this.add) {
-                                    let ashesSprite = this.add.sprite(x, y, 'ashes').setDepth(2).setPipeline('Light2D');
+                                    let ashesSprite = this.add.sprite(x, y, 'ashes').setDepth(1).setPipeline('Light2D');
 
                                     // Check if the ashes array exists before adding the ashes sprite
                                     if (this.ashes) {
@@ -2027,7 +2039,7 @@ export class mainScene extends Phaser.Scene {
     // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
     if (isTooCloseToOtherObjects(this.fires, 4) ||
         isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-        isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
+        isTooCloseToOtherObjects(this.ponds, 9) || // assuming a pond threshold
         isTooCloseToOtherObjects(this.bushs, 4) || // assuming a bush threshold
         isTooCloseToOtherObjects(monstersArray, 4) || // Pass the monsters array
         (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
@@ -2231,9 +2243,9 @@ for (let i = -pondSize; i <= pondSize; i++) {
 
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 6) ||
-            isTooCloseToOtherObjects(this.trees, 9) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 10) || // assuming a pond threshold
+        if (isTooCloseToOtherObjects(this.fires, 9) ||
+            isTooCloseToOtherObjects(this.trees, 10) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.ponds, 14) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bushs, 9) ||
             isTooCloseToOtherObjects(monstersArray, 5)|| // Pass the monsters array
             (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
@@ -3256,10 +3268,10 @@ for (let i = -bushSize; i <= bushSize; i++) {
                         const itemTileI = Math.floor(item.sprite.x / this.tileWidth);
                         const itemTileJ = Math.floor(item.sprite.y / this.tileWidth);
                         if (itemTileI < startI - buffer.items || itemTileI > endI + buffer.items || itemTileJ < startJ - buffer.items || itemTileJ > endJ + buffer.items) {
+                            this.items = this.items.filter(i => i !== item);
                             item.sprite.destroy(); // Destroy the sprite, not the wrapper object
-                            this.items.splice(index, 1);
                             this.allEntities = this.allEntities.filter(entity => entity !== item.sprite);
-                        }
+                    }
                     }
                 });
 
@@ -3290,8 +3302,8 @@ for (let i = -bushSize; i <= bushSize; i++) {
                         const ashesTileI = Math.floor(ashes.x / this.tileWidth);
                         const ashesTileJ = Math.floor(ashes.y / this.tileWidth);
                         if (ashesTileI < startI - buffer.ashes || ashesTileI > endI + buffer.ashes || ashesTileJ < startJ - buffer.ashes || ashesTileJ > endJ + buffer.ashes) {
-                            ashes.destroy();
                             this.ashes.splice(index, 1);
+                            ashes.destroy();
                         }
                     }
                 }
@@ -3310,7 +3322,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                                 tree.treechopShadow.destroy();
                             }
 
-                            this.trees.splice(index, 1);
+                            this.trees = this.trees.filter(t => t !== tree);
 
                             if (this.collidingTree === tree) {
                                 this.collidingTree = null;
@@ -3340,7 +3352,8 @@ for (let i = -bushSize; i <= bushSize; i++) {
                         const pondTileJ = Math.floor(pond.y / this.tileWidth);
                         const buffer = 7; 
                         if (pondTileI < startI - buffer || pondTileI > endI + buffer || pondTileJ < startJ - buffer || pondTileJ > endJ + buffer) { // Check if the tree is out of view
-                            this.ponds.splice(index, 1);
+                            this.ponds = this.ponds.filter(p => p !== pond);
+
                             this.matter.world.remove(pond.body);
 
                             pond.body.destroy();
@@ -3359,7 +3372,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                         const bushTileJ = Math.floor(bush.y / this.tileWidth);
                         const buffer = 3; 
                         if (bushTileI < startI - buffer || bushTileI > endI + buffer || bushTileJ < startJ - buffer || bushTileJ > endJ + buffer) { // Check if the tree is out of view
-                            this.bushs.splice(index, 1);
+                            this.bushs = this.bushs.filter(b => b !== bush);
                             this.matter.world.remove(bush.body);
 
                             if (this.collidingBush === bush) {
@@ -3379,7 +3392,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                     if (fire && fire.active) {
                         const fireTileI = Math.floor(fire.x / this.tileWidth);
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
-                        const buffer = 3;
+                        const buffer = 4;
                         if (fireTileI < startI - buffer || fireTileI > endI + buffer || fireTileJ < startJ - buffer || fireTileJ > endJ + buffer) {
                             fire.light.setIntensity(1.6);
                             this.fires = this.fires.filter(f => f !== fire);
