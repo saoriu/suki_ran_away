@@ -183,6 +183,7 @@ export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, m
     level: modifiedLevel,
     isAggressive: chosenMonster.isAggressive,
     inReach: false,
+    isKnocked: false,
     attackSpeed: chosenMonster.attackSpeed,
     attackComplete: true,
     event: chosenMonster,

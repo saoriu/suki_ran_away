@@ -96,37 +96,46 @@ export class GameEvents {
                 targetMonster.isHurt = true;
                
             
-            
-            
-                setTimeout(() => {
-                    if (targetMonster.sprite && targetMonster.sprite.active) {
-                        if (targetMonster.currentHealth > 0) {
-                            const knockbackMagnitude = selectedAttack.knockback * 0.015; // Decrease the magnitude
-                            const directionX = this.player.x - targetMonster.sprite.x;
-                            const directionY = this.player.y - targetMonster.sprite.y;
+            setTimeout(() => {
+                if (targetMonster.sprite && targetMonster.sprite.active) {
+                    if (targetMonster.currentHealth > 0) {
+                        if (selectedAttack.name === 'horsekick') {
+                            targetMonster.isKnocked = true;
+                        }                        
+                        const knockbackMagnitude = selectedAttack.knockback * 0.01;
+                        const directionX = this.player.x - targetMonster.sprite.x;
+                        const directionY = this.player.y - targetMonster.sprite.y;
 
-                            // Normalize the direction vector
-                            const dir = new Phaser.Math.Vector2(directionX, directionY).normalize();
+                        // Normalize the direction vector
+                        const dir = new Phaser.Math.Vector2(directionX, directionY).normalize();
 
-                            // Apply the force more gradually
-                            this.scene.time.addEvent({
-                                delay: 20, // Increase delay to spread out the force application
-                                callback: () => {
-                                    // Apply the force using Phaser's Matter physics method
-                                    this.scene.matter.body.applyForce(targetMonster.sprite.body, {
-                                        x: targetMonster.sprite.x,
-                                        y: targetMonster.sprite.y
-                                    }, {
-                                        x: -dir.x * knockbackMagnitude,
-                                        y: -dir.y * knockbackMagnitude
-                                    });
-                                },
-                                repeat: selectedAttack.knockback // Adjust repeat count to maintain the same knockback distance
-                            });
+                        // Apply the force more gradually
+                        this.scene.time.addEvent({
+                            delay: 20,
+                            callback: () => {
+                                // Apply the force using Phaser's Matter physics method
+                                this.scene.matter.body.applyForce(targetMonster.sprite.body, {
+                                    x: targetMonster.sprite.x,
+                                    y: targetMonster.sprite.y
+                                }, {
+                                    x: -dir.x * knockbackMagnitude,
+                                    y: -dir.y * knockbackMagnitude
+                                });
+                            },
+                            repeat: selectedAttack.knockback,
 
-                        }
+                        });
+                        //if isknocked is true
+
+                        if (targetMonster.isKnocked) {
+
+                        setTimeout(() => {
+                            targetMonster.isKnocked = false;
+                        }, 500);
                     }
-                    
+                    }
+                }
+
 
 
                     if (targetMonster && targetMonster.sprite && targetMonster.sprite.active) {
@@ -400,6 +409,11 @@ export class GameEvents {
     updateMonsterMovement(player, monster, distance, allEntities, delta) {
         //if monster health is not 0
         if (monster.currentHealth > 0) {
+
+            //return if calculaatedistance is greater than 5 and isKnocked is true
+            if (monster.isKnocked) {
+                return;
+            }
             const speedScale = delta / 8; // Adjust the divisor as needed
 
             if (monster.isAggressive && !monster.canReach) {
@@ -446,6 +460,7 @@ export class GameEvents {
             monster.sprite.setVelocity(0, 0);
         }
     }
+
     getDirectionTowardsPoint(point, monster) {
         const dx = point.x - monster.sprite.x;
         const dy = point.y - monster.sprite.y;

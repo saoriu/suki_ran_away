@@ -381,58 +381,7 @@ export class mainScene extends Phaser.Scene {
 
         this.updateTimeCircle();
 
-        this.matter.world.on('collisionactive', (event) => {
-            event.pairs.forEach(pair => {
-                const { bodyA, bodyB } = pair;
-
-                const isMonster = bodyA.label === 'monster' || bodyB.label === 'monster';
-                const isTree = bodyA.parent.label === 'tree' || bodyB.parent.label === 'tree';
-                const isPond = bodyA.parent.label === 'pond' || bodyB.parent.label === 'pond';
-                const isBush = bodyA.parent.label === 'bush' || bodyB.parent.label === 'bush';
-
-                //if monster colliding with tree
-                if (isMonster && isTree) {
-                    let monsterBody = bodyA.label === 'monster' ? bodyA : bodyB;
-                    let treeBody = bodyA.parent.label === 'tree' ? bodyA.parent : bodyB.parent;
-
-                    if (monsterBody && treeBody) {
-                        let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
-
-                        if (targetMonster && targetMonster.tween) {
-                            targetMonster.tween.stop();
-                        }
-                    }
-                }
-
-                //if monster colliding with pond
-                if (isMonster && isPond) {
-                    let monsterBody = bodyA.label === 'monster' ? bodyA : bodyB;
-                    let pondBody = bodyA.parent.label === 'pond' ? bodyA.parent : bodyB.parent;
-
-                    if (monsterBody && pondBody) {
-                        let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
-
-                        if (targetMonster && targetMonster.tween) {
-                            targetMonster.tween.stop();
-                        }
-                    }
-                }
-
-                //if monster colliding with bush
-                if (isMonster && isBush) {
-                    let monsterBody = bodyA.label === 'monster' ? bodyA : bodyB;
-                    let bushBody = bodyA.parent.label === 'bush' ? bodyA.parent : bodyB.parent;
-
-                    if (monsterBody && bushBody) {
-                        let targetMonster = Object.values(this.monsters).find(m => m.sprite && m.sprite.body && m.sprite.body.id === monsterBody.id);
-
-                        if (targetMonster && targetMonster.tween) {
-                            targetMonster.tween.stop();
-                        }
-                    }
-                }
-            });
-        });
+    
 
         this.matter.world.on('collisionactive', (event) => {
             event.pairs.forEach(pair => {
@@ -1758,7 +1707,7 @@ export class mainScene extends Phaser.Scene {
         };
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 60) ||
+        if (isTooCloseToOtherObjects(this.fires, 80) ||
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
@@ -2078,7 +2027,7 @@ export class mainScene extends Phaser.Scene {
     // Check if the new location is too close to existing fires, trees, ponds, bushes, or monsters
     if (isTooCloseToOtherObjects(this.fires, 4) ||
         isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-        isTooCloseToOtherObjects(this.ponds, 7) || // assuming a pond threshold
+        isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
         isTooCloseToOtherObjects(this.bushs, 4) || // assuming a bush threshold
         isTooCloseToOtherObjects(monstersArray, 4) || // Pass the monsters array
         (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
@@ -2283,9 +2232,9 @@ for (let i = -pondSize; i <= pondSize; i++) {
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 6) ||
-            isTooCloseToOtherObjects(this.trees, 7) || // assuming a tree threshold
+            isTooCloseToOtherObjects(this.trees, 9) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 10) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bushs, 8) ||
+            isTooCloseToOtherObjects(this.bushs, 9) ||
             isTooCloseToOtherObjects(monstersArray, 5)|| // Pass the monsters array
             (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
             (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(x, y))) { // Check if there's a tile at the spawn location in the objects layer
@@ -2480,7 +2429,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 3) ||
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 6) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
             isTooCloseToOtherObjects(monstersArray, 3) ||
             isTooCloseToOtherObjects(this.bushs, 3) || // Pass the monsters array
             (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
