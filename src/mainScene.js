@@ -98,7 +98,7 @@ export class mainScene extends Phaser.Scene {
         this.cat = this.matter.add.sprite(0, 0, 'sit', null, {
             isStatic: false,
             friction: 0,
-        }).setScale(1).setCircle((1) * 42).setDepth(5)
+        }).setScale(1).setCircle(50).setDepth(5)
 
         this.checkCollar();
         // Adjust the physics properties of the this.cat
@@ -107,7 +107,8 @@ export class mainScene extends Phaser.Scene {
         catBody.inverseInertia = 0;
         catBody.mass = 1;
 
-        this.cat.body.friction = 0;
+        this.cat.body.friction = 1;
+        this.cat.body.restitution = 1;
         this.cat.body.frictionAir = 0;
 
 
@@ -890,6 +891,7 @@ export class mainScene extends Phaser.Scene {
         }
 
 
+
         // Step 1: Calculate all depths
         this.allEntities.forEach((entity) => {
             if (entity.label === 'log') {
@@ -1441,6 +1443,7 @@ export class mainScene extends Phaser.Scene {
         }
 
 
+
         const treeProbability = 0.99;
         const randomTreeFloat = Phaser.Math.FloatBetween(0, 1);
         if (randomTreeFloat < treeProbability) {
@@ -1707,8 +1710,8 @@ export class mainScene extends Phaser.Scene {
         };
 
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
-        if (isTooCloseToOtherObjects(this.fires, 80) ||
-            isTooCloseToOtherObjects(this.ashes, 80) || // assuming a tree threshold
+        if (isTooCloseToOtherObjects(this.fires, 120) ||
+            isTooCloseToOtherObjects(this.ashes, 120) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.trees, 4) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 10) || // assuming a pond threshold
             isTooCloseToOtherObjects(this.bushs, 3)) { // assuming a bush threshold
@@ -2158,6 +2161,29 @@ export class mainScene extends Phaser.Scene {
         // Set the pipeline to 'Light2D'
         this.mazeLayer.setPipeline('Light2D');
         this.objectsLayer.setPipeline('Light2D');
+
+        //set depths to 1
+        this.mazeLayer.setDepth(1);
+        this.objectsLayer.setDepth(1);
+
+        this.mazeLayer.forEachTile(tile => {
+            if (tile.index !== -1) {
+                // Create a new rectangle body for the tile
+                let body = this.matter.add.rectangle(
+                    tile.pixelX + tile.width / 4, 
+                    tile.pixelY + tile.height / 2, 
+                    tile.width, 
+                    tile.height, 
+                    { isStatic: true, restitution: 1 }
+                );
+
+                // Remove the old body
+                this.matter.world.remove(tile.physics.matterBody.body);
+
+                // Set the new body
+                tile.physics.matterBody.setBody(body);
+            }
+        });
     }
 
     spawnPonds() {
@@ -2235,7 +2261,7 @@ for (let i = -pondSize; i <= pondSize; i++) {
         if (isTooCloseToOtherObjects(this.fires, 9) ||
             isTooCloseToOtherObjects(this.trees, 10) || // assuming a tree threshold
             isTooCloseToOtherObjects(this.ponds, 14) || // assuming a pond threshold
-            isTooCloseToOtherObjects(this.bushs, 9) ||
+            isTooCloseToOtherObjects(this.bushs, 10) ||
             isTooCloseToOtherObjects(monstersArray, 5)|| // Pass the monsters array
             (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
             (this.objectsLayer && this.objectsLayer.hasTileAtWorldXY(x, y))) { // Check if there's a tile at the spawn location in the objects layer
@@ -2430,7 +2456,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
         // Check if the new location is too close to existing fires, trees, ponds, or bushes
         if (isTooCloseToOtherObjects(this.fires, 3) ||
             isTooCloseToOtherObjects(this.trees, 3) || // assuming a tree threshold
-            isTooCloseToOtherObjects(this.ponds, 8) || // assuming a pond threshold
+            isTooCloseToOtherObjects(this.ponds, 9) || // assuming a pond threshold
             isTooCloseToOtherObjects(monstersArray, 3) ||
             isTooCloseToOtherObjects(this.bushs, 3) || // Pass the monsters array
             (this.mazeLayer && this.mazeLayer.hasTileAtWorldXY(x, y)) || // Check if there's a tile at the spawn location in the maze layer
@@ -3239,9 +3265,12 @@ for (let i = -bushSize; i <= bushSize; i++) {
         const startJ = Math.floor((centerY - camera.height / 2) / this.tileWidth);
         const endJ = Math.ceil((centerY + camera.height / 2) / this.tileWidth);
         const buffer = {
-            fire: 3,
-            ashes: 3,
+            fire: 4,
+            ashes: 4,
+            pond: 7,
             items: 0,
+            tree: 7,
+            bush: 3,
             monsters: 2
         };
 
@@ -3303,8 +3332,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                     if (tree && tree.active) {
                         const treeTileI = Math.floor(tree.x / this.tileWidth);
                         const treeTileJ = Math.floor(tree.y / this.tileWidth);
-                        const buffer = 7; 
-                        if (treeTileI < startI - buffer || treeTileI > endI + buffer || treeTileJ < startJ - buffer || treeTileJ > endJ + buffer) { // Check if the tree is out of view
+                        if (treeTileI < startI - buffer.tree || treeTileI > endI + buffer.tree || treeTileJ < startJ - buffer.tree || treeTileJ > endJ + buffer.tree) { // Check if the tree is out of view
                             tree.isDepleted = false;
 
                             if (tree.treechopShadow) {
@@ -3339,8 +3367,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                     if (pond && pond.active) {
                         const pondTileI = Math.floor(pond.x / this.tileWidth);
                         const pondTileJ = Math.floor(pond.y / this.tileWidth);
-                        const buffer = 7; 
-                        if (pondTileI < startI - buffer || pondTileI > endI + buffer || pondTileJ < startJ - buffer || pondTileJ > endJ + buffer) { // Check if the tree is out of view
+                        if (pondTileI < startI - buffer.pond || pondTileI > endI + buffer.pond || pondTileJ < startJ - buffer.pond || pondTileJ > endJ + buffer.pond) { // Check if the tree is out of view
                             this.ponds = this.ponds.filter(p => p !== pond);
 
                             this.matter.world.remove(pond.body);
@@ -3359,8 +3386,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                     if (bush && bush.active) {
                         const bushTileI = Math.floor(bush.x / this.tileWidth);
                         const bushTileJ = Math.floor(bush.y / this.tileWidth);
-                        const buffer = 3; 
-                        if (bushTileI < startI - buffer || bushTileI > endI + buffer || bushTileJ < startJ - buffer || bushTileJ > endJ + buffer) { // Check if the tree is out of view
+                        if (bushTileI < startI - buffer.bush || bushTileI > endI + buffer.bush || bushTileJ < startJ - buffer.bush || bushTileJ > endJ + buffer.bush) { // Check if the tree is out of view
                             this.bushs = this.bushs.filter(b => b !== bush);
                             this.matter.world.remove(bush.body);
 
@@ -3381,8 +3407,7 @@ for (let i = -bushSize; i <= bushSize; i++) {
                     if (fire && fire.active) {
                         const fireTileI = Math.floor(fire.x / this.tileWidth);
                         const fireTileJ = Math.floor(fire.y / this.tileWidth);
-                        const buffer = 4;
-                        if (fireTileI < startI - buffer || fireTileI > endI + buffer || fireTileJ < startJ - buffer || fireTileJ > endJ + buffer) {
+                        if (fireTileI < startI - buffer.fire || fireTileI > endI + buffer.fire || fireTileJ < startJ - buffer.fire || fireTileJ > endJ + buffer.fire) {
                             fire.light.setIntensity(1.6);
                             this.fires = this.fires.filter(f => f !== fire);
                             // Then, proceed with the other cleanup operations
