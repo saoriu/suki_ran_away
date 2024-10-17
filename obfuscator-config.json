@@ -1,9 +1,9 @@
 {
   "compact": true,
-  "controlFlowFlattening": true,
-  "controlFlowFlatteningThreshold": 0.75,
-  "deadCodeInjection": true,
-  "deadCodeInjectionThreshold": 0.4,
+  "controlFlowFlattening": false,
+  "controlFlowFlatteningThreshold": 0,
+  "deadCodeInjection": false,
+  "deadCodeInjectionThreshold": 0,
   "debugProtection": true,
   "debugProtectionInterval": 0,
   "disableConsoleOutput": true,
@@ -14,6 +14,6 @@
   "selfDefending": true,
   "stringArray": true,
   "stringArrayEncoding": ["base64"],
-  "stringArrayThreshold": 0.75,
+  "stringArrayThreshold": 0.1,
   "unicodeEscapeSequence": false
 }
