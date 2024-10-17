@@ -27,7 +27,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "GENERATE_SOURCEMAP=true react-scripts build"
+    "build": "react-scripts build && javascript-obfuscator build --output build --config obfuscator-config.json"
   },
   "eslintConfig": {
     "extends": [
@@ -48,7 +48,7 @@
     ]
   },
   "devDependencies": {
-    "javascript-obfuscator": "^4.1.0",
+    "javascript-obfuscator": "^4.1.1",
     "terser": "^5.25.0"
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
