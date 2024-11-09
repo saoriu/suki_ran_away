@@ -4,7 +4,7 @@ import { PreloadScene } from './PreloadScene'; // Import PreloadScene
 import { mainScene } from './mainScene';
 import { GAME_CONFIG } from './gameConstants.js';
 import { UIScene } from './UIScene';
-
+import { CharacterSelectionScene } from './CharacterSelectionScene';
 
 export function usePhaserGame(gameRef, isAuthenticated) {
     const [dimensions, setDimensions] = useState({
@@ -42,7 +42,7 @@ export function usePhaserGame(gameRef, isAuthenticated) {
                         { key: 'lights', plugin: Phaser.GameObjects.LightsPlugin, mapping: 'lights' }
                     ]
                 },
-                scene: [PreloadScene, mainScene, UIScene], // Start only with AuthScene
+                scene: [PreloadScene, mainScene, UIScene, CharacterSelectionScene], // Start only with AuthScene
             };
 
             // Check if gameRef.current is not null and is an instance of Phaser.Game

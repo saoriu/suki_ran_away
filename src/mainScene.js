@@ -88,7 +88,25 @@ export class mainScene extends Phaser.Scene {
 
     }
 
+    preload() {
+        console.log('mainScene preload');
+        const skins = ['nori', 'cat', 'mochi', 'ume', 'yaku'];
+        skins.forEach(skin => {
+            console.log(`Loading atlas for ${skin}`);
+            this.load.atlas(skin, `/characters/${skin}.png`, `/characters/${skin}.json`);
+        });
+    }
+
     create() {
+        console.log('mainScene create');
+        if (!PlayerState.skin || PlayerState.skin === 'default') {
+            console.log('No skin selected, starting CharacterSelectionScene');
+            this.scene.start('CharacterSelectionScene');
+            return;
+        }
+
+        console.log(`Creating animations for ${PlayerState.skin}`);
+        createAnims(this, PlayerState.skin);
         const camera = this.cameras.main;
         this.lights.enable();
         this.scene.launch('UIScene');
@@ -114,6 +132,7 @@ export class mainScene extends Phaser.Scene {
 
         this.cat.setPipeline('Light2D');
         catBody.label = 'player';
+
         this.postFxPlugin = this.plugins.get('rexoutlinepipelineplugin');
 
 
@@ -362,9 +381,6 @@ export class mainScene extends Phaser.Scene {
             }
         }
         treeShadowTexture3.refresh();
-
-        createAnims(this);
-
 
         this.input.on('pointermove', () => {
             this.game.events.emit('hideTooltip');

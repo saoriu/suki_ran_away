@@ -22,6 +22,10 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image('RA_Ruins', '/tiles/RA_Ruins.png');
         this.load.image('title', '/ui/title.png');
         this.load.atlas('cat', '/characters/cat.png', '/characters/cat.json');
+        this.load.atlas('nori', '/characters/nori.png', '/characters/nori.json');
+        this.load.atlas('mochi', '/characters/mochi.png', '/characters/mochi.json');
+        this.load.atlas('ume', '/characters/ume.png', '/characters/ume.json');
+        this.load.atlas('yaku', '/characters/yaku.png', '/characters/yaku.json');
         this.load.atlas('monsters', '/characters/monsters.png', '/characters/monsters.json');
         this.load.atlas('treemonsters', '/characters/treemonsters.png', '/characters/treemonsters.json');
         this.load.atlas('tree', '/objects/tree.png', '/objects/tree.json');

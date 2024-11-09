@@ -204,7 +204,7 @@ export default function PhaserRunner() {
           <div className='footer'>
             <div className='footer-container'>
               <div className='footer-item'>
-                <a href='https://www.sukiranway.com/'>© 2023 Suki Ran Away All rights reserved. Created by Saori Uchida.</a>
+                <a href='https://www.sukiranway.com/'>© Suki Ran Away All rights reserved. Created by Saori Uchida.</a>
               </div>
             </div>
           </div>

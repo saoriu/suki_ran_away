@@ -1,9 +1,10 @@
 export const PlayerState = {
     userid: '',
-    skin: 'default',
+    skin: '',
     days: 0,
     energy: 100,
     speed: 3.5,
+    skin: '',
     skills: {
         dancing: { level: 5, xp: 0, totalXP: 0 },
         gathering: { level: 1, xp: 0, totalXP: 0 },

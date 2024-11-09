@@ -1,4 +1,116 @@
-export function createAnims(scene, cat) {
+export function createSkinAnims(scene, skin) {
+    function createAnimation(scene, key, startFrame, endFrame) {
+        const frames = Array(endFrame - startFrame + 1).fill().map((_, i) => ({ key: skin, frame: `${key}-${i + 1}` }));
+        console.log(`Creating animation: ${key}, frames:`, frames);
+        scene.anims.create({
+            key: `${skin}-${key}`, // Use the skin-specific key
+            frames: frames,
+            frameRate: determineFrameRate(key),
+            repeat: -1
+        });
+    }
+
+    createAnimation(scene, 'sit', 196, 203);
+    createAnimation(scene, 'attack5', 54, 67);
+
+    function determineFrameRate(key) {
+        switch (key) {
+            case 'sit':
+                return 7;
+            case 'attack5':
+                return 15;
+            default:
+                return 10; // Default frame rate
+        }
+    }
+}
+
+export function createAnims(scene, skin) {
+    function createAnimation(scene, key, startFrame, endFrame) {
+        const frames = Array(endFrame - startFrame + 1).fill().map((_, i) => ({ key: skin, frame: `${key}-${i + 1}` }));
+        console.log(`Creating animation: ${key}, frames:`, frames);
+        scene.anims.create({
+            key: key,
+            frames: frames,
+            frameRate: determineFrameRate(key),
+            repeat: 0
+        });
+    }
+
+    createAnimation(scene, 'attack1', 0, 3);
+    createAnimation(scene, 'attack1-back', 4, 7);
+    createAnimation(scene, 'attack1-front', 8, 11);
+    createAnimation(scene, 'attack2', 12, 16);
+    createAnimation(scene, 'attack2-back', 17, 21);
+    createAnimation(scene, 'attack2-front', 22, 26);
+    createAnimation(scene, 'attack3', 27, 35);
+    createAnimation(scene, 'attack3-back', 36, 44);
+    createAnimation(scene, 'attack3-front', 45, 53);
+    createAnimation(scene, 'attack5', 54, 67);
+    createAnimation(scene, 'attack5-back', 68, 77);
+    createAnimation(scene, 'attack5-front', 78, 87);
+    createAnimation(scene, 'attack6', 88, 93);
+    createAnimation(scene, 'attack6-back', 94, 100);
+    createAnimation(scene, 'attack6-front', 101, 107);
+    createAnimation(scene, 'ball', 108, 110);
+    createAnimation(scene, 'dead', 111, 121);
+    createAnimation(scene, 'down', 122, 129);
+    createAnimation(scene, 'eat', 130, 143);
+    createAnimation(scene, 'eat-back', 144, 157);
+    createAnimation(scene, 'eat-front', 158, 171);
+    createAnimation(scene, 'run', 172, 179);
+    createAnimation(scene, 'run-diagonal-back', 180, 187);
+    createAnimation(scene, 'run-diagonal-front', 188, 195);
+    createAnimation(scene, 'sit', 196, 203);
+    createAnimation(scene, 'sit-back', 204, 211);
+    createAnimation(scene, 'sit-forward', 212, 219);
+    createAnimation(scene, 'up', 220, 227);
+
+    function determineFrameRate(key) {
+        switch (key) {
+            case 'attack1':
+            case 'attack1-back':
+            case 'attack1-front':
+            case 'attack4':
+            case 'attack4-back':
+            case 'attack4-front':
+                return 8;
+            case 'attack3':
+            case 'attack3-back':
+            case 'attack3-front':
+                return 12;
+            case 'attack2':
+            case 'attack2-back':
+            case 'attack2-front':
+                return 10;
+            case 'attack5':
+            case 'attack5-back':
+            case 'attack5-front':
+                return 25;
+            case 'attack6':
+            case 'attack6-back':
+            case 'attack6-front':
+                return 12;
+            case 'eat':
+            case 'eat-back':
+            case 'eat-front':
+                return 15;
+            case 'dead':
+            case 'run':
+                return 9;
+            case 'run-diagonal-back':
+            case 'run-diagonal-front':
+                return 13;
+            case 'sit-back':
+            case 'sit-forward':
+            case 'sit':
+            case 'up':
+            case 'down':
+                return 7;
+            default:
+                return 10; // Default frame rate
+        }
+    }
 
     function createItemAnimations(scene, itemName) {
         const animations = [
@@ -91,97 +203,6 @@ export function createAnims(scene, cat) {
         //brass and gold too
         createItemAnimations(scene, 'redcollarbellbrass');
         createItemAnimations(scene, 'redcollarbellgold');
-
-
-    function createAnimation(scene, key, startFrame, endFrame) {
-        scene.anims.create({
-            key: key,
-            frames: Array(endFrame - startFrame + 1).fill().map((_, i) => ({ key: 'cat', frame: `${key}-${i + 1}` })),
-            frameRate: determineFrameRate(key),
-            repeat: 0
-        });
-    }
-
-
-    function determineFrameRate(key) {
-        switch (key) {
-            case 'attack1':
-            case 'attack1-back':
-            case 'attack1-front':
-            case 'attack4':
-            case 'attack4-back':
-            case 'attack4-front':
-                return 8;
-            case 'attack3':
-            case 'attack3-back':
-            case 'attack3-front':
-                return 12;
-            case 'attack2':
-            case 'attack2-back':
-            case 'attack2-front':
-                return 10;
-            case 'attack5':
-            case 'attack5-back':
-            case 'attack5-front':
-                return 25;
-            case 'attack6':
-            case 'attack6-back':
-            case 'attack6-front':
-                return 12;
-            case 'eat':
-            case 'eat-back':
-            case 'eat-front':
-                return 15;
-            case 'dead':
-            case 'run':
-                return 9;
-            case 'run-diagonal-back':
-            case 'run-diagonal-front':
-                return 13;
-            case 'sit-back':
-            case 'sit-forward':
-            case 'sit':
-            case 'up':
-            case 'down':
-                return 7;
-            default:
-                return 10; // Default frame rate
-        }
-    }
-
-    createAnimation(scene, 'attack1', 0, 3);
-    createAnimation(scene, 'attack1-back', 4, 7);
-    createAnimation(scene, 'attack1-front', 8, 11);
-    createAnimation(scene, 'attack2', 12, 16);
-    createAnimation(scene, 'attack2-back', 17, 21);
-    createAnimation(scene, 'attack2-front', 22, 26);
-    createAnimation(scene, 'attack3', 27, 35);
-    createAnimation(scene, 'attack3-back', 36, 44);
-    createAnimation(scene, 'attack3-front', 45, 53);
-    createAnimation(scene, 'attack4', 54, 58);
-    createAnimation(scene, 'attack4-back', 59, 63);
-    createAnimation(scene, 'attack4-front', 64, 68);
-    createAnimation(scene, 'attack5', 69, 82);
-    createAnimation(scene, 'attack5-back', 83, 92);
-    createAnimation(scene, 'attack5-front', 93, 102);
-    createAnimation(scene, 'attack6', 103, 108); // Updated
-    createAnimation(scene, 'attack6-back', 109, 115); // Updated
-    createAnimation(scene, 'attack6-front', 116, 122); // Updated
-    createAnimation(scene, 'ball', 123, 125); // Updated
-    createAnimation(scene, 'dead', 126, 136); // Updated
-    createAnimation(scene, 'down', 137, 144); // Updated
-    createAnimation(scene, 'eat', 145, 158); // Updated
-    createAnimation(scene, 'eat-back', 159, 172); // Updated
-    createAnimation(scene, 'eat-front', 173, 186); // Updated
-    createAnimation(scene, 'run', 187, 194); // Updated
-    createAnimation(scene, 'run-diagonal-back', 195, 202); // Updated
-    createAnimation(scene, 'run-diagonal-front', 203, 210); // Updated
-    createAnimation(scene, 'sit', 211, 218); // Updated
-    createAnimation(scene, 'sit-back', 219, 226); // Updated
-    createAnimation(scene, 'sit-forward', 227, 234); // Updated
-    createAnimation(scene, 'up', 235, 242); // Updated
-
-
 
     scene.anims.create({
         key: 'fire',
