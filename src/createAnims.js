@@ -1,7 +1,6 @@
 export function createSkinAnims(scene, skin) {
     function createAnimation(scene, key, startFrame, endFrame) {
         const frames = Array(endFrame - startFrame + 1).fill().map((_, i) => ({ key: skin, frame: `${key}-${i + 1}` }));
-        console.log(`Creating animation: ${key}, frames:`, frames);
         scene.anims.create({
             key: `${skin}-${key}`, // Use the skin-specific key
             frames: frames,
@@ -28,7 +27,6 @@ export function createSkinAnims(scene, skin) {
 export function createAnims(scene, skin) {
     function createAnimation(scene, key, startFrame, endFrame) {
         const frames = Array(endFrame - startFrame + 1).fill().map((_, i) => ({ key: skin, frame: `${key}-${i + 1}` }));
-        console.log(`Creating animation: ${key}, frames:`, frames);
         scene.anims.create({
             key: key,
             frames: frames,

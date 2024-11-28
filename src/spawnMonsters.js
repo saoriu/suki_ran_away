@@ -1,6 +1,15 @@
 import Phaser from 'phaser';
 import { eventOptions } from './eventOptions.js';
+import { GAME_CONFIG } from './gameConstants.js';
 import { PlayerState } from './playerState.js';
+
+export function calculateSpawnProbability() {
+  let probability = GAME_CONFIG.baseProbability;
+  
+  // Ensure probability is within [0, 1]
+  probability = Phaser.Math.Clamp(probability, 0, 1);
+  return probability;
+  }
 
 export function spawnMonsters(centerX, centerY, scene, tileWidth, tilesBuffer, monsters, allEntities) {
   // At the start of the spawnMonsters function

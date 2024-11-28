@@ -10,36 +10,30 @@ export class CharacterSelectionScene extends Phaser.Scene {
     }
 
     preload() {
-        console.log('CharacterSelectionScene preload');
         const skins = ['nori', 'mochi', 'ume', 'yaku', 'cat'];
         skins.forEach(skin => {
-            console.log(`Loading atlas for ${skin}`);
             this.load.atlas(skin, `/characters/${skin}.png`, `/characters/${skin}.json`);
         });
 
         // Load the Ninja font
         const ninjaFontObserver = new FontFaceObserver('Ninja');
         ninjaFontObserver.load().then(() => {
-            console.log('Ninja font loaded');
         }).catch(err => {
             console.error('Ninja font failed to load', err);
         });
     }
 
     create() {
-        console.log('CharacterSelectionScene create');
         const skins = ['nori', 'mochi', 'ume', 'yaku', 'cat'];
         this.sprites = [];
 
         if (!PlayerState.skin || PlayerState.skin === 'default') {
-            console.log('No skin selected, showing character selection');
             this.add.text(this.cameras.main.centerX, 50, 'Select   your   character', { fontSize: '32px', fill: '#fff', fontFamily: 'Ninja' }).setOrigin(0.5);
 
             const spacing = 150;
             const startX = this.cameras.main.centerX - (skins.length - 1) * spacing / 2;
 
             skins.forEach((skin, index) => {
-                console.log(`Displaying sprite for ${skin}`);
                 const x = startX + index * spacing;
                 const y = 200;
 
@@ -72,7 +66,6 @@ export class CharacterSelectionScene extends Phaser.Scene {
             // Update the selected skin
             this.updateSelection();
         } else {
-            console.log('Skin already selected, starting mainScene');
             this.scene.start('mainScene');
         }
     }
@@ -103,7 +96,6 @@ export class CharacterSelectionScene extends Phaser.Scene {
         );
     }
     selectSkin(skin) {
-        console.log(`Skin selected: ${skin}`);
         PlayerState.skin = skin;
         this.scene.start('mainScene');
     }
